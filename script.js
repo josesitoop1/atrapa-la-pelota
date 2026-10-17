@@ -1,3 +1,9 @@
+// ==========================================
+// PROYECTO FINAL: JUEGO WEB "ATRAPA LA PELOTA"
+// Alumno: 5to Semestre de Prepa
+// Nota: ¡Profe, sí le puse empeño y quedó chido en compu y celu!
+// ==========================================
+
 let score = 0;
 let highScore = localStorage.getItem('ballGameHighScore') || 0;
 let defaultTime = 30;
@@ -7,19 +13,22 @@ let autoMoveTimeout;
 let isPlaying = true;
 let isPaused = false;
 
+// Variables para controlar la dificultad y la bolita
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
 let currentSpeed = 1200;
 let currentColor = '#ff0055';
-let customBonusSize = 0;
+let customBonusSize = 0; // Por si cae el power up de tamaño
 
 let currentDifficulty = 'medium';
 
+// Variables para el mouse virtual en la compu y soporte táctil
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
 let isTouchDevice = false;
 
+// Elementos que jalamos del HTML con DOM
 const ball = document.getElementById('ball');
 const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
@@ -33,24 +42,329 @@ const finalScoreDisplay = document.getElementById('final-score');
 const finalHighScoreDisplay = document.getElementById('final-high-score');
 const sensValueDisplay = document.getElementById('sens-value');
 
+// Lista de colores que va tomando la bola conforme subes puntos
 const colors = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
-
 highScoreDisplay.textContent = highScore;
 
 let activeTraps = [];
 let activePowerUps = [];
 
-// DETECCIÓN INTELIGENTE DE DISPOSITIVOS TÁCTILES
+
+// ==========================================
+// DETECTAR SI ES CELULAR O LAPTOP
+// ==========================================
 window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch') {
     isTouchDevice = true;
     customCursor.style.display = 'none';
     const sensGroup = document.getElementById('sensitivity-group');
-    if (sensGroup) sensGroup.style.display = 'none';
+    if (sensGroup) sensGroup.style.display = 'none'; // En celu no necesitamos sensibilidad de mouse
   }
 }, { once: true });
 
-// AUDIO (Web Audio API)
+
+// ==========================================
+// CONTROLES Y EVENTOS (MOUSE Y TOUCH)
+// ==========================================
+
+// Pausar con la tecla ESC en la compu
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' || e.key === 'Esc') {
+    togglePause();
+  }
+});
+
+// Pointer lock para la compu
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement !== container && isPlaying && !isPaused && !isTouchDevice) {
+    togglePause();
+  }
+});
+
+container.addEventListener('click', () => {
+  if (isPlaying && !isPaused && !isTouchDevice && document.pointerLockElement !== container) {
+    container.requestPointerLock();
+  }
+});
+
+// Mover el cursorcito dentro del juego con el mouse de la lap
+document.addEventListener('mousemove', (e) => {
+  if (isPaused || !isPlaying || isTouchDevice) return;
+
+  if (document.pointerLockElement === container) {
+    customCursor.style.display = 'block';
+    virtualX += e.movementX * sensitivity;
+    virtualY += e.movementY * sensitivity;
+
+    virtualX = Math.max(8, Math.min(container.clientWidth - 8, virtualX));
+    virtualY = Math.max(8, Math.min(container.clientHeight - 8, virtualY));
+
+    customCursor.style.left = `${virtualX}px`;
+    customCursor.style.top = `${virtualY}px`;
+  }
+});
+
+// Clics en la compu usando el cursor virtual
+document.addEventListener('mousedown', () => {
+  if (!isPlaying || isPaused || isTouchDevice || document.pointerLockElement !== container) return;
+
+  const containerRect = container.getBoundingClientRect();
+
+  // Revisar si le atinó a la bola principal
+  const ballRect = ball.getBoundingClientRect();
+  const ballLeft = ballRect.left - containerRect.left;
+  const ballTop = ballRect.top - containerRect.top;
+  const ballSize = ball.clientWidth;
+
+  if (virtualX >= ballLeft && virtualX <= ballLeft + ballSize && virtualY >= ballTop && virtualY <= ballTop + ballSize) {
+    catchBall();
+    return;
+  }
+
+  // Revisar si le atinó a la bola dorada sorpresa (Power-Up)
+  activePowerUps.forEach((pow) => {
+    const powRect = pow.getBoundingClientRect();
+    const powLeft = powRect.left - containerRect.left;
+    const powTop = powRect.top - containerRect.top;
+    const powSize = pow.clientWidth;
+
+    if (virtualX >= powLeft && virtualX <= powLeft + powSize && virtualY >= powTop && virtualY <= powTop + powSize) {
+      catchPowerUp(pow);
+      return;
+    }
+  });
+
+  // Revisar si le atinó a una trampa/bomba por error
+  activeTraps.forEach((trap) => {
+    const trapRect = trap.getBoundingClientRect();
+    const trapLeft = trapRect.left - containerRect.left;
+    const trapTop = trapRect.top - containerRect.top;
+    const trapSize = trap.clientWidth;
+
+    if (virtualX >= trapLeft && virtualX <= trapLeft + trapSize && virtualY >= trapTop && virtualY <= trapTop + trapSize) {
+      hitTrap(trap);
+    }
+  });
+});
+
+// Tocar directamente con el dedo en el celular
+ball.addEventListener('pointerdown', (e) => {
+  if (!isPlaying || isPaused) return;
+  e.preventDefault();
+  catchBall();
+});
+
+
+// ==========================================
+// FUNCIONES PRINCIPALES DEL JUEGO
+// ==========================================
+
+function catchBall() {
+  playSound('catch');
+  score++;
+  scoreDisplay.textContent = score;
+  updateDifficulty();
+  moveBall();
+}
+
+// Lo que pasa cuando atrapas la bola dorada sorpresa (20% de probabilidad)
+function catchPowerUp(pow) {
+  playSound('powerup');
+  const suerte = Math.random() * 100;
+
+  if (suerte < 3) {
+    // Súper premio del 3%: +10 puntos directos sin que suba la dificultad
+    score += 10;
+    scoreDisplay.textContent = score;
+  } else if (suerte < 35) {
+    // Premio de color seguro
+    let coloresLibres = colors.filter(c => c !== currentColor);
+    currentColor = coloresLibres[Math.floor(Math.random() * coloresLibres.length)];
+    ball.style.backgroundColor = currentColor;
+    ball.style.boxShadow = `0 0 15px ${currentColor}`;
+    score += 3;
+    scoreDisplay.textContent = score;
+  } else if (suerte < 70) {
+    // Bola más grande temporalmente para facilitar el juego
+    customBonusSize = 16;
+    updateDifficulty();
+    score += 3;
+    scoreDisplay.textContent = score;
+  } else {
+    // Puntos extra + tiempo extra
+    score += 3;
+    timeLeft = Math.min(100, timeLeft + 5);
+    timerDisplay.textContent = timeLeft;
+    scoreDisplay.textContent = score;
+  }
+
+  pow.remove();
+  activePowerUps = activePowerUps.filter(p => p !== pow);
+}
+
+// Si tocas una trampa te quita 3 puntos
+function hitTrap(trap) {
+  playSound('bomb');
+  score = Math.max(0, score - 3);
+  scoreDisplay.textContent = score;
+  trap.remove();
+  activeTraps = activeTraps.filter(t => t !== trap);
+  updateDifficulty();
+}
+
+
+// ==========================================
+// MOVER LA BOLA Y GENERAR TRAMPAS / SORPRESAS
+// ==========================================
+
+function moveBall() {
+  if (!isPlaying || isPaused) return;
+  clearTimeout(autoMoveTimeout);
+  clearEntities();
+
+  const maxX = container.clientWidth - ball.clientWidth;
+  const maxY = container.clientHeight - ball.clientHeight - 80;
+
+  const randomX = Math.floor(Math.random() * maxX);
+  const randomY = Math.floor(Math.random() * (maxY - 40)) + 60;
+
+  ball.style.left = `${randomX}px`;
+  ball.style.top = `${randomY}px`;
+
+  // Calcular trampas según el nivel elegido en el menú
+  let numTrampas = 0;
+  if (currentDifficulty === 'medium' && score >= 5) {
+    numTrampas = 1 + Math.floor((score - 5) / 3);
+  } else if (currentDifficulty === 'hard' && score >= 5) {
+    numTrampas = 2 + (Math.floor((score - 5) / 2) * 2);
+  }
+
+  let posicionesUsadas = [{ x: randomX, y: randomY }];
+
+  // Poner trampas en el mapa sin que se monten encima de la bola
+  for (let i = 0; i < numTrampas; i++) {
+    const trap = document.createElement('div');
+    trap.className = 'trap-ball';
+    
+    trap.style.width = ball.style.width;
+    trap.style.height = ball.style.height;
+    trap.style.backgroundColor = currentColor;
+    trap.style.boxShadow = `0 0 15px ${currentColor}`;
+    trap.style.position = 'absolute';
+    trap.style.borderRadius = '50%';
+    trap.style.zIndex = '5';
+
+    let trapX, trapY, muyCerca, intentos = 0;
+    do {
+      muyCerca = false;
+      trapX = Math.floor(Math.random() * maxX);
+      trapY = Math.floor(Math.random() * (maxY - 40)) + 60;
+
+      for (let pos of posicionesUsadas) {
+        if (Math.abs(trapX - pos.x) < 70 && Math.abs(trapY - pos.y) < 70) {
+          muyCerca = true;
+          break;
+        }
+      }
+      intentos++;
+    } while (muyCerca && intentos < 50);
+
+    posicionesUsadas.push({ x: trapX, y: trapY });
+    trap.style.left = `${trapX}px`;
+    trap.style.top = `${trapY}px`;
+
+    trap.addEventListener('pointerdown', (e) => {
+      if (!isPlaying || isPaused) return;
+      e.preventDefault();
+      hitTrap(trap);
+    });
+
+    container.appendChild(trap);
+    activeTraps.push(trap);
+  }
+
+  // Generar la bola dorada sorpresa (20% de probabilidad)
+  if (Math.random() < 0.20) {
+    const pow = document.createElement('div');
+    pow.className = 'powerup-ball';
+    
+    pow.style.width = `${Math.max(18, ball.clientWidth - 4)}px`;
+    pow.style.height = `${Math.max(18, ball.clientHeight - 4)}px`;
+    pow.style.position = 'absolute';
+    pow.style.borderRadius = '50%';
+    pow.style.zIndex = '6';
+
+    let powX, powY, muyCerca, intentos = 0;
+    do {
+      muyCerca = false;
+      powX = Math.floor(Math.random() * maxX);
+      powY = Math.floor(Math.random() * (maxY - 40)) + 60;
+
+      for (let pos of posicionesUsadas) {
+        if (Math.abs(powX - pos.x) < 70 && Math.abs(powY - pos.y) < 70) {
+          muyCerca = true;
+          break;
+        }
+      }
+      intentos++;
+    } while (muyCerca && intentos < 50);
+
+    pow.style.left = `${powX}px`;
+    pow.style.top = `${powY}px`;
+
+    pow.addEventListener('pointerdown', (e) => {
+      if (!isPlaying || isPaused) return;
+      e.preventDefault();
+      catchPowerUp(pow);
+    });
+
+    container.appendChild(pow);
+    activePowerUps.push(pow);
+  }
+
+  // Tiempo antes de que la pelota se mueva sola a otro lado
+  autoMoveTimeout = setTimeout(() => {
+    moveBall();
+  }, currentSpeed);
+}
+
+// Subir dificultad (hacer la bola más chiquita y rápida)
+function updateDifficulty() {
+  const baseSize = Math.max(MIN_SIZE, INITIAL_SIZE - score);
+  const finalSize = baseSize + customBonusSize;
+  ball.style.width = `${finalSize}px`;
+  ball.style.height = `${finalSize}px`;
+
+  if (currentDifficulty === 'easy') {
+    currentSpeed = 1600;
+  } else if (currentDifficulty === 'medium') {
+    currentSpeed = Math.max(500, 1200 - (score * 20));
+  } else if (currentDifficulty === 'hard') {
+    currentSpeed = Math.max(250, 800 - (score * 30));
+  }
+
+  if (customBonusSize === 0) {
+    const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
+    currentColor = colors[colorIndex];
+  }
+  
+  ball.style.backgroundColor = currentColor;
+  ball.style.boxShadow = `0 0 15px ${currentColor}`;
+}
+
+// Limpiar elementos sobrantes de la pantalla
+function clearEntities() {
+  activeTraps.forEach(trap => trap.remove());
+  activeTraps = [];
+  activePowerUps.forEach(pow => pow.remove());
+  activePowerUps = [];
+}
+
+
+// ==========================================
+// AUDIO, CRONÓMETRO Y ESTADOS (PAUSA / GAMEOVER)
+// ==========================================
+
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let masterGain = audioCtx.createGain();
 masterGain.gain.value = 0.3;
@@ -73,14 +387,11 @@ function changeDifficulty(level) {
 }
 
 function adjustTime(seconds) {
-  let newTime = defaultTime + seconds;
-  if (newTime > 100) {
-    newTime = 100;
-  } else if (newTime < 10) {
-    newTime = 10;
-  }
+  let nuevoTiempo = defaultTime + seconds;
+  if (nuevoTiempo > 100) nuevoTiempo = 100;
+  if (nuevoTiempo < 10) nuevoTiempo = 10;
 
-  defaultTime = newTime;
+  defaultTime = nuevoTiempo;
   timeLeft = defaultTime;
   timerDisplay.textContent = timeLeft;
   menuTimeDisplay.textContent = `${timeLeft}s`;
@@ -94,163 +405,9 @@ function resetHighScore() {
   finalHighScoreDisplay.textContent = '0';
 }
 
-// PAUSA CON TECLA ESC
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' || e.key === 'Esc') {
-    togglePause();
-  }
-});
-
-document.addEventListener('pointerlockchange', () => {
-  if (document.pointerLockElement !== container && isPlaying && !isPaused && !isTouchDevice) {
-    togglePause();
-  }
-});
-
-container.addEventListener('click', (e) => {
-  if (isPlaying && !isPaused && !isTouchDevice && document.pointerLockElement !== container) {
-    container.requestPointerLock();
-  }
-});
-
-document.addEventListener('mousemove', (e) => {
-  if (isPaused || !isPlaying || isTouchDevice) return;
-
-  if (document.pointerLockElement === container) {
-    customCursor.style.display = 'block';
-    virtualX += e.movementX * sensitivity;
-    virtualY += e.movementY * sensitivity;
-
-    virtualX = Math.max(8, Math.min(container.clientWidth - 8, virtualX));
-    virtualY = Math.max(8, Math.min(container.clientHeight - 8, virtualY));
-
-    customCursor.style.left = `${virtualX}px`;
-    customCursor.style.top = `${virtualY}px`;
-  }
-});
-
-// DETECCIÓN DE CLIC VIRTUAL PARA PC
-document.addEventListener('mousedown', (e) => {
-  if (!isPlaying || isPaused || isTouchDevice || document.pointerLockElement !== container) return;
-
-  const containerRect = container.getBoundingClientRect();
-
-  // Comprobar pelota principal
-  const ballRect = ball.getBoundingClientRect();
-  const ballLeft = ballRect.left - containerRect.left;
-  const ballTop = ballRect.top - containerRect.top;
-  const ballSize = ball.clientWidth;
-
-  if (
-    virtualX >= ballLeft &&
-    virtualX <= ballLeft + ballSize &&
-    virtualY >= ballTop &&
-    virtualY <= ballTop + ballSize
-  ) {
-    catchBall();
-    return;
-  }
-
-  // Comprobar Power-Up
-  activePowerUps.forEach((pow) => {
-    const powRect = pow.getBoundingClientRect();
-    const powLeft = powRect.left - containerRect.left;
-    const powTop = powRect.top - containerRect.top;
-    const powSize = pow.clientWidth;
-
-    if (
-      virtualX >= powLeft &&
-      virtualX <= powLeft + powSize &&
-      virtualY >= powTop &&
-      virtualY <= powTop + powSize
-    ) {
-      catchPowerUp(pow);
-      return;
-    }
-  });
-
-  // Comprobar Trampas
-  activeTraps.forEach((trap) => {
-    const trapRect = trap.getBoundingClientRect();
-    const trapLeft = trapRect.left - containerRect.left;
-    const trapTop = trapRect.top - containerRect.top;
-    const trapSize = trap.clientWidth;
-
-    if (
-      virtualX >= trapLeft &&
-      virtualX <= trapLeft + trapSize &&
-      virtualY >= trapTop &&
-      virtualY <= trapTop + trapSize
-    ) {
-      hitTrap(trap);
-    }
-  });
-});
-
-// INTERACCIÓN TÁCTIL DIRECTA
-ball.addEventListener('pointerdown', (e) => {
-  if (!isPlaying || isPaused) return;
-  e.preventDefault();
-  catchBall();
-});
-
-function catchBall() {
-  playSound('catch');
-  score++;
-  scoreDisplay.textContent = score;
-  updateDifficulty();
-  moveBall();
-}
-
-// LÓGICA DE LAS OPCIONES ALEATORIAS DE LA PELOTA DORADA
-function catchPowerUp(pow) {
-  playSound('powerup');
-  
-  const rand = Math.random() * 100;
-
-  if (rand < 3) {
-    // Opción 2: +10 puntos sin aumentar dificultad (3%)
-    score += 10;
-    scoreDisplay.textContent = score;
-  } else if (rand < 35) {
-    // Opción 3: Color aleatorio diferente al de las trampas
-    let availableColors = colors.filter(c => c !== currentColor);
-    currentColor = availableColors[Math.floor(Math.random() * availableColors.length)];
-    ball.style.backgroundColor = currentColor;
-    ball.style.boxShadow = `0 0 15px ${currentColor}`;
-    score += 3;
-    scoreDisplay.textContent = score;
-  } else if (rand < 70) {
-    // Opción 4: Bola correcta más grande temporalmente
-    customBonusSize = 16;
-    updateDifficulty();
-    score += 3;
-    scoreDisplay.textContent = score;
-  } else {
-    // Opción 1: +3 puntos y +5 segundos extra
-    score += 3;
-    timeLeft = Math.min(100, timeLeft + 5);
-    timerDisplay.textContent = timeLeft;
-    scoreDisplay.textContent = score;
-  }
-
-  pow.remove();
-  activePowerUps = activePowerUps.filter(p => p !== pow);
-}
-
-function hitTrap(trap) {
-  playSound('bomb');
-  score = Math.max(0, score - 3);
-  scoreDisplay.textContent = score;
-  trap.remove();
-  activeTraps = activeTraps.filter(t => t !== trap);
-  updateDifficulty();
-}
-
+// Generador de sonidos chulos con Web Audio API (sin archivos externos)
 function playSound(type) {
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -294,7 +451,6 @@ function playSound(type) {
 
 function togglePause() {
   if (!isPlaying) return;
-
   isPaused = !isPaused;
 
   if (isPaused) {
@@ -309,157 +465,6 @@ function togglePause() {
     startTimer();
     moveBall();
   }
-}
-
-function clearEntities() {
-  activeTraps.forEach(trap => trap.remove());
-  activeTraps = [];
-  activePowerUps.forEach(pow => pow.remove());
-  activePowerUps = [];
-}
-
-function moveBall() {
-  if (!isPlaying || isPaused) return;
-  clearTimeout(autoMoveTimeout);
-  clearEntities();
-
-  const maxX = container.clientWidth - ball.clientWidth;
-  const maxY = container.clientHeight - ball.clientHeight - 80;
-
-  const randomX = Math.floor(Math.random() * maxX);
-  const randomY = Math.floor(Math.random() * (maxY - 40)) + 60;
-
-  ball.style.left = `${randomX}px`;
-  ball.style.top = `${randomY}px`;
-
-  let numberOfTraps = 0;
-
-  if (currentDifficulty === 'easy') {
-    numberOfTraps = 0;
-  } else if (currentDifficulty === 'medium') {
-    if (score >= 5) {
-      numberOfTraps = 1 + Math.floor((score - 5) / 3);
-    }
-  } else if (currentDifficulty === 'hard') {
-    if (score >= 5) {
-      numberOfTraps = 2 + (Math.floor((score - 5) / 2) * 2);
-    }
-  }
-
-  let usedPositions = [{ x: randomX, y: randomY }];
-
-  // Generar trampas
-  for (let i = 0; i < numberOfTraps; i++) {
-    const trap = document.createElement('div');
-    trap.className = 'trap-ball';
-    
-    trap.style.width = ball.style.width;
-    trap.style.height = ball.style.height;
-    trap.style.backgroundColor = currentColor;
-    trap.style.boxShadow = `0 0 15px ${currentColor}`;
-    trap.style.position = 'absolute';
-    trap.style.borderRadius = '50%';
-    trap.style.zIndex = '5';
-
-    let trapX, trapY, overlap;
-    let attempts = 0;
-    
-    do {
-      overlap = false;
-      trapX = Math.floor(Math.random() * maxX);
-      trapY = Math.floor(Math.random() * (maxY - 40)) + 60;
-
-      for (let pos of usedPositions) {
-        if (Math.abs(trapX - pos.x) < 70 && Math.abs(trapY - pos.y) < 70) {
-          overlap = true;
-          break;
-        }
-      }
-      attempts++;
-    } while (overlap && attempts < 50);
-
-    usedPositions.push({ x: trapX, y: trapY });
-
-    trap.style.left = `${trapX}px`;
-    trap.style.top = `${trapY}px`;
-
-    trap.addEventListener('pointerdown', (e) => {
-      if (!isPlaying || isPaused) return;
-      e.preventDefault();
-      hitTrap(trap);
-    });
-
-    container.appendChild(trap);
-    activeTraps.push(trap);
-  }
-
-  // Generar Pelota Dorada (20% de probabilidad)
-  if (Math.random() < 0.20) {
-    const pow = document.createElement('div');
-    pow.className = 'powerup-ball';
-    
-    pow.style.width = `${Math.max(18, ball.clientWidth - 4)}px`;
-    pow.style.height = `${Math.max(18, ball.clientHeight - 4)}px`;
-    pow.style.position = 'absolute';
-    pow.style.borderRadius = '50%';
-    pow.style.zIndex = '6';
-
-    let powX, powY, overlap;
-    let attempts = 0;
-
-    do {
-      overlap = false;
-      powX = Math.floor(Math.random() * maxX);
-      powY = Math.floor(Math.random() * (maxY - 40)) + 60;
-
-      for (let pos of usedPositions) {
-        if (Math.abs(powX - pos.x) < 70 && Math.abs(powY - pos.y) < 70) {
-          overlap = true;
-          break;
-        }
-      }
-      attempts++;
-    } while (overlap && attempts < 50);
-
-    pow.style.left = `${powX}px`;
-    pow.style.top = `${powY}px`;
-
-    pow.addEventListener('pointerdown', (e) => {
-      if (!isPlaying || isPaused) return;
-      e.preventDefault();
-      catchPowerUp(pow);
-    });
-
-    container.appendChild(pow);
-    activePowerUps.push(pow);
-  }
-
-  autoMoveTimeout = setTimeout(() => {
-    moveBall();
-  }, currentSpeed);
-}
-
-function updateDifficulty() {
-  const baseSize = Math.max(MIN_SIZE, INITIAL_SIZE - score);
-  const finalSize = baseSize + customBonusSize;
-  ball.style.width = `${finalSize}px`;
-  ball.style.height = `${finalSize}px`;
-
-  if (currentDifficulty === 'easy') {
-    currentSpeed = 1600;
-  } else if (currentDifficulty === 'medium') {
-    currentSpeed = Math.max(500, 1200 - (score * 20));
-  } else if (currentDifficulty === 'hard') {
-    currentSpeed = Math.max(250, 800 - (score * 30));
-  }
-
-  if (customBonusSize === 0) {
-    const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
-    currentColor = colors[colorIndex];
-  }
-  
-  ball.style.backgroundColor = currentColor;
-  ball.style.boxShadow = `0 0 15px ${currentColor}`;
 }
 
 function startTimer() {
@@ -528,5 +533,6 @@ function restartGame() {
   startTimer();
 }
 
+// Arrancar el juego al cargar la página
 moveBall();
 startTimer();
