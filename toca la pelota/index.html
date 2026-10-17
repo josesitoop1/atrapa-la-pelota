@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Atrapa la Pelota!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- Cursor virtual personalizado -->
+    <div id="custom-cursor"></div>
+
+    <!-- Cabecera -->
+    <div id="top-bar">
+      <h1>¡Atrapa la Pelota!</h1>
+      <button id="pause-btn" onclick="togglePause()">⏸️</button>
+    </div>
+    
+    <div id="info-bar">
+      <p>Puntos: <span id="score">0</span></p>
+      <p>Récord: <span id="high-score">0</span></p>
+      <div class="time-container">
+        <p>Tiempo: <span id="timer">30</span>s</p>
+        <button id="sub-time-btn" onclick="adjustTime(-10)" title="Quitar 10 segundos">-10s</button>
+        <button id="add-time-btn" onclick="adjustTime(10)" title="Agregar 10 segundos">+10s</button>
+      </div>
+    </div>
+
+    <!-- Elementos del juego -->
+    <div id="ball"></div>
+
+    <!-- Menú de Pausa -->
+    <div id="pause-menu" class="hidden">
+      <h2>Juego en Pausa</h2>
+      
+      <!-- Botones de Selección de Dificultad -->
+      <div class="difficulty-group">
+        <label>Dificultad:</label>
+        <div class="difficulty-buttons">
+          <button id="btn-easy" class="diff-btn" onclick="changeDifficulty('easy')">Fácil</button>
+          <button id="btn-medium" class="diff-btn active" onclick="changeDifficulty('medium')">Medio</button>
+          <button id="btn-hard" class="diff-btn" onclick="changeDifficulty('hard')">Difícil</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="volume-slider">Volumen:</label>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.3" oninput="changeVolume(this.value)">
+      </div>
+
+      <div class="control-group">
+        <label for="sensitivity-slider">Sensibilidad Cursor: <span id="sens-value">1.0x</span></label>
+        <input type="range" id="sensitivity-slider" min="0.3" max="2.0" step="0.1" value="1.0" oninput="changeSensitivity(this.value)">
+      </div>
+
+      <div class="menu-buttons">
+        <button id="reset-highscore-btn" onclick="resetHighScore()">Resetear Récord</button>
+        <button id="resume-btn" onclick="togglePause()">Reanudar</button>
+      </div>
+    </div>
+
+    <!-- Pantalla de Game Over -->
+    <div id="game-over" class="hidden">
+      <h2>¡Tiempo Terminado!</h2>
+      <p>Tu puntuación final: <span id="final-score">0</span></p>
+      <p>Puntuación más alta: <span id="final-high-score">0</span></p>
+      <button id="restart-btn" onclick="restartGame()">Jugar de nuevo</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
