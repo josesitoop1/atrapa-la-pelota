@@ -1,4 +1,4 @@
-/* Estilos generales hechos para que se vea estético y moderno */
+/* Estilos estéticos y modernos del proyecto */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -20,7 +20,6 @@ body {
   overflow: hidden;
 }
 
-/* La cajita donde ocurre todo el juego */
 #game-container {
   text-align: center;
   width: 95vw;
@@ -35,7 +34,6 @@ body {
   touch-action: none;
 }
 
-/* Cursor chido para cuando juegan en la lap de la escuela */
 #custom-cursor {
   width: 14px;
   height: 14px;
@@ -88,7 +86,7 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Pelota principal */
+/* La pelota principal del juego */
 #ball {
   width: 50px;
   height: 50px;
@@ -100,9 +98,20 @@ h1 {
   z-index: 5;
   cursor: pointer;
   touch-action: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Trampas y power-ups */
+/* Puntito central para diferenciar la pelota principal cuando se hace grande */
+.main-ball-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
 .trap-ball, .powerup-ball {
   cursor: pointer;
   touch-action: none;
@@ -123,7 +132,6 @@ h1 {
   display: none !important;
 }
 
-/* Menús flotantes semi-transparentes */
 #pause-menu, #game-over {
   position: absolute;
   top: 0;
