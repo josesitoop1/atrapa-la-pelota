@@ -1,5 +1,6 @@
 let score = 0;
 let highScore = localStorage.getItem('ballGameHighScore') || 0;
+let defaultTime = 30;
 let timeLeft = 30;
 let timerInterval;
 let autoMoveTimeout;
@@ -23,6 +24,7 @@ const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('high-score');
 const timerDisplay = document.getElementById('timer');
+const menuTimeDisplay = document.getElementById('menu-time-display');
 const container = document.getElementById('game-container');
 const gameOverScreen = document.getElementById('game-over');
 const pauseMenu = document.getElementById('pause-menu');
@@ -69,20 +71,18 @@ function changeDifficulty(level) {
 }
 
 function adjustTime(seconds) {
-  if (!isPlaying || isPaused) return;
-
-  let newTime = timeLeft + seconds;
+  let newTime = defaultTime + seconds;
   if (newTime > 100) {
     newTime = 100;
-  } else if (newTime < 30) {
-    newTime = 30;
+  } else if (newTime < 10) {
+    newTime = 10;
   }
 
-  if (newTime !== timeLeft) {
-    timeLeft = newTime;
-    timerDisplay.textContent = timeLeft;
-    playSound('catch');
-  }
+  defaultTime = newTime;
+  timeLeft = defaultTime;
+  timerDisplay.textContent = timeLeft;
+  menuTimeDisplay.textContent = `${timeLeft}s`;
+  playSound('catch');
 }
 
 function resetHighScore() {
@@ -165,7 +165,7 @@ document.addEventListener('mousedown', (e) => {
   });
 });
 
-// INTERACCIÓN TÁCTIL DIRECTA (MÓVIL Y TOUCH)
+// INTERACCIÓN TÁCTIL DIRECTA
 ball.addEventListener('pointerdown', (e) => {
   if (!isPlaying || isPaused) return;
   e.preventDefault();
@@ -389,7 +389,7 @@ function restartGame() {
   clearTimeout(autoMoveTimeout);
 
   score = 0;
-  timeLeft = 30;
+  timeLeft = defaultTime;
   isPlaying = true;
   isPaused = false;
   
