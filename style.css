@@ -98,9 +98,20 @@ h1 {
   touch-action: none;
 }
 
-.trap-ball {
+.trap-ball, .powerup-ball {
   cursor: pointer;
   touch-action: none;
+}
+
+.powerup-ball {
+  background-color: #fbbf24 !important;
+  box-shadow: 0 0 20px #fbbf24 !important;
+  animation: pulse 0.6s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.12); }
 }
 
 .hidden {
