@@ -11,13 +11,12 @@ const MIN_SIZE = 20;
 let currentSpeed = 1200;
 let currentColor = '#ff0055';
 
-// Variable de dificultad actual ('easy', 'medium', 'hard')
 let currentDifficulty = 'medium';
 
-// Sensibilidad (Límite máximo 2.0x)
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
+let isTouchDevice = false;
 
 const ball = document.getElementById('ball');
 const customCursor = document.getElementById('custom-cursor');
@@ -37,7 +36,17 @@ highScoreDisplay.textContent = highScore;
 
 let activeTraps = [];
 
-// SINTETIZADOR DE SONIDO (Web Audio API)
+// DETECCIÓN INTELIGENTE DE DISPOSITIVOS TÁCTILES
+window.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'touch') {
+    isTouchDevice = true;
+    customCursor.style.display = 'none';
+    const sensGroup = document.getElementById('sensitivity-group');
+    if (sensGroup) sensGroup.style.display = 'none';
+  }
+}, { once: true });
+
+// AUDIO (Web Audio API)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let masterGain = audioCtx.createGain();
 masterGain.gain.value = 0.3;
@@ -52,13 +61,10 @@ function changeSensitivity(val) {
   sensValueDisplay.textContent = `${sensitivity.toFixed(1)}x`;
 }
 
-// Cambiar dificultad por botón y actualizar clase 'active'
 function changeDifficulty(level) {
   currentDifficulty = level;
-
   document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
   document.getElementById(`btn-${level}`).classList.add('active');
-
   restartGame();
 }
 
@@ -86,30 +92,30 @@ function resetHighScore() {
   finalHighScoreDisplay.textContent = '0';
 }
 
-// EVENTO PARA ABRIR / CERRAR PAUSA CON LA TECLA ESCAPE
+// PAUSA CON TECLA ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
     togglePause();
   }
 });
 
-// Detectar cuando el navegador libera el Pointer Lock automáticamente (al presionar ESC)
 document.addEventListener('pointerlockchange', () => {
-  if (document.pointerLockElement !== container && isPlaying && !isPaused) {
+  if (document.pointerLockElement !== container && isPlaying && !isPaused && !isTouchDevice) {
     togglePause();
   }
 });
 
 container.addEventListener('click', (e) => {
-  if (isPlaying && !isPaused && document.pointerLockElement !== container) {
+  if (isPlaying && !isPaused && !isTouchDevice && document.pointerLockElement !== container) {
     container.requestPointerLock();
   }
 });
 
 document.addEventListener('mousemove', (e) => {
-  if (isPaused || !isPlaying) return;
+  if (isPaused || !isPlaying || isTouchDevice) return;
 
   if (document.pointerLockElement === container) {
+    customCursor.style.display = 'block';
     virtualX += e.movementX * sensitivity;
     virtualY += e.movementY * sensitivity;
 
@@ -121,8 +127,9 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
+// DETECCIÓN DE CLIC VIRTUAL PARA PC
 document.addEventListener('mousedown', (e) => {
-  if (!isPlaying || isPaused || document.pointerLockElement !== container) return;
+  if (!isPlaying || isPaused || isTouchDevice || document.pointerLockElement !== container) return;
 
   const ballRect = ball.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
@@ -137,11 +144,7 @@ document.addEventListener('mousedown', (e) => {
     virtualY >= ballTop &&
     virtualY <= ballTop + ballSize
   ) {
-    playSound('catch');
-    score++;
-    scoreDisplay.textContent = score;
-    updateDifficulty();
-    moveBall();
+    catchBall();
     return;
   }
 
@@ -157,14 +160,33 @@ document.addEventListener('mousedown', (e) => {
       virtualY >= trapTop &&
       virtualY <= trapTop + trapSize
     ) {
-      playSound('bomb');
-      score = Math.max(0, score - 3);
-      scoreDisplay.textContent = score;
-      trap.remove();
-      updateDifficulty();
+      hitTrap(trap);
     }
   });
 });
+
+// INTERACCIÓN TÁCTIL DIRECTA (MÓVIL Y TOUCH)
+ball.addEventListener('pointerdown', (e) => {
+  if (!isPlaying || isPaused) return;
+  e.preventDefault();
+  catchBall();
+});
+
+function catchBall() {
+  playSound('catch');
+  score++;
+  scoreDisplay.textContent = score;
+  updateDifficulty();
+  moveBall();
+}
+
+function hitTrap(trap) {
+  playSound('bomb');
+  score = Math.max(0, score - 3);
+  scoreDisplay.textContent = score;
+  trap.remove();
+  updateDifficulty();
+}
 
 function playSound(type) {
   if (audioCtx.state === 'suspended') {
@@ -209,14 +231,14 @@ function togglePause() {
   isPaused = !isPaused;
 
   if (isPaused) {
-    document.exitPointerLock();
+    if (!isTouchDevice) document.exitPointerLock();
     clearInterval(timerInterval);
     clearTimeout(autoMoveTimeout);
     pauseMenu.classList.remove('hidden');
     customCursor.style.display = 'none';
   } else {
     pauseMenu.classList.add('hidden');
-    customCursor.style.display = 'block';
+    if (!isTouchDevice) customCursor.style.display = 'block';
     startTimer();
     moveBall();
   }
@@ -241,7 +263,6 @@ function moveBall() {
   ball.style.left = `${randomX}px`;
   ball.style.top = `${randomY}px`;
 
-  // CÁLCULO DE TRAMPAS SEGÚN LA DIFICULTAD
   let numberOfTraps = 0;
 
   if (currentDifficulty === 'easy') {
@@ -292,6 +313,12 @@ function moveBall() {
     trap.style.left = `${trapX}px`;
     trap.style.top = `${trapY}px`;
 
+    trap.addEventListener('pointerdown', (e) => {
+      if (!isPlaying || isPaused) return;
+      e.preventDefault();
+      hitTrap(trap);
+    });
+
     container.appendChild(trap);
     activeTraps.push(trap);
   }
@@ -337,7 +364,7 @@ function startTimer() {
 
 function endGame() {
   isPlaying = false;
-  document.exitPointerLock();
+  if (!isTouchDevice) document.exitPointerLock();
   clearInterval(timerInterval);
   clearTimeout(autoMoveTimeout);
   clearTraps();
@@ -377,7 +404,7 @@ function restartGame() {
   ball.style.backgroundColor = currentColor;
   ball.style.boxShadow = `0 0 15px ${currentColor}`;
   ball.style.display = 'block';
-  customCursor.style.display = 'block';
+  if (!isTouchDevice) customCursor.style.display = 'block';
 
   pauseMenu.classList.add('hidden');
   gameOverScreen.classList.add('hidden');
