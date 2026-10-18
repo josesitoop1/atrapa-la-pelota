@@ -67,7 +67,7 @@ body {
   width: 100%;
   max-width: 400px;
   height: 100%;
-  background-color: rgba(20, 20, 32, 0.98);
+  background-color: rgba(15, 15, 26, 0.98);
   box-shadow: -10px 0 30px rgba(0,0,0,0.8);
   z-index: 50;
   display: flex;
@@ -184,10 +184,9 @@ body {
 }
 
 .casino-box button, .ruleta-buttons button {
-  background-color: #10b981;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: bold;
@@ -198,7 +197,7 @@ body {
 .ruleta-buttons {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 #ruleta-display {
@@ -213,7 +212,7 @@ body {
   background-color: #2b2b3d;
   padding: 10px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .casino-shop-item button {
@@ -257,7 +256,7 @@ body {
 .modal-content input {
   width: 100%;
   padding: 8px;
-  margin: 10px 0;
+  margin: 8px 0;
   background: #1e1e2e;
   border: 1px solid #4b5563;
   color: white;
@@ -277,7 +276,7 @@ body {
 }
 
 /* ==========================================
-   TEMAS DE FONDO ORIGINALES Y VIP CASINO
+   TEMAS DE FONDO VIVOS Y ANIMADOS
    ========================================== */
 body.theme-cyberpunk { background-color: #1e1e2e; }
 body.theme-cyberpunk #game-container { background-color: #2b2b3d; }
@@ -288,8 +287,60 @@ body.theme-space #game-container { background: radial-gradient(circle at center,
 body.theme-sunset { background-color: #2e1065; }
 body.theme-sunset #game-container { background: linear-gradient(180deg, #1e1b4b 0%, #581c87 45%, #831843 75%, #4c0519 100%); }
 
-body.theme-matrix { background-color: #022c22; }
-body.theme-matrix #game-container { background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); }
+/* 1. Océano Abisal VIVO */
+body.theme-ocean { background-color: #022c22; }
+body.theme-ocean #game-container {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #0c4a6e 80%, #082f49 100%);
+  animation: olasMar 6s ease-in-out infinite alternate;
+}
+@keyframes olasMar {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(15deg); }
+}
+
+/* 2. Tormenta Electrólica VIVA */
+body.theme-storm { background-color: #0f172a; }
+body.theme-storm #game-container {
+  background: radial-gradient(circle, #334155 0%, #0f172a 100%);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+  animation: rayoRelampago 4s infinite;
+}
+@keyframes rayoRelampago {
+  0%, 95%, 98% { filter: brightness(1); }
+  96%, 99% { filter: brightness(1.6); }
+}
+
+/* 3. Galaxia Animada VIVA */
+body.theme-animatedgalaxy { background-color: #2e1065; }
+body.theme-animatedgalaxy #game-container {
+  background: linear-gradient(135deg, #312e81 0%, #581c87 50%, #831843 100%);
+  background-size: 200% 200%;
+  animation: movimientoGalactico 8s ease infinite;
+}
+@keyframes movimientoGalactico {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 4. Ciudad Cyberpunk 2099 VIVA */
+body.theme-cybercity { background-color: #111827; }
+body.theme-cybercity #game-container {
+  background: linear-gradient(180deg, #1f1938 0%, #371b58 50%, #4c1d95 100%);
+  border: 1px solid #c084fc;
+  box-shadow: 0 0 20px #a855f7;
+}
+
+/* 5. Núcleo de Magma VIVO */
+body.theme-magma { background-color: #450a0a; }
+body.theme-magma #game-container {
+  background: radial-gradient(circle, #991b1b 0%, #450a0a 100%);
+  animation: pulsacionMagma 3s infinite alternate;
+}
+@keyframes pulsacionMagma {
+  0% { box-shadow: 0 0 15px #ef4444; }
+  100% { box-shadow: 0 0 35px #f97316; }
+}
 
 /* ==========================================
    CONTENEDOR PRINCIPAL DEL JUEGO
