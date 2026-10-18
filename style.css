@@ -17,7 +17,7 @@ body {
   touch-action: manipulation;
   overflow: hidden;
   perspective: 1000px;
-  transition: background-color 0.4s ease;
+  transition: background 0.4s ease;
 }
 
 #casino-trigger {
@@ -219,63 +219,78 @@ body {
   cursor: pointer;
 }
 
-/* Temas */
-body.theme-cyberpunk { background-color: #1e1e2e; }
-body.theme-cyberpunk #game-container { background-color: #2b2b3d; }
-body.theme-space { background-color: #030712; }
-body.theme-space #game-container { background: radial-gradient(circle at center, #111827 0%, #030712 100%); }
-body.theme-sunset { background-color: #2e1065; }
-body.theme-sunset #game-container { background: linear-gradient(180deg, #1e1b4b 0%, #581c87 45%, #831843 75%, #4c0519 100%); }
+/* === FONDOS CON VIDA DINÁMICA (PC Y CELULAR) === */
+body.theme-cyberpunk {
+  background: linear-gradient(135deg, #0f0f1a 0%, #1e1e2e 50%, #2e1065 100%);
+  background-size: 250% 250%;
+  animation: fondoVivoCyber 12s ease infinite;
+}
+@keyframes fondoVivoCyber { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+body.theme-cyberpunk #game-container { background-color: rgba(43, 43, 61, 0.9); }
 
-body.theme-ocean { background-color: #022c22; }
-body.theme-ocean #game-container {
+body.theme-space {
+  background: radial-gradient(circle at 40% 40%, #1f2937 0%, #030712 100%);
+  background-size: 200% 200%;
+  animation: pulsoEspacial 8s ease-in-out infinite alternate;
+}
+@keyframes pulsoEspacial { 0% { filter: brightness(0.85); transform: scale(1); } 100% { filter: brightness(1.2); transform: scale(1.02); } }
+body.theme-space #game-container { background: rgba(17, 24, 39, 0.85); }
+
+/* Atardecer 80s (Restaurado y animado) */
+body.theme-sunset {
+  background: linear-gradient(180deg, #1e1b4b 0%, #581c87 35%, #831843 70%, #4c0519 100%);
+  background-size: 100% 300%;
+  animation: atardecerVivo 7s ease infinite alternate;
+}
+@keyframes atardecerVivo { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
+body.theme-sunset #game-container { background: rgba(46, 16, 101, 0.85); }
+
+body.theme-ocean {
   background: linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #0c4a6e 80%, #082f49 100%);
+  background-size: 200% 200%;
   animation: olasMar 6s ease-in-out infinite alternate;
 }
-@keyframes olasMar {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(15deg); }
-}
+@keyframes olasMar { 0% { background-position: 0% 0%; filter: hue-rotate(0deg); } 100% { background-position: 100% 100%; filter: hue-rotate(20deg); } }
+body.theme-ocean #game-container { background: rgba(2, 44, 34, 0.85); }
 
-body.theme-storm { background-color: #0f172a; }
-body.theme-storm #game-container {
+body.theme-storm {
   background: radial-gradient(circle, #334155 0%, #0f172a 100%);
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
-  animation: rayoRelampago 4s infinite;
+  animation: rayoRelampago 3.5s infinite;
 }
-@keyframes rayoRelampago {
-  0%, 95%, 98% { filter: brightness(1); }
-  96%, 99% { filter: brightness(1.6); }
-}
+@keyframes rayoRelampago { 0%, 92%, 96% { filter: brightness(1); } 93%, 97% { filter: brightness(1.8); } }
+body.theme-storm #game-container { background: rgba(15, 23, 42, 0.9); }
 
-body.theme-animatedgalaxy { background-color: #2e1065; }
-body.theme-animatedgalaxy #game-container {
+body.theme-animatedgalaxy {
   background: linear-gradient(135deg, #312e81 0%, #581c87 50%, #831843 100%);
-  background-size: 200% 200%;
+  background-size: 250% 250%;
   animation: movimientoGalactico 8s ease infinite;
 }
-@keyframes movimientoGalactico {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+@keyframes movimientoGalactico { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+body.theme-animatedgalaxy #game-container { background: rgba(46, 16, 101, 0.85); }
 
-body.theme-cybercity { background-color: #111827; }
-body.theme-cybercity #game-container {
+body.theme-cybercity {
   background: linear-gradient(180deg, #1f1938 0%, #371b58 50%, #4c1d95 100%);
-  border: 1px solid #c084fc;
-  box-shadow: 0 0 20px #a855f7;
+  background-size: 200% 200%;
+  animation: ciudadNeon 10s ease infinite alternate;
 }
+@keyframes ciudadNeon { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+body.theme-cybercity #game-container { background: rgba(25, 20, 45, 0.9); border: 1px solid #c084fc; box-shadow: 0 0 20px #a855f7; }
 
-body.theme-magma { background-color: #450a0a; }
-body.theme-magma #game-container {
+body.theme-magma {
   background: radial-gradient(circle, #991b1b 0%, #450a0a 100%);
   animation: pulsacionMagma 3s infinite alternate;
 }
-@keyframes pulsacionMagma {
-  0% { box-shadow: 0 0 15px #ef4444; }
-  100% { box-shadow: 0 0 35px #f97316; }
-}
+@keyframes pulsacionMagma { 0% { filter: brightness(0.9); box-shadow: inset 0 0 30px #ef4444; } 100% { filter: brightness(1.25); box-shadow: inset 0 0 70px #f97316; } }
+body.theme-magma #game-container { background: rgba(69, 10, 10, 0.9); }
+
+body.theme-capybara { background: linear-gradient(135deg, #78350f, #451a03); background-size: 200% 200%; animation: fCapy 8s ease infinite alternate; }
+@keyframes fCapy { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+
+body.theme-spiderman { background: linear-gradient(135deg, #b91c1c, #1e3a8a); background-size: 200% 200%; animation: fSpider 8s ease infinite alternate; }
+@keyframes fSpider { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+
+body.theme-snoopy { background: linear-gradient(135deg, #1e293b, #475569); background-size: 200% 200%; animation: fSnoopy 8s ease infinite alternate; }
+@keyframes fSnoopy { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
 
 #game-container {
   text-align: center;
@@ -293,10 +308,7 @@ body.theme-magma #game-container {
   transform-style: preserve-3d;
 }
 
-.shake-screen {
-  animation: temblorEfecto 0.3s ease-in-out;
-}
-
+.shake-screen { animation: temblorEfecto 0.3s ease-in-out; }
 @keyframes temblorEfecto {
   0% { transform: translate(0, 0); }
   25% { transform: translate(-8px, 6px); }
@@ -306,89 +318,36 @@ body.theme-magma #game-container {
 }
 
 #custom-cursor {
-  width: 14px;
-  height: 14px;
-  background-color: #ffffff;
-  border: 2px solid #7c3aed;
-  border-radius: 50%;
-  position: absolute;
-  pointer-events: none;
-  z-index: 99;
-  transform: translate(-50%, -50%);
-  display: none;
+  width: 14px; height: 14px;
+  background-color: #ffffff; border: 2px solid #7c3aed;
+  border-radius: 50%; position: absolute; pointer-events: none;
+  z-index: 99; transform: translate(-50%, -50%); display: none;
 }
 
 #streak-popup {
-  position: absolute;
-  top: 40%;
-  left: 50%;
+  position: absolute; top: 40%; left: 50%;
   transform: translate(-50%, -50%) scale(0.5);
-  background: rgba(250, 204, 21, 0.9);
-  color: #1e1e2e;
-  font-size: 1.4rem;
-  font-weight: bold;
-  padding: 8px 18px;
-  border-radius: 20px;
-  z-index: 8;
-  opacity: 0;
+  background: rgba(250, 204, 21, 0.9); color: #1e1e2e;
+  font-size: 1.4rem; font-weight: bold; padding: 8px 18px;
+  border-radius: 20px; z-index: 8; opacity: 0;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
+#streak-popup.show { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
 
-#streak-popup.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.2);
-}
-
-#top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 15px;
-  margin-top: 10px;
-  position: relative;
-  z-index: 2;
-}
-
+#top-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; margin-top: 10px; position: relative; z-index: 2; }
 h1 { font-size: 1.1rem; margin: 0; }
+#pause-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; }
 
-#pause-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 5px;
-}
-
-#info-bar {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #a6accd;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  position: relative;
-  z-index: 2;
-}
-
+#info-bar { display: flex; justify-content: space-around; align-items: center; font-size: 0.75rem; font-weight: bold; color: #a6accd; margin-top: 5px; margin-bottom: 10px; position: relative; z-index: 2; }
 .streak-hidden { opacity: 0.3; transform: scale(0.9); }
 .streak-active { opacity: 1; transform: scale(1.15); color: #facc15; }
 
 #ball {
-  width: 50px;
-  height: 50px;
-  background-color: #ff0055;
-  border-radius: 50%;
-  position: absolute;
+  width: 50px; height: 50px; background-color: #ff0055;
+  border-radius: 50%; position: absolute;
   transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease;
-  box-shadow: 0 0 15px #ff0055;
-  z-index: 5;
-  cursor: pointer;
-  touch-action: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  box-shadow: 0 0 15px #ff0055; z-index: 5; cursor: pointer;
+  touch-action: none; display: flex; justify-content: center; align-items: center;
 }
 
 .main-ball-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
@@ -399,15 +358,9 @@ h1 { font-size: 1.1rem; margin: 0; }
 .powerup-bomb { background-color: #ef4444 !important; box-shadow: 0 0 20px #ef4444 !important; font-size: 0.75rem; display: flex; justify-content: center; align-items: center; }
 
 .particle {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 7;
-  animation: explosionParticula 0.4s ease-out forwards;
+  position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  pointer-events: none; z-index: 7; animation: explosionParticula 0.4s ease-out forwards;
 }
-
 @keyframes explosionParticula {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
@@ -416,22 +369,14 @@ h1 { font-size: 1.1rem; margin: 0; }
 .hidden { display: none !important; }
 
 #main-menu, #info-menu, #pause-menu, #game-over, #shop-menu {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(30, 30, 46, 0.96);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(30, 30, 46, 0.96); display: flex;
+  flex-direction: column; justify-content: center; align-items: center; z-index: 10;
 }
 
 .info-content {
-  width: 85%; max-width: 290px;
-  background-color: #3b3b52;
-  padding: 12px; border-radius: 8px;
-  font-size: 0.8rem; color: #a6accd;
+  width: 85%; max-width: 290px; background-color: #3b3b52;
+  padding: 12px; border-radius: 8px; font-size: 0.8rem; color: #a6accd;
   margin-bottom: 12px; text-align: left;
 }
 
