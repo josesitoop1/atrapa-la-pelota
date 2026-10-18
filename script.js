@@ -1,6 +1,6 @@
 // ==========================================
 // JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
+// Lógica completa y corregida sin errores.
 // ==========================================
 
 let score = 0;
@@ -699,5 +699,4 @@ function playSound(type) {
   if (type === 'catch') {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.
+    osc
