@@ -1,6 +1,6 @@
 // ==========================================
 // JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica de juego con tienda de skins y fondos de imagen comprables.
+// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
 // ==========================================
 
 let score = 0;
@@ -194,7 +194,7 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// TIENDA: SKINS Y FONDOS TIPO IMAGEN
+// TIENDA: PESTAÑAS Y COMPRAS
 // ==========================================
 
 function toggleShop() {
@@ -206,13 +206,15 @@ function toggleShop() {
 function switchShopTab(tab) {
   document.getElementById('tab-skins-btn').classList.toggle('active', tab === 'skins');
   document.getElementById('tab-themes-btn').classList.toggle('active', tab === 'themes');
+  document.getElementById('tab-images-btn').classList.toggle('active', tab === 'images');
 
   document.getElementById('shop-skins-section').classList.toggle('hidden', tab !== 'skins');
   document.getElementById('shop-themes-section').classList.toggle('hidden', tab !== 'themes');
+  document.getElementById('shop-images-section').classList.toggle('hidden', tab !== 'images');
 }
 
 function updateShopButtons() {
-  // SKINS
+  // 1. SKINS DE PELOTAS
   const btnClassic = document.getElementById('buy-classic');
   if (currentSkin === 'classic') {
     btnClassic.textContent = 'Equipada';
@@ -251,7 +253,7 @@ function updateShopButtons() {
     btnGalaxy.onclick = () => buySkin('galaxy', 150);
   }
 
-  // FONDOS DE PERSONAJES / IMAGEN
+  // 2. FONDOS ORIGINALES
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
   if (currentTheme === 'cyberpunk') {
     btnThemeCyber.textContent = 'Equipado';
@@ -262,6 +264,35 @@ function updateShopButtons() {
     btnThemeCyber.onclick = () => equipTheme('cyberpunk');
   }
 
+  const btnThemeSpace = document.getElementById('buy-theme-space');
+  if (currentTheme === 'space') {
+    btnThemeSpace.textContent = 'Equipado';
+    btnThemeSpace.disabled = true;
+  } else if (unlockedThemes.includes('space')) {
+    btnThemeSpace.textContent = 'Equipar';
+    btnThemeSpace.disabled = false;
+    btnThemeSpace.onclick = () => equipTheme('space');
+  } else {
+    btnThemeSpace.textContent = 'Comprar (100 🪙)';
+    btnThemeSpace.disabled = totalCoins < 100;
+    btnThemeSpace.onclick = () => buyTheme('space', 100);
+  }
+
+  const btnThemeSunset = document.getElementById('buy-theme-sunset');
+  if (currentTheme === 'sunset') {
+    btnThemeSunset.textContent = 'Equipado';
+    btnThemeSunset.disabled = true;
+  } else if (unlockedThemes.includes('sunset')) {
+    btnThemeSunset.textContent = 'Equipar';
+    btnThemeSunset.disabled = false;
+    btnThemeSunset.onclick = () => equipTheme('sunset');
+  } else {
+    btnThemeSunset.textContent = 'Comprar (200 🪙)';
+    btnThemeSunset.disabled = totalCoins < 200;
+    btnThemeSunset.onclick = () => buyTheme('sunset', 200);
+  }
+
+  // 3. FONDOS DE IMAGEN
   const btnThemeSnoopy = document.getElementById('buy-theme-snoopy');
   if (currentTheme === 'snoopy') {
     btnThemeSnoopy.textContent = 'Equipado';
@@ -285,9 +316,9 @@ function updateShopButtons() {
     btnThemeCapy.disabled = false;
     btnThemeCapy.onclick = () => equipTheme('capybara');
   } else {
-    btnThemeCapy.textContent = 'Comprar (200 🪙)';
-    btnThemeCapy.disabled = totalCoins < 200;
-    btnThemeCapy.onclick = () => buyTheme('capybara', 200);
+    btnThemeCapy.textContent = 'Comprar (150 🪙)';
+    btnThemeCapy.disabled = totalCoins < 150;
+    btnThemeCapy.onclick = () => buyTheme('capybara', 150);
   }
 
   const btnThemeSpider = document.getElementById('buy-theme-spiderman');
@@ -299,9 +330,9 @@ function updateShopButtons() {
     btnThemeSpider.disabled = false;
     btnThemeSpider.onclick = () => equipTheme('spiderman');
   } else {
-    btnThemeSpider.textContent = 'Comprar (300 🪙)';
-    btnThemeSpider.disabled = totalCoins < 300;
-    btnThemeSpider.onclick = () => buyTheme('spiderman', 300);
+    btnThemeSpider.textContent = 'Comprar (200 🪙)';
+    btnThemeSpider.disabled = totalCoins < 200;
+    btnThemeSpider.onclick = () => buyTheme('spiderman', 200);
   }
 }
 
@@ -669,133 +700,4 @@ function playSound(type) {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
-  } else if (type === 'powerup') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
-  } else if (type === 'bomb') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.2);
-  } else if (type === 'gameover') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.4);
-  }
-}
-
-function togglePause() {
-  if (!isPlaying) return;
-  isPaused = !isPaused;
-
-  if (isPaused) {
-    if (!isTouchDevice) document.exitPointerLock();
-    clearInterval(timerInterval);
-    clearTimeout(autoMoveTimeout);
-    pauseMenu.classList.remove('hidden');
-    customCursor.style.display = 'none';
-  } else {
-    pauseMenu.classList.add('hidden');
-    shopMenu.classList.add('hidden');
-    if (!isTouchDevice) customCursor.style.display = 'block';
-    startTimer();
-    moveBall();
-  }
-}
-
-function startTimer() {
-  if (isPaused) return;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (isPaused) return;
-    timeLeft--;
-    timerDisplay.textContent = timeLeft;
-
-    if (timeLeft <= 0) {
-      endGame();
-    }
-  }, 1000);
-}
-
-function endGame() {
-  isPlaying = false;
-  if (!isTouchDevice) document.exitPointerLock();
-  clearInterval(timerInterval);
-  clearTimeout(autoMoveTimeout);
-  clearEntities();
-  
-  playSound('gameover');
-
-  totalCoins += score;
-  localStorage.setItem('ballGameCoins', totalCoins);
-  coinsDisplay.textContent = totalCoins;
-
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem('ballGameHighScore', highScore);
-    highScoreDisplay.textContent = highScore;
-  }
-
-  ball.style.display = 'none';
-  customCursor.style.display = 'none';
-  finalScoreDisplay.textContent = score;
-  earnedCoinsDisplay.textContent = score;
-  finalHighScoreDisplay.textContent = highScore;
-  gameOverScreen.classList.remove('hidden');
-}
-
-function restartGame() {
-  clearInterval(timerInterval);
-  clearTimeout(autoMoveTimeout);
-
-  score = 0;
-  currentStreak = 0;
-  multiplier = 1;
-  updateStreakUI();
-
-  timeLeft = defaultTime;
-  customBonusSize = 0;
-  isPlaying = true;
-  isPaused = false;
-  
-  updateDifficulty();
-
-  scoreDisplay.textContent = score;
-  coinsDisplay.textContent = totalCoins;
-  timerDisplay.textContent = timeLeft;
-  highScoreDisplay.textContent = highScore;
-  
-  ball.style.width = `${INITIAL_SIZE}px`;
-  ball.style.height = `${INITIAL_SIZE}px`;
-  ball.style.display = 'block';
-  if (!isTouchDevice) customCursor.style.display = 'block';
-
-  pauseMenu.classList.add('hidden');
-  shopMenu.classList.add('hidden');
-  gameOverScreen.classList.add('hidden');
-  
-  moveBall();
-  startTimer();
-}
-
-// Cargar el tema e iniciar
-document.body.className = `theme-${currentTheme}`;
-updateDifficulty();
-moveBall();
-startTimer();
+    gain.gain.setValueAtTime(0.
