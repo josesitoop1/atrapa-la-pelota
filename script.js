@@ -1,8 +1,3 @@
-// ==========================================
-// JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
-// ==========================================
-
 let score = 0;
 let highScore = localStorage.getItem('ballGameHighScore') || 0;
 let totalCoins = parseInt(localStorage.getItem('ballGameCoins')) || 0;
@@ -216,128 +211,146 @@ function switchShopTab(tab) {
 function updateShopButtons() {
   // 1. SKINS DE PELOTAS
   const btnClassic = document.getElementById('buy-classic');
-  if (currentSkin === 'classic') {
-    btnClassic.textContent = 'Equipada';
-    btnClassic.disabled = true;
-  } else {
-    btnClassic.textContent = 'Equipar';
-    btnClassic.disabled = false;
-    btnClassic.onclick = () => equipSkin('classic');
+  if (btnClassic) {
+    if (currentSkin === 'classic') {
+      btnClassic.textContent = 'Equipada';
+      btnClassic.disabled = true;
+    } else {
+      btnClassic.textContent = 'Equipar';
+      btnClassic.disabled = false;
+      btnClassic.onclick = () => equipSkin('classic');
+    }
   }
 
   const btnFire = document.getElementById('buy-fire');
-  if (currentSkin === 'fire') {
-    btnFire.textContent = 'Equipada';
-    btnFire.disabled = true;
-  } else if (unlockedSkins.includes('fire')) {
-    btnFire.textContent = 'Equipar';
-    btnFire.disabled = false;
-    btnFire.onclick = () => equipSkin('fire');
-  } else {
-    btnFire.textContent = 'Comprar (50 🪙)';
-    btnFire.disabled = totalCoins < 50;
-    btnFire.onclick = () => buySkin('fire', 50);
+  if (btnFire) {
+    if (currentSkin === 'fire') {
+      btnFire.textContent = 'Equipada';
+      btnFire.disabled = true;
+    } else if (unlockedSkins.includes('fire')) {
+      btnFire.textContent = 'Equipar';
+      btnFire.disabled = false;
+      btnFire.onclick = () => equipSkin('fire');
+    } else {
+      btnFire.textContent = 'Comprar (50 🪙)';
+      btnFire.disabled = totalCoins < 50;
+      btnFire.onclick = () => buySkin('fire', 50);
+    }
   }
 
   const btnGalaxy = document.getElementById('buy-galaxy');
-  if (currentSkin === 'galaxy') {
-    btnGalaxy.textContent = 'Equipada';
-    btnGalaxy.disabled = true;
-  } else if (unlockedSkins.includes('galaxy')) {
-    btnGalaxy.textContent = 'Equipar';
-    btnGalaxy.disabled = false;
-    btnGalaxy.onclick = () => equipSkin('galaxy');
-  } else {
-    btnGalaxy.textContent = 'Comprar (150 🪙)';
-    btnGalaxy.disabled = totalCoins < 150;
-    btnGalaxy.onclick = () => buySkin('galaxy', 150);
+  if (btnGalaxy) {
+    if (currentSkin === 'galaxy') {
+      btnGalaxy.textContent = 'Equipada';
+      btnGalaxy.disabled = true;
+    } else if (unlockedSkins.includes('galaxy')) {
+      btnGalaxy.textContent = 'Equipar';
+      btnGalaxy.disabled = false;
+      btnGalaxy.onclick = () => equipSkin('galaxy');
+    } else {
+      btnGalaxy.textContent = 'Comprar (150 🪙)';
+      btnGalaxy.disabled = totalCoins < 150;
+      btnGalaxy.onclick = () => buySkin('galaxy', 150);
+    }
   }
 
   // 2. FONDOS ORIGINALES (Con opción de Desequipar)
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
-  if (currentTheme === 'cyberpunk') {
-    btnThemeCyber.textContent = 'Predeterminado';
-    btnThemeCyber.disabled = true;
-  } else {
-    btnThemeCyber.textContent = 'Equipar';
-    btnThemeCyber.disabled = false;
-    btnThemeCyber.onclick = () => equipTheme('cyberpunk');
+  if (btnThemeCyber) {
+    if (currentTheme === 'cyberpunk') {
+      btnThemeCyber.textContent = 'Predeterminado';
+      btnThemeCyber.disabled = true;
+    } else {
+      btnThemeCyber.textContent = 'Equipar';
+      btnThemeCyber.disabled = false;
+      btnThemeCyber.onclick = () => equipTheme('cyberpunk');
+    }
   }
 
   const btnThemeSpace = document.getElementById('buy-theme-space');
-  if (currentTheme === 'space') {
-    btnThemeSpace.textContent = 'Desequipar';
-    btnThemeSpace.disabled = false;
-    btnThemeSpace.onclick = () => equipTheme('cyberpunk');
-  } else if (unlockedThemes.includes('space')) {
-    btnThemeSpace.textContent = 'Equipar';
-    btnThemeSpace.disabled = false;
-    btnThemeSpace.onclick = () => equipTheme('space');
-  } else {
-    btnThemeSpace.textContent = 'Comprar (100 🪙)';
-    btnThemeSpace.disabled = totalCoins < 100;
-    btnThemeSpace.onclick = () => buyTheme('space', 100);
+  if (btnThemeSpace) {
+    if (currentTheme === 'space') {
+      btnThemeSpace.textContent = 'Desequipar';
+      btnThemeSpace.disabled = false;
+      btnThemeSpace.onclick = () => equipTheme('cyberpunk');
+    } else if (unlockedThemes.includes('space')) {
+      btnThemeSpace.textContent = 'Equipar';
+      btnThemeSpace.disabled = false;
+      btnThemeSpace.onclick = () => equipTheme('space');
+    } else {
+      btnThemeSpace.textContent = 'Comprar (100 🪙)';
+      btnThemeSpace.disabled = totalCoins < 100;
+      btnThemeSpace.onclick = () => buyTheme('space', 100);
+    }
   }
 
   const btnThemeSunset = document.getElementById('buy-theme-sunset');
-  if (currentTheme === 'sunset') {
-    btnThemeSunset.textContent = 'Desequipar';
-    btnThemeSunset.disabled = false;
-    btnThemeSunset.onclick = () => equipTheme('cyberpunk');
-  } else if (unlockedThemes.includes('sunset')) {
-    btnThemeSunset.textContent = 'Equipar';
-    btnThemeSunset.disabled = false;
-    btnThemeSunset.onclick = () => equipTheme('sunset');
-  } else {
-    btnThemeSunset.textContent = 'Comprar (200 🪙)';
-    btnThemeSunset.disabled = totalCoins < 200;
-    btnThemeSunset.onclick = () => buyTheme('sunset', 200);
+  if (btnThemeSunset) {
+    if (currentTheme === 'sunset') {
+      btnThemeSunset.textContent = 'Desequipar';
+      btnThemeSunset.disabled = false;
+      btnThemeSunset.onclick = () => equipTheme('cyberpunk');
+    } else if (unlockedThemes.includes('sunset')) {
+      btnThemeSunset.textContent = 'Equipar';
+      btnThemeSunset.disabled = false;
+      btnThemeSunset.onclick = () => equipTheme('sunset');
+    } else {
+      btnThemeSunset.textContent = 'Comprar (200 🪙)';
+      btnThemeSunset.disabled = totalCoins < 200;
+      btnThemeSunset.onclick = () => buyTheme('sunset', 200);
+    }
   }
 
-  // 3. FONDOS DE IMAGEN (Con opción de Desequipar y precios actualizados, ordenados de menor a mayor)
+  // 3. FONDOS DE IMAGEN (Con opción de Desequipar y precios ordenados de menor a mayor)
   const btnThemeCapy = document.getElementById('buy-theme-capybara');
-  if (currentTheme === 'capybara') {
-    btnThemeCapy.textContent = 'Desequipar';
-    btnThemeCapy.disabled = false;
-    btnThemeCapy.onclick = () => equipTheme('cyberpunk');
-  } else if (unlockedThemes.includes('capybara')) {
-    btnThemeCapy.textContent = 'Equipar';
-    btnThemeCapy.disabled = false;
-    btnThemeCapy.onclick = () => equipTheme('capybara');
-  } else {
-    btnThemeCapy.textContent = 'Comprar (300 🪙)';
-    btnThemeCapy.disabled = totalCoins < 300;
-    btnThemeCapy.onclick = () => buyTheme('capybara', 300);
+  if (btnThemeCapy) {
+    if (currentTheme === 'capybara') {
+      btnThemeCapy.textContent = 'Desequipar';
+      btnThemeCapy.disabled = false;
+      btnThemeCapy.onclick = () => equipTheme('cyberpunk');
+    } else if (unlockedThemes.includes('capybara')) {
+      btnThemeCapy.textContent = 'Equipar';
+      btnThemeCapy.disabled = false;
+      btnThemeCapy.onclick = () => equipTheme('capybara');
+    } else {
+      btnThemeCapy.textContent = 'Comprar (300 🪙)';
+      btnThemeCapy.disabled = totalCoins < 300;
+      btnThemeCapy.onclick = () => buyTheme('capybara', 300);
+    }
   }
 
   const btnThemeSpider = document.getElementById('buy-theme-spiderman');
-  if (currentTheme === 'spiderman') {
-    btnThemeSpider.textContent = 'Desequipar';
-    btnThemeSpider.disabled = false;
-    btnThemeSpider.onclick = () => equipTheme('cyberpunk');
-  } else if (unlockedThemes.includes('spiderman')) {
-    btnThemeSpider.textContent = 'Equipar';
-    btnThemeSpider.disabled = false;
-    btnThemeSpider.onclick = () => equipTheme('spiderman');
-  } else {
-    btnThemeSpider.textContent = 'Comprar (400 🪙)';
-    btnThemeSpider.disabled = totalCoins < 400;
-    btnThemeSpider.onclick = () => buyTheme('spiderman', 400);
+  if (btnThemeSpider) {
+    if (currentTheme === 'spiderman') {
+      btnThemeSpider.textContent = 'Desequipar';
+      btnThemeSpider.disabled = false;
+      btnThemeSpider.onclick = () => equipTheme('cyberpunk');
+    } else if (unlockedThemes.includes('spiderman')) {
+      btnThemeSpider.textContent = 'Equipar';
+      btnThemeSpider.disabled = false;
+      btnThemeSpider.onclick = () => equipTheme('spiderman');
+    } else {
+      btnThemeSpider.textContent = 'Comprar (400 🪙)';
+      btnThemeSpider.disabled = totalCoins < 400;
+      btnThemeSpider.onclick = () => buyTheme('spiderman', 400);
+    }
   }
 
   const btnThemeSnoopy = document.getElementById('buy-theme-snoopy');
-  if (currentTheme === 'snoopy') {
-    btnThemeSnoopy.textContent = 'Desequipar';
-    btnThemeSnoopy.disabled = false;
-    btnThemeSnoopy.onclick = () => equipTheme('cyberpunk');
-  } else if (unlockedThemes.includes('snoopy')) {
-    btnThemeSnoopy.textContent = 'Equipar';
-    btnThemeSnoopy.disabled = false;
-    btnThemeSnoopy.onclick = () => equipTheme('snoopy');
-  } else {
-    btnThemeSnoopy.textContent = 'Comprar (500 🪙)';
-    btnThemeSnoopy.disabled = totalCoins < 500;
-    btnThemeSnoopy.onclick = () => buyTheme('snoopy', 500);
+  if (btnThemeSnoopy) {
+    if (currentTheme === 'snoopy') {
+      btnThemeSnoopy.textContent = 'Desequipar';
+      btnThemeSnoopy.disabled = false;
+      btnThemeSnoopy.onclick = () => equipTheme('cyberpunk');
+    } else if (unlockedThemes.includes('snoopy')) {
+      btnThemeSnoopy.textContent = 'Equipar';
+      btnThemeSnoopy.disabled = false;
+      btnThemeSnoopy.onclick = () => equipTheme('snoopy');
+    } else {
+      btnThemeSnoopy.textContent = 'Comprar (500 🪙)';
+      btnThemeSnoopy.disabled = totalCoins < 500;
+      btnThemeSnoopy.onclick = () => buyTheme('snoopy', 500);
+    }
   }
 }
 
@@ -536,4 +549,302 @@ function spawnPowerUp(maxX, maxY, usedPositions) {
     intentos++;
   } while (muyCerca && intentos < 50);
 
-  usedPositions.push({ x: powX
+  usedPositions.push({ x: powX, y: powY });
+  pow.style.left = `${powX}px`;
+  pow.style.top = `${powY}px`;
+
+  pow.addEventListener('pointerdown', (e) => {
+    if (!isPlaying || isPaused) return;
+    e.preventDefault();
+    catchPowerUp(pow);
+  });
+
+  container.appendChild(pow);
+  activePowerUps.push(pow);
+}
+
+function moveBall() {
+  if (!isPlaying || isPaused) return;
+  clearTimeout(autoMoveTimeout);
+  clearEntities();
+
+  const maxX = container.clientWidth - ball.clientWidth;
+  const maxY = container.clientHeight - ball.clientHeight - 80;
+
+  const randomX = Math.floor(Math.random() * maxX);
+  const randomY = Math.floor(Math.random() * (maxY - 40)) + 60;
+
+  ball.style.left = `${randomX}px`;
+  ball.style.top = `${randomY}px`;
+
+  let numTrampas = 0;
+  if (currentDifficulty === 'medium' && score >= 5) {
+    numTrampas = 1 + Math.floor((score - 5) / 3);
+  } else if (currentDifficulty === 'hard' && score >= 5) {
+    numTrampas = 2 + (Math.floor((score - 5) / 2) * 2);
+  }
+
+  let posicionesUsadas = [{ x: randomX, y: randomY }];
+
+  for (let i = 0; i < numTrampas; i++) {
+    const trap = document.createElement('div');
+    trap.className = 'trap-ball';
+    
+    trap.style.width = ball.style.width;
+    trap.style.height = ball.style.height;
+    trap.style.backgroundColor = currentColor;
+    trap.style.boxShadow = `0 0 15px ${currentColor}`;
+    trap.style.position = 'absolute';
+    trap.style.borderRadius = '50%';
+    trap.style.zIndex = '5';
+
+    let trapX, trapY, muyCerca, intentos = 0;
+    do {
+      muyCerca = false;
+      trapX = Math.floor(Math.random() * maxX);
+      trapY = Math.floor(Math.random() * (maxY - 40)) + 60;
+
+      for (let pos of posicionesUsadas) {
+        if (Math.abs(trapX - pos.x) < 70 && Math.abs(trapY - pos.y) < 70) {
+          muyCerca = true;
+          break;
+        }
+      }
+      intentos++;
+    } while (muyCerca && intentos < 50);
+
+    posicionesUsadas.push({ x: trapX, y: trapY });
+    trap.style.left = `${trapX}px`;
+    trap.style.top = `${trapY}px`;
+
+    trap.addEventListener('pointerdown', (e) => {
+      if (!isPlaying || isPaused) return;
+      e.preventDefault();
+      hitTrap(trap);
+    });
+
+    container.appendChild(trap);
+    activeTraps.push(trap);
+  }
+
+  if (currentDifficulty !== 'easy') {
+    if (Math.random() < 0.10) {
+      spawnPowerUp(maxX, maxY, posicionesUsadas);
+    }
+    if (currentDifficulty === 'hard') {
+      if (Math.random() < 0.10) {
+        spawnPowerUp(maxX, maxY, posicionesUsadas);
+      }
+    }
+  }
+
+  autoMoveTimeout = setTimeout(() => {
+    if (currentStreak > 0) {
+      currentStreak = 0;
+      multiplier = 1;
+      updateStreakUI();
+    }
+    moveBall();
+  }, currentSpeed);
+}
+
+function updateDifficulty() {
+  const baseSize = Math.max(MIN_SIZE, INITIAL_SIZE - score);
+  const finalSize = baseSize + customBonusSize;
+  ball.style.width = `${finalSize}px`;
+  ball.style.height = `${finalSize}px`;
+
+  if (currentDifficulty === 'easy') {
+    currentSpeed = 1600;
+  } else if (currentDifficulty === 'medium') {
+    currentSpeed = Math.max(500, 1200 - (score * 20));
+  } else if (currentDifficulty === 'hard') {
+    currentSpeed = Math.max(250, 800 - (score * 30));
+  }
+
+  if (customBonusSize === 0) {
+    const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
+    currentColor = colors[colorIndex];
+    
+    const dot = ball.querySelector('.main-ball-dot');
+    if (dot) dot.remove();
+  }
+  
+  applySkinVisuals();
+}
+
+function clearEntities() {
+  activeTraps.forEach(trap => trap.remove());
+  activeTraps = [];
+  activePowerUps.forEach(pow => pow.remove());
+  activePowerUps = [];
+}
+
+
+// ==========================================
+// AUDIO, CRONÓMETRO Y ESTADOS
+// ==========================================
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let masterGain = audioCtx.createGain();
+masterGain.gain.value = 0.3;
+masterGain.connect(audioCtx.destination);
+
+function changeVolume(val) {
+  masterGain.gain.value = parseFloat(val);
+}
+
+function changeSensitivity(val) {
+  sensitivity = Math.min(2.0, parseFloat(val));
+  sensValueDisplay.textContent = `${sensitivity.toFixed(1)}x`;
+}
+
+function changeDifficulty(level) {
+  currentDifficulty = level;
+  document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`btn-${level}`).classList.add('active');
+  restartGame();
+}
+
+function playSound(type) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(masterGain);
+
+  if (type === 'catch') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+  } else if (type === 'powerup') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
+  } else if (type === 'bomb') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.2);
+  } else if (type === 'gameover') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.4);
+  }
+}
+
+function togglePause() {
+  if (!isPlaying) return;
+  isPaused = !isPaused;
+
+  if (isPaused) {
+    if (!isTouchDevice) document.exitPointerLock();
+    clearInterval(timerInterval);
+    clearTimeout(autoMoveTimeout);
+    pauseMenu.classList.remove('hidden');
+    customCursor.style.display = 'none';
+  } else {
+    pauseMenu.classList.add('hidden');
+    shopMenu.classList.add('hidden');
+    if (!isTouchDevice) customCursor.style.display = 'block';
+    startTimer();
+    moveBall();
+  }
+}
+
+function startTimer() {
+  if (isPaused) return;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (isPaused) return;
+    timeLeft--;
+    timerDisplay.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }, 1000);
+}
+
+function endGame() {
+  isPlaying = false;
+  if (!isTouchDevice) document.exitPointerLock();
+  clearInterval(timerInterval);
+  clearTimeout(autoMoveTimeout);
+  clearEntities();
+  
+  playSound('gameover');
+
+  totalCoins += score;
+  localStorage.setItem('ballGameCoins', totalCoins);
+  coinsDisplay.textContent = totalCoins;
+
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('ballGameHighScore', highScore);
+    highScoreDisplay.textContent = highScore;
+  }
+
+  ball.style.display = 'none';
+  customCursor.style.display = 'none';
+  finalScoreDisplay.textContent = score;
+  earnedCoinsDisplay.textContent = score;
+  finalHighScoreDisplay.textContent = highScore;
+  gameOverScreen.classList.remove('hidden');
+}
+
+function restartGame() {
+  clearInterval(timerInterval);
+  clearTimeout(autoMoveTimeout);
+
+  score = 0;
+  currentStreak = 0;
+  multiplier = 1;
+  updateStreakUI();
+
+  timeLeft = defaultTime;
+  customBonusSize = 0;
+  isPlaying = true;
+  isPaused = false;
+  
+  updateDifficulty();
+
+  scoreDisplay.textContent = score;
+  coinsDisplay.textContent = totalCoins;
+  timerDisplay.textContent = timeLeft;
+  highScoreDisplay.textContent = highScore;
+  
+  ball.style.width = `${INITIAL_SIZE}px`;
+  ball.style.height = `${INITIAL_SIZE}px`;
+  ball.style.display = 'block';
+  if (!isTouchDevice) customCursor.style.display = 'block';
+
+  pauseMenu.classList.add('hidden');
+  shopMenu.classList.add('hidden');
+  gameOverScreen.classList.add('hidden');
+  
+  moveBall();
+  startTimer();
+}
+
+// Cargar tema e iniciar
+document.body.className = `theme-${currentTheme}`;
+updateDifficulty();
+moveBall();
+startTimer();
