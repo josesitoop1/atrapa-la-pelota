@@ -1,6 +1,7 @@
 // ==========================================
 // JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica completa y corregida sin errores.
+// Descripción: Lógica multiplataforma con tienda ampliada para skins y 
+// fondos comprables con monedas guardadas en localStorage.
 // ==========================================
 
 let score = 0;
@@ -14,7 +15,7 @@ let autoMoveTimeout;
 let isPlaying = true;
 let isPaused = false;
 
-// Variables de Skins y Temas
+// Variables de Skins y Temas de Fondo
 let currentSkin = localStorage.getItem('ballGameActiveSkin') || 'classic';
 let unlockedSkins = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
 
@@ -26,7 +27,7 @@ let currentStreak = 0;
 let multiplier = 1;
 let streakTimeout;
 
-// Tamaño y velocidad
+// Variables de tamaño y velocidad
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
 let currentSpeed = 1200;
@@ -35,7 +36,7 @@ let customBonusSize = 0;
 
 let currentDifficulty = 'medium';
 
-// PC / Táctil
+// Controls PC / Táctil
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
@@ -70,8 +71,9 @@ let activePowerUps = [];
 
 
 // ==========================================
-// MODO PRUEBAS
+// MODO DE PRUEBAS Y ADMINISTRACIÓN
 // ==========================================
+
 function addTestCoins() {
   totalCoins += 100;
   localStorage.setItem('ballGameCoins', totalCoins);
@@ -103,7 +105,7 @@ function resetFullProgress() {
 
 
 // ==========================================
-// CONTROLES Y TÁCTIL
+// DETECCIÓN TÁCTIL VS PC
 // ==========================================
 window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch') {
@@ -113,6 +115,11 @@ window.addEventListener('pointerdown', (e) => {
     if (sensGroup) sensGroup.style.display = 'none';
   }
 }, { once: true });
+
+
+// ==========================================
+// CONTROLES Y EVENTOS
+// ==========================================
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
@@ -194,7 +201,7 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// TIENDA: PESTAÑAS Y COMPRAS
+// TIENDA: SKINS Y FONDOS TIPO IMAGEN
 // ==========================================
 
 function toggleShop() {
@@ -214,7 +221,7 @@ function switchShopTab(tab) {
 }
 
 function updateShopButtons() {
-  // 1. SKINS DE PELOTAS
+  // --- SKINS ---
   const btnClassic = document.getElementById('buy-classic');
   if (currentSkin === 'classic') {
     btnClassic.textContent = 'Equipada';
@@ -253,7 +260,7 @@ function updateShopButtons() {
     btnGalaxy.onclick = () => buySkin('galaxy', 150);
   }
 
-  // 2. FONDOS ORIGINALES
+  // --- FONDOS / TEMAS ORIGINALES ---
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
   if (currentTheme === 'cyberpunk') {
     btnThemeCyber.textContent = 'Equipado';
@@ -292,7 +299,7 @@ function updateShopButtons() {
     btnThemeSunset.onclick = () => buyTheme('sunset', 200);
   }
 
-  // 3. FONDOS DE IMAGEN
+  // --- FONDOS DE IMAGEN ---
   const btnThemeSnoopy = document.getElementById('buy-theme-snoopy');
   if (currentTheme === 'snoopy') {
     btnThemeSnoopy.textContent = 'Equipado';
@@ -699,4 +706,134 @@ function playSound(type) {
   if (type === 'catch') {
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc
+    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+  } else if (type === 'powerup') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
+  } else if (type === 'bomb') {
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.2);
+  } else if (type === 'gameover') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.4);
+  }
+}
+
+function togglePause() {
+  if (!isPlaying) return;
+  isPaused = !isPaused;
+
+  if (isPaused) {
+    if (!isTouchDevice) document.exitPointerLock();
+    clearInterval(timerInterval);
+    clearTimeout(autoMoveTimeout);
+    pauseMenu.classList.remove('hidden');
+    customCursor.style.display = 'none';
+  } else {
+    pauseMenu.classList.add('hidden');
+    shopMenu.classList.add('hidden');
+    if (!isTouchDevice) customCursor.style.display = 'block';
+    startTimer();
+    moveBall();
+  }
+}
+
+function startTimer() {
+  if (isPaused) return;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (isPaused) return;
+    timeLeft--;
+    timerDisplay.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }, 1000);
+}
+
+function endGame() {
+  isPlaying = false;
+  if (!isTouchDevice) document.exitPointerLock();
+  clearInterval(timerInterval);
+  clearTimeout(autoMoveTimeout);
+  clearEntities();
+  
+  playSound('gameover');
+
+  totalCoins += score;
+  localStorage.setItem('ballGameCoins', totalCoins);
+  coinsDisplay.textContent = totalCoins;
+
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('ballGameHighScore', highScore);
+    highScoreDisplay.textContent = highScore;
+  }
+
+  ball.style.display = 'none';
+  customCursor.style.display = 'none';
+  finalScoreDisplay.textContent = score;
+  earnedCoinsDisplay.textContent = score;
+  finalHighScoreDisplay.textContent = highScore;
+  gameOverScreen.classList.remove('hidden');
+}
+
+function restartGame() {
+  clearInterval(timerInterval);
+  clearTimeout(autoMoveTimeout);
+
+  score = 0;
+  currentStreak = 0;
+  multiplier = 1;
+  updateStreakUI();
+
+  timeLeft = defaultTime;
+  customBonusSize = 0;
+  isPlaying = true;
+  isPaused = false;
+  
+  updateDifficulty();
+
+  scoreDisplay.textContent = score;
+  coinsDisplay.textContent = totalCoins;
+  timerDisplay.textContent = timeLeft;
+  highScoreDisplay.textContent = highScore;
+  
+  ball.style.width = `${INITIAL_SIZE}px`;
+  ball.style.height = `${INITIAL_SIZE}px`;
+  ball.style.display = 'block';
+  if (!isTouchDevice) customCursor.style.display = 'block';
+
+  pauseMenu.classList.add('hidden');
+  shopMenu.classList.add('hidden');
+  gameOverScreen.classList.add('hidden');
+  
+  moveBall();
+  startTimer();
+}
+
+// Cargar tema e iniciar
+document.body.className = `theme-${currentTheme}`;
+updateDifficulty();
+moveBall();
+startTimer();
