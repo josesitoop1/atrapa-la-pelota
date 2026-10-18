@@ -15,6 +15,10 @@
 
   <!-- Contenedor principal del juego -->
   <div id="game-container">
+    <!-- Capas visuales para efectos vivos de fondo -->
+    <div class="stars-layer"></div>
+    <div class="bg-glow-layer"></div>
+
     <!-- Cursor personalizado para PC -->
     <div id="custom-cursor"></div>
 
@@ -102,7 +106,7 @@
       <!-- Pestañas de la tienda -->
       <div class="shop-tabs">
         <button id="tab-skins-btn" class="tab-btn active" onclick="cambiarPestanaTienda('skins')">Pelotas</button>
-        <button id="tab-themes-btn" class="tab-btn" onclick="cambiarPestanaTienda('themes')">Fondos</button>
+        <button id="tab-themes-btn" class="tab-btn" onclick="cambiarPestanaTienda('themes')">Fondos Vivos</button>
         <button id="tab-images-btn" class="tab-btn" onclick="cambiarPestanaTienda('images')">Imágenes</button>
       </div>
 
@@ -142,30 +146,30 @@
         </div>
       </div>
 
-      <!-- Sección de Fondos Originales -->
+      <!-- Sección de Fondos Vivos -->
       <div id="shop-themes-section" class="shop-items hidden">
         <div class="shop-item">
-          <span>🟣 Cyberpunk</span>
+          <span>🟣 Cyberpunk Neón</span>
           <button id="buy-theme-cyberpunk" class="shop-btn">Equipado</button>
         </div>
         <div class="shop-item">
-          <span>✨ Espacio Exterior (100 🪙)</span>
+          <span>✨ Espacio Titilante (100 🪙)</span>
           <button id="buy-theme-space" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
-          <span>🌅 Atardecer 80s (200 🪙)</span>
+          <span>🌅 Olas Neón 80s (200 🪙)</span>
           <button id="buy-theme-sunset" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
-          <span>🌊 Océano Abisal (Casino)</span>
+          <span>🌊 Océano Abisal Vivo (Casino)</span>
           <button id="buy-theme-ocean" class="shop-btn">Ir al Casino</button>
         </div>
         <div class="shop-item">
-          <span>⚡ Tormenta Electrólica (Casino)</span>
+          <span>⚡ Tormenta Eléctrica (Casino)</span>
           <button id="buy-theme-storm" class="shop-btn">Ir al Casino</button>
         </div>
         <div class="shop-item">
-          <span>🌌 Galaxia Animada (Casino)</span>
+          <span>🌌 Galaxia Espiral (Casino)</span>
           <button id="buy-theme-animatedgalaxy" class="shop-btn">Ir al Casino</button>
         </div>
         <div class="shop-item">
@@ -173,7 +177,7 @@
           <button id="buy-theme-cybercity" class="shop-btn">Ir al Casino</button>
         </div>
         <div class="shop-item">
-          <span>🌋 Núcleo de Magma (Casino)</span>
+          <span>🌋 Núcleo Magma Hirviente (Casino)</span>
           <button id="buy-theme-magma" class="shop-btn">Ir al Casino</button>
         </div>
       </div>
@@ -223,7 +227,7 @@
     <!-- Pestañas de Casino -->
     <div class="casino-tabs">
       <button class="casino-tab active" onclick="cambiarSeccionCasino('minijuegos')">Minijuegos</button>
-      <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda High Roller</button>
+      <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda VIP</button>
     </div>
 
     <!-- Sección de Minijuegos -->
@@ -283,11 +287,11 @@
         <button id="casino-buy-ocean" onclick="comprarItemCasino('ocean', 500)">Comprar</button>
       </div>
       <div class="casino-shop-item">
-        <span>⚡ Tormenta Electrólica (650 🎲)</span>
+        <span>⚡ Tormenta Eléctrica (650 🎲)</span>
         <button id="casino-buy-storm" onclick="comprarItemCasino('storm', 650)">Comprar</button>
       </div>
       <div class="casino-shop-item">
-        <span>🌌 Galaxia Animada (750 🎲)</span>
+        <span>🌌 Galaxia Espiral (750 🎲)</span>
         <button id="casino-buy-animatedgalaxy" onclick="comprarItemCasino('animatedgalaxy', 750)">Comprar</button>
       </div>
       <div class="casino-shop-item">
@@ -295,13 +299,13 @@
         <button id="casino-buy-cybercity" onclick="comprarItemCasino('cybercity', 900)">Comprar</button>
       </div>
       <div class="casino-shop-item">
-        <span>🌋 Núcleo de Magma (1000 🎲)</span>
+        <span>🌋 Núcleo Magma Hirviente (1000 🎲)</span>
         <button id="casino-buy-magma" onclick="comprarItemCasino('magma', 1000)">Comprar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal para Comprar Fichas (10 Monedas = 1 Ficha) -->
+  <!-- Modal para Comprar Fichas -->
   <div id="exchange-modal" class="hidden">
     <div class="modal-content">
       <h3>Banco del Casino 🏦</h3>
