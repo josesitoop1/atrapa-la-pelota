@@ -1,3 +1,6 @@
+/* ==========================================
+   ESTILOS GENERALES Y RESETEO BÁSICO
+   ========================================== */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -107,7 +110,7 @@ h1 {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: bold;
   color: #a6accd;
   margin-top: 5px;
@@ -183,9 +186,9 @@ h1 {
 }
 
 /* ==========================================
-   MENÚS FLOTANTES Y PANELES DE OPCIONES
+   MENÚS FLOTANTES, PAUSA Y TIENDA
    ========================================== */
-#pause-menu, #game-over {
+#pause-menu, #game-over, #shop-menu {
   position: absolute;
   top: 0;
   left: 0;
@@ -200,9 +203,9 @@ h1 {
   cursor: default;
 }
 
-#pause-menu h2, #game-over h2 {
+#pause-menu h2, #game-over h2, #shop-menu h2 {
   color: #ff0055;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin-bottom: 10px;
 }
 
@@ -253,35 +256,6 @@ h1 {
   color: #a6accd;
 }
 
-.time-adjust-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#menu-time-display {
-  font-weight: bold;
-  color: white;
-  min-width: 35px;
-}
-
-.time-btn {
-  background-color: #10b981;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-.time-btn:hover {
-  background-color: #059669;
-  transform: scale(1.05);
-}
-
 input[type="range"] {
   width: 170px;
   accent-color: #7c3aed;
@@ -290,11 +264,32 @@ input[type="range"] {
 
 .menu-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 5px;
 }
 
 #reset-highscore-btn {
+  background-color: #33334d;
+  color: #a6accd;
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#shop-toggle-btn {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#restart-from-pause-btn {
   background-color: #ef4444;
   color: white;
   border: none;
@@ -305,13 +300,49 @@ input[type="range"] {
   font-weight: bold;
 }
 
-#resume-btn, #restart-btn {
+#resume-btn, #restart-btn, #close-shop-btn {
   background-color: #7c3aed;
   color: white;
   border: none;
-  padding: 8px 16px;
-  font-size: 0.85rem;
+  padding: 8px 14px;
+  font-size: 0.8rem;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+}
+
+/* Estilos de la Tienda de Skins */
+.shop-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 15px 0;
+  width: 80%;
+  max-width: 280px;
+}
+
+.shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3b3b52;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.shop-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.shop-btn:disabled {
+  background-color: #4b5563;
+  cursor: default;
 }
