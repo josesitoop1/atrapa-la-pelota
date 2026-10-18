@@ -83,11 +83,28 @@ h1 {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: bold;
   color: #a6accd;
   margin-top: 5px;
   margin-bottom: 10px;
+}
+
+/* Indicador dinámico de racha / combo */
+#streak-display {
+  color: #facc15;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+}
+
+.streak-hidden {
+  opacity: 0.3;
+  transform: scale(0.9);
+}
+
+.streak-active {
+  opacity: 1;
+  transform: scale(1.15);
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.8);
 }
 
 /* ==========================================
