@@ -22,18 +22,19 @@
       <button id="pause-btn" onclick="togglePause()">⏸️</button>
     </div>
     
-    <!-- Barra de información con la puntuación, el multiplicador, récord y tiempo -->
+    <!-- Barra de información con puntos, monedas, racha, récord y tiempo fijo -->
     <div id="info-bar">
       <p>Puntos: <span id="score">0</span></p>
+      <p>Monedas: <span id="coins">0</span> 🪙</p>
       <p id="streak-display" class="streak-hidden">Racha: <span id="multiplier-val">x1</span></p>
       <p>Récord: <span id="high-score">0</span></p>
-      <p>Tiempo: <span id="timer">30</span>s</p>
+      <p>Tiempo: <span id="timer">80</span>s</p>
     </div>
 
     <!-- La pelota principal que el jugador debe atrapar -->
     <div id="ball"></div>
 
-    <!-- Menú de pausa flotante (permite cambiar ajustes sin perder la partida actual) -->
+    <!-- Menú de pausa flotante (incluye selector de dificultad, reinicio y tienda) -->
     <div id="pause-menu" class="hidden">
       <h2>Juego Pausado</h2>
       
@@ -44,16 +45,6 @@
           <button id="btn-easy" class="diff-btn" onclick="changeDifficulty('easy')">Fácil</button>
           <button id="btn-medium" class="diff-btn active" onclick="changeDifficulty('medium')">Normal</button>
           <button id="btn-hard" class="diff-btn" onclick="changeDifficulty('hard')">Difícil</button>
-        </div>
-      </div>
-
-      <!-- Ajuste dinámico de la duración de la partida -->
-      <div class="control-group">
-        <label>Ajustar Tiempo:</label>
-        <div class="time-adjust-group">
-          <button class="time-btn" onclick="adjustTime(-10)">-10s</button>
-          <span id="menu-time-display">30s</span>
-          <button class="time-btn" onclick="adjustTime(10)">+10s</button>
         </div>
       </div>
 
@@ -69,17 +60,44 @@
         <input type="range" id="sensitivity-slider" min="0.3" max="2.0" step="0.1" value="1.0" oninput="changeSensitivity(this.value)">
       </div>
 
-      <!-- Botones de acción dentro del menú de pausa -->
+      <!-- Botones de acción principales en pausa -->
       <div class="menu-buttons">
-        <button id="reset-highscore-btn" onclick="resetHighScore()">Borrar Récord</button>
-        <button id="resume-btn" onclick="togglePause()">Seguir Jugando</button>
+        <button id="restart-from-pause-btn" onclick="restartGame()">🔄 Reiniciar</button>
+        <button id="shop-toggle-btn" onclick="toggleShop()">🛒 Tienda</button>
+        <button id="resume-btn" onclick="togglePause()">▶️ Seguir</button>
       </div>
+
+      <button id="reset-highscore-btn" onclick="resetHighScore()" style="margin-top: 10px;">Borrar Récord</button>
     </div>
 
-    <!-- Pantalla de Game Over (se muestra cuando el cronómetro llega a cero) -->
+    <!-- Panel de la Tienda de Skins (Oculto por defecto) -->
+    <div id="shop-menu" class="hidden">
+      <h2>Tienda de Pelotas 🛒</h2>
+      <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
+      
+      <div class="shop-items">
+        <div class="shop-item">
+          <span>🔴 Clásica Neón</span>
+          <button id="buy-classic" class="shop-btn" disabled>Equipada</button>
+        </div>
+        <div class="shop-item">
+          <span>🔥 Bola Fuego (50 🪙)</span>
+          <button id="buy-fire" class="shop-btn" onclick="buySkin('fire', 50)">Comprar</button>
+        </div>
+        <div class="shop-item">
+          <span>🌌 Bola Galaxia (150 🪙)</span>
+          <button id="buy-galaxy" class="shop-btn" onclick="buySkin('galaxy', 150)">Comprar</button>
+        </div>
+      </div>
+
+      <button id="close-shop-btn" onclick="toggleShop()">Volver al Menú</button>
+    </div>
+
+    <!-- Pantalla de Game Over -->
     <div id="game-over" class="hidden">
       <h2>¡Se Acabó el Tiempo!</h2>
       <p>Hiciste: <span id="final-score">0</span> puntos</p>
+      <p>Monedas ganadas: +<span id="earned-coins">0</span> 🪙</p>
       <p>Tu mejor marca: <span id="final-high-score">0</span></p>
       <button id="restart-btn" onclick="restartGame()">Jugar otra vez</button>
     </div>
