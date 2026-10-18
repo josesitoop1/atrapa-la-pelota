@@ -7,6 +7,10 @@ let autoMoveTimeout;
 let isPlaying = true;
 let isPaused = false;
 
+// Variables del sistema de Racha / Combo Multiplicador
+let currentStreak = 0;
+let multiplier = 1;
+
 // Variables principales de tamaño, velocidad y personalización visual de la bola
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
@@ -26,6 +30,8 @@ let isTouchDevice = false;
 const ball = document.getElementById('ball');
 const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
+const streakDisplay = document.getElementById('streak-display');
+const multiplierVal = document.getElementById('multiplier-val');
 const highScoreDisplay = document.getElementById('high-score');
 const timerDisplay = document.getElementById('timer');
 const menuTimeDisplay = document.getElementById('menu-time-display');
@@ -153,9 +159,29 @@ ball.addEventListener('pointerdown', (e) => {
 // LÓGICA PRINCIPAL DE JUEGO Y MECÁNICAS
 // ==========================================
 
+// Actualiza el indicador visual de la racha en pantalla
+function updateStreakUI() {
+  if (multiplier > 1) {
+    multiplierVal.textContent = `x${multiplier}`;
+    streakDisplay.classList.remove('streak-hidden');
+    streakDisplay.classList.add('streak-active');
+  } else {
+    multiplierVal.textContent = `x1`;
+    streakDisplay.classList.remove('streak-active');
+    streakDisplay.classList.add('streak-hidden');
+  }
+}
+
 function catchBall() {
   playSound('catch');
-  score++;
+
+  // Incrementar la racha y calcular el multiplicador (Cada 3 aciertos sube +1 al multiplicador, máx x4)
+  currentStreak++;
+  multiplier = Math.min(4, 1 + Math.floor(currentStreak / 3));
+  updateStreakUI();
+
+  // Sumar puntos multiplicados según la racha
+  score += 1 * multiplier;
   scoreDisplay.textContent = score;
 
   // Transición automática: si estás en modo fácil y llegas a 40 puntos, cambia a normal
@@ -176,11 +202,11 @@ function catchPowerUp(pow) {
 
   if (suerte < 40) {
     // Opción 1: Sumar 3 puntos sin aumentar dificultad (40% de probabilidad)
-    score += 3;
+    score += 3 * multiplier;
     scoreDisplay.textContent = score;
   } else if (suerte < 43) {
     // Opción 2: Sumar 10 puntos sin aumentar dificultad (3% de probabilidad)
-    score += 10;
+    score += 10 * multiplier;
     scoreDisplay.textContent = score;
   } else if (suerte < 63) {
     // Opción 3: La bola cambia a un color aleatorio seguro diferente a las trampas (20% de probabilidad)
@@ -188,7 +214,7 @@ function catchPowerUp(pow) {
     currentColor = coloresLibres[Math.floor(Math.random() * coloresLibres.length)];
     ball.style.backgroundColor = currentColor;
     ball.style.boxShadow = `0 0 15px ${currentColor}`;
-    score += 3;
+    score += 3 * multiplier;
     scoreDisplay.textContent = score;
   } else if (suerte < 73) {
     // Opción 4: La bola se hace grande y muestra un puntito blanco en el centro (10% de probabilidad)
@@ -201,11 +227,11 @@ function catchPowerUp(pow) {
     }
 
     updateDifficulty();
-    score += 3;
+    score += 3 * multiplier;
     scoreDisplay.textContent = score;
   } else {
     // Margen restante (27%): Otorga 3 puntos estándar de respaldo
-    score += 3;
+    score += 3 * multiplier;
     scoreDisplay.textContent = score;
   }
 
@@ -213,9 +239,15 @@ function catchPowerUp(pow) {
   activePowerUps = activePowerUps.filter(p => p !== pow);
 }
 
-// Penalización al tocar una trampa (resta 3 puntos)
+// Penalización al tocar una trampa (resta 3 puntos y reinicia la racha a cero)
 function hitTrap(trap) {
   playSound('bomb');
+  
+  // Reiniciar la racha a cero
+  currentStreak = 0;
+  multiplier = 1;
+  updateStreakUI();
+
   score = Math.max(0, score - 3);
   scoreDisplay.textContent = score;
   trap.remove();
@@ -349,8 +381,13 @@ function moveBall() {
     }
   }
 
-  // Temporizador de salto automático de la pelota si no se atrapa a tiempo
+  // Temporizador de salto automático: Si la pelota salta sola porque no la atrapaste, rompe la racha
   autoMoveTimeout = setTimeout(() => {
+    if (currentStreak > 0) {
+      currentStreak = 0;
+      multiplier = 1;
+      updateStreakUI();
+    }
     moveBall();
   }, currentSpeed);
 }
@@ -540,6 +577,10 @@ function restartGame() {
   clearTimeout(autoMoveTimeout);
 
   score = 0;
+  currentStreak = 0;
+  multiplier = 1;
+  updateStreakUI();
+
   timeLeft = defaultTime;
   customBonusSize = 0;
   isPlaying = true;
