@@ -86,7 +86,6 @@ function darMonedasPro() {
 function borrarTodoElProgreso() {
   if (confirm("¿Estás seguro de borrar todo el progreso, monedas y compras?")) {
     localStorage.clear();
-
     recordMax = 0;
     monedasTotales = 0;
     fichasCasino = 0;
@@ -98,7 +97,6 @@ function borrarTodoElProgreso() {
     if (marcadorRecord) marcadorRecord.textContent = '0';
     actualizarMonedasUI();
     document.body.className = 'theme-cyberpunk';
-
     reiniciarJuego();
   }
 }
@@ -132,17 +130,13 @@ function cambiarSeccionCasino(seccion) {
 }
 
 function abrirModalCambio() {
-  if (exchangeModal) {
-    exchangeModal.classList.toggle('hidden');
-  }
+  if (exchangeModal) exchangeModal.classList.toggle('hidden');
 }
 
 function calcularCostoCambio(val) {
   const fichas = parseInt(val) || 0;
   const textoCosto = document.getElementById('exchange-cost-text');
-  if (textoCosto) {
-    textoCosto.textContent = `Costo: ${fichas * 10} Monedas 🪙`;
-  }
+  if (textoCosto) textoCosto.textContent = `Costo: ${fichas * 10} Monedas 🪙`;
 }
 
 function realizarCambioMonedas() {
@@ -157,7 +151,6 @@ function realizarCambioMonedas() {
 
   monedasTotales -= costoMonedas;
   fichasCasino += cantidadInput;
-
   localStorage.setItem('ballGameCasinoChips', fichasCasino);
   actualizarMonedasUI();
   abrirModalCambio();
@@ -170,7 +163,6 @@ function jugarSlots() {
     alert("¡Necesitas mínimo 20 fichas para jugar al Tragamonedas!");
     return;
   }
-
   fichasCasino -= costoFichas;
   actualizarMonedasUI();
 
@@ -187,7 +179,6 @@ function jugarSlots() {
   if (slot3El) slot3El.textContent = s3;
 
   const msg = document.getElementById('slot-msg');
-
   if (s1 === s2 && s2 === s3) {
     let premio = s1 === '7️⃣' ? 300 : 150;
     fichasCasino += premio;
@@ -212,7 +203,6 @@ function jugarRuleta(eleccion) {
     alert("¡Necesitas mínimo 20 fichas para jugar a la Ruleta!");
     return;
   }
-
   fichasCasino -= costoFichas;
   actualizarMonedasUI();
 
@@ -224,11 +214,7 @@ function jugarRuleta(eleccion) {
   if (disp) disp.textContent = resultado === 'rojo' ? '🔴' : resultado === 'verde' ? '🟢' : resultado === 'negro' ? '⚫' : '⚪';
 
   if (eleccion === resultado) {
-    let premio = 0;
-    if (resultado === 'rojo') premio = 30;
-    else if (resultado === 'verde') premio = 50;
-    else if (resultado === 'negro') premio = 80;
-
+    let premio = resultado === 'rojo' ? 30 : resultado === 'verde' ? 50 : 80;
     fichasCasino += premio;
     if (msg) msg.textContent = `¡Cayó ${resultado.toUpperCase()}! Ganaste +${premio} 🎲`;
     sonarEfecto('powerup');
@@ -248,12 +234,10 @@ function jugarCaraOCruz(eleccion) {
     alert("Ingresa una cantidad válida de monedas para apostar.");
     return;
   }
-
   if (monedasTotales < apuestaMonedas) {
     alert("¡No tienes suficientes monedas para realizar esta apuesta!");
     return;
   }
-
   monedasTotales -= apuestaMonedas;
 
   const opciones = ['cara', 'cruz', 'cruz'];
@@ -268,7 +252,6 @@ function jugarCaraOCruz(eleccion) {
     if (msg) msg.textContent = `Salió ${resultado.toUpperCase()}. Perdiste ${apuestaMonedas} 🪙`;
     sonarEfecto('bomb');
   }
-
   actualizarMonedasUI();
 }
 
@@ -277,7 +260,6 @@ function comprarItemCasino(item, precio) {
     alert("¡Necesitas más fichas! Consigue más en la Ruleta o cámbialas en el banco.");
     return;
   }
-
   fichasCasino -= precio;
   localStorage.setItem('ballGameCasinoChips', fichasCasino);
 
@@ -297,13 +279,12 @@ function comprarItemCasino(item, precio) {
   actualizarMonedasUI();
   checarBotonesTienda();
   sonarEfecto('powerup');
-  alert("¡Compra VIP realizada! Puedes equiparla desde tu menú.");
+  alert("¡Compra VIP realizada!");
 }
 
 function actualizarMonedasUI() {
   localStorage.setItem('ballGameCoins', monedasTotales);
   localStorage.setItem('ballGameCasinoChips', fichasCasino);
-
   if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
   if (menuMonedas) menuMonedas.textContent = monedasTotales;
   if (tiendaMonedas) tiendaMonedas.textContent = monedasTotales;
@@ -347,21 +328,17 @@ if (contenedor) {
 
 document.addEventListener('mousemove', (e) => {
   if (!contenedor) return;
-
   if (!esCel) {
     const centroX = window.innerWidth / 2;
     const centroY = window.innerHeight / 2;
     const mouseX = e.clientX - centroX;
     const mouseY = e.clientY - centroY;
-    
     const rotX = (-mouseY / centroY) * 12;
     const rotY = (mouseX / centroX) * 12;
-    
     contenedor.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
   }
 
   if (estaPausado || !juegoActivo || esCel || !cursorPro) return;
-
   cursorPro.style.display = 'block';
 
   if (document.pointerLockElement === contenedor) {
@@ -431,7 +408,6 @@ if (bola) {
     e.preventDefault();
     atraparPelota();
   });
-
   bola.addEventListener('pointerdown', (e) => {
     if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
     e.preventDefault();
@@ -464,14 +440,12 @@ function irAlMenuPrincipal() {
   if (!esCel && document.exitPointerLock) {
     try { document.exitPointerLock(); } catch(e){}
   }
-
   if (menuPausa) menuPausa.classList.add('hidden');
   if (menuTienda) menuTienda.classList.add('hidden');
   if (menuInfo) menuInfo.classList.add('hidden');
   if (pantallaGameOver) pantallaGameOver.classList.add('hidden');
   if (bola) bola.style.display = 'none';
   if (cursorPro) cursorPro.style.display = 'none';
-
   if (menuMonedas) menuMonedas.textContent = monedasTotales;
   if (menuPrincipal) menuPrincipal.classList.remove('hidden');
 }
@@ -598,6 +572,23 @@ function checarBotonesTienda() {
     }
   }
 
+  const btnTemaSunset = document.getElementById('buy-theme-sunset');
+  if (btnTemaSunset) {
+    if (temaActual === 'sunset') {
+      btnTemaSunset.textContent = 'Desequipar';
+      btnTemaSunset.disabled = false;
+      btnTemaSunset.onclick = () => ponerTema('cyberpunk');
+    } else if (temasDesbloqueados.includes('sunset')) {
+      btnTemaSunset.textContent = 'Equipar';
+      btnTemaSunset.disabled = false;
+      btnTemaSunset.onclick = () => ponerTema('sunset');
+    } else {
+      btnTemaSunset.textContent = 'Comprar (200 🪙)';
+      btnTemaSunset.disabled = monedasTotales < 200;
+      btnTemaSunset.onclick = () => comprarTema('sunset', 200);
+    }
+  }
+
   const temasVipArray = [
     { idBtn: 'buy-theme-ocean', idCasino: 'casino-buy-ocean', key: 'ocean' },
     { idBtn: 'buy-theme-storm', idCasino: 'casino-buy-storm', key: 'storm' },
@@ -685,10 +676,8 @@ function comprarSkin(nombreSkin, precio) {
   if (monedasTotales >= precio) {
     monedasTotales -= precio;
     actualizarMonedasUI();
-
     skinsDesbloqueadas.push(nombreSkin);
     localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(skinsDesbloqueadas));
-
     ponerSkin(nombreSkin);
     sonarEfecto('powerup');
   }
@@ -705,10 +694,8 @@ function comprarTema(nombreTema, precio) {
   if (monedasTotales >= precio) {
     monedasTotales -= precio;
     actualizarMonedasUI();
-
     temasDesbloqueados.push(nombreTema);
     localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(temasDesbloqueados));
-
     ponerTema(nombreTema);
     sonarEfecto('powerup');
   }
@@ -760,7 +747,6 @@ function mostrarAvisoRacha(texto) {
     popupRacha.classList.remove('hidden');
     popupRacha.classList.add('show');
   }
-
   tiempoRacha = setTimeout(() => {
     if (popupRacha) popupRacha.classList.remove('show');
   }, 600);
@@ -811,7 +797,6 @@ function activarTemblorPantalla() {
 
 function atraparPelota() {
   sonarEfecto('catch');
-
   if (bola && contenedor) {
     const rectBola = bola.getBoundingClientRect();
     const rectCont = contenedor.getBoundingClientRect();
@@ -829,7 +814,6 @@ function atraparPelota() {
   }
 
   actualizarRachaUI();
-
   puntos += 1 * multi;
   if (marcadorPuntos) marcadorPuntos.textContent = puntos;
 
@@ -851,6 +835,14 @@ function atraparPoder(pow) {
     modoImanActivo = true;
     mostrarAvisoRacha('¡IMÁN ACTIVADO! 🧲');
     clearTimeout(tiempoImanTimeout);
+    
+    // Solución al congelamiento: se maneja de forma segura sin bucle infinito
+    setTimeout(() => {
+      if (juegoActivo && !estaPausado && modoImanActivo) {
+        atraparPelota();
+      }
+    }, 400);
+
     tiempoImanTimeout = setTimeout(() => {
       modoImanActivo = false;
     }, 5000);
@@ -859,31 +851,7 @@ function atraparPoder(pow) {
     trampasActivas = [];
     mostrarAvisoRacha('¡SUPERBOMBA! 💣');
   } else {
-    const suerte = Math.random() * 100;
-    if (suerte < 40) {
-      puntos += 3 * multi;
-    } else if (suerte < 43) {
-      puntos += 10 * multi;
-    } else if (suerte < 63) {
-      let libres = paletaColores.filter(c => c !== colorActual);
-      colorActual = libres[Math.floor(Math.random() * libres.length)];
-      if (skinActual === 'classic' && bola) {
-        bola.style.backgroundColor = colorActual;
-        bola.style.boxShadow = `0 0 15px ${colorActual}`;
-      }
-      puntos += 3 * multi;
-    } else if (suerte < 73) {
-      extraTamaño = 18;
-      if (bola && !bola.querySelector('.main-ball-dot')) {
-        const puntoExtra = document.createElement('div');
-        puntoExtra.className = 'main-ball-dot';
-        bola.appendChild(puntoExtra);
-      }
-      ajustarDificultad();
-      puntos += 3 * multi;
-    } else {
-      puntos += 3 * multi;
-    }
+    puntos += 3 * multi;
     if (marcadorPuntos) marcadorPuntos.textContent = puntos;
   }
 
@@ -946,7 +914,6 @@ function spawnPowerUpGenerico(tipo, maxX, maxY, usados) {
     e.preventDefault();
     atraparPoder(pow);
   });
-
   pow.addEventListener('pointerdown', (e) => {
     if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
     e.preventDefault();
@@ -960,11 +927,6 @@ function spawnPowerUpGenerico(tipo, maxX, maxY, usados) {
 function moverPelota() {
   if (!juegoActivo || estaPausado || !contenedor || !bola) return;
   clearTimeout(muevePelotaTimeout);
-
-  if (modoImanActivo) {
-    atraparPelota();
-    return;
-  }
 
   limpiarTodoEnPantalla();
 
@@ -989,7 +951,6 @@ function moverPelota() {
   for (let i = 0; i < trampasTotales; i++) {
     const trap = document.createElement('div');
     trap.className = 'trap-ball';
-
     trap.style.width = bola.style.width;
     trap.style.height = bola.style.height;
     trap.style.backgroundColor = colorActual;
@@ -1022,7 +983,6 @@ function moverPelota() {
       e.preventDefault();
       pegarTrampa(trap);
     });
-
     trap.addEventListener('pointerdown', (e) => {
       if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
       e.preventDefault();
@@ -1035,23 +995,13 @@ function moverPelota() {
 
   if (dificultadActual === 'medium') {
     const azar = Math.random();
-    if (azar < 0.05) {
-      spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
-    } else if (azar < 0.07) {
-      spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
-    } else if (azar < 0.08) {
-      spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
-    }
+    if (azar < 0.05) spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.07) spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.08) spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
   } else if (dificultadActual === 'hard') {
-    if (Math.random() < 0.05) {
-      spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
-    }
-    if (Math.random() < 0.03) {
-      spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
-    }
-    if (Math.random() < 0.02) {
-      spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
-    }
+    if (Math.random() < 0.05) spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
+    if (Math.random() < 0.03) spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
+    if (Math.random() < 0.02) spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
   }
 
   muevePelotaTimeout = setTimeout(() => {
@@ -1071,22 +1021,16 @@ function ajustarDificultad() {
   bola.style.width = `${tamFinal}px`;
   bola.style.height = `${tamFinal}px`;
 
-  if (dificultadActual === 'easy') {
-    velocidadActual = 1600;
-  } else if (dificultadActual === 'medium') {
-    velocidadActual = Math.max(500, 1200 - (puntos * 20));
-  } else if (dificultadActual === 'hard') {
-    velocidadActual = Math.max(250, 800 - (puntos * 30));
-  }
+  if (dificultadActual === 'easy') velocidadActual = 1600;
+  else if (dificultadActual === 'medium') velocidadActual = Math.max(500, 1200 - (puntos * 20));
+  else if (dificultadActual === 'hard') velocidadActual = Math.max(250, 800 - (puntos * 30));
 
   if (extraTamaño === 0) {
     const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
     colorActual = paletaColores[indiceColor];
-    
     const puntoExtra = bola.querySelector('.main-ball-dot');
     if (puntoExtra) puntoExtra.remove();
   }
-  
   actualizarEstilosSkin();
 }
 
@@ -1116,9 +1060,7 @@ function inicializarAudio() {
     if (contextoAudio && contextoAudio.state === 'suspended') {
       contextoAudio.resume();
     }
-  } catch (e) {
-    console.log("Audio no soportado:", e);
-  }
+  } catch (e) {}
 }
 
 function toggleMusicaFondo() {
@@ -1126,18 +1068,13 @@ function toggleMusicaFondo() {
   musicaActiva = !musicaActiva;
   const btn = document.getElementById('bgm-toggle-btn');
   if (btn) btn.textContent = `🎵 Música: ${musicaActiva ? 'ON' : 'OFF'}`;
-
-  if (musicaActiva) {
-    reproducirMusicaRetro();
-  } else {
-    clearInterval(osciladorMusicaIntervalo);
-  }
+  if (musicaActiva) reproducirMusicaRetro();
+  else clearInterval(osciladorMusicaIntervalo);
 }
 
 function reproducirMusicaRetro() {
   if (!musicaActiva || !contextoAudio) return;
   clearInterval(osciladorMusicaIntervalo);
-
   const notas = [220, 261.63, 293.66, 329.63, 261.63, 220, 196, 220];
   let paso = 0;
 
@@ -1160,9 +1097,7 @@ function reproducirMusicaRetro() {
 }
 
 function cambiarVolumen(vol) {
-  if (gananciaMaster) {
-    gananciaMaster.gain.value = parseFloat(vol);
-  }
+  if (gananciaMaster) gananciaMaster.gain.value = parseFloat(vol);
 }
 
 function cambiarSensibilidad(val) {
@@ -1181,7 +1116,6 @@ function cambiarDificultad(nivel) {
 function sonarEfecto(tipo) {
   inicializarAudio();
   if (!contextoAudio) return;
-
   try {
     const oscilador = contextoAudio.createOscillator();
     const ganancia = contextoAudio.createGain();
@@ -1221,9 +1155,7 @@ function sonarEfecto(tipo) {
       oscilador.start();
       oscilador.stop(contextoAudio.currentTime + 0.4);
     }
-  } catch(e) {
-    console.log("Audio omitido:", e);
-  }
+  } catch(e) {}
 }
 
 function pausarJuego() {
@@ -1254,10 +1186,7 @@ function iniciarReloj() {
     if (estaPausado) return;
     tiempoRestante--;
     if (marcadorTiempo) marcadorTiempo.textContent = tiempoRestante;
-
-    if (tiempoRestante <= 0) {
-      terminarJuego();
-    }
+    if (tiempoRestante <= 0) terminarJuego();
   }, 1000);
 }
 
@@ -1272,7 +1201,6 @@ function terminarJuego() {
   clearInterval(relojIntervalo);
   clearTimeout(muevePelotaTimeout);
   limpiarTodoEnPantalla();
-  
   sonarEfecto('gameover');
 
   monedasTotales += puntos;
@@ -1316,7 +1244,6 @@ function reiniciarJuego() {
   }
 
   ajustarDificultad();
-
   if (marcadorPuntos) marcadorPuntos.textContent = puntos;
   actualizarMonedasUI();
   if (marcadorTiempo) marcadorTiempo.textContent = tiempoRestante;
