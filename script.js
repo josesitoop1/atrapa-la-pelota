@@ -1,8 +1,13 @@
+// ==========================================
+// JUEGO WEB: "ATRAPA LA PELOTA"
+// Descripción: Lógica multiplataforma completa con tienda corregida
+// para poder equipar y desequipar la pelota predeterminada sin problemas.
+// ==========================================
+
 let score = 0;
 let highScore = localStorage.getItem('ballGameHighScore') || 0;
 let totalCoins = parseInt(localStorage.getItem('ballGameCoins')) || 0;
 
-// Tiempo predeterminado fijo en 80 segundos
 let defaultTime = 80;
 let timeLeft = 80;
 let timerInterval;
@@ -69,7 +74,6 @@ let activePowerUps = [];
 // MODO DE PRUEBAS Y ADMINISTRACIÓN
 // ==========================================
 
-// Configuración del botón para sumar +100 monedas en modo prueba
 function addTestCoins() {
   totalCoins += 100;
   localStorage.setItem('ballGameCoins', totalCoins);
@@ -79,7 +83,6 @@ function addTestCoins() {
   playSound('powerup');
 }
 
-// Configuración del botón para resetear todo el progreso guardado
 function resetFullProgress() {
   if (confirm("¿Estás seguro de borrar todo el progreso, monedas y compras?")) {
     localStorage.clear();
@@ -216,12 +219,12 @@ function switchShopTab(tab) {
 }
 
 function updateShopButtons() {
-  // SKINS
+  // --- SKINS ---
   const btnClassic = document.getElementById('buy-classic');
   if (currentSkin === 'classic') {
     btnClassic.textContent = 'Equipada';
     btnClassic.disabled = true;
-  } else if (unlockedSkins.includes('classic')) {
+  } else {
     btnClassic.textContent = 'Equipar';
     btnClassic.disabled = false;
     btnClassic.onclick = () => equipSkin('classic');
@@ -255,7 +258,7 @@ function updateShopButtons() {
     btnGalaxy.onclick = () => buySkin('galaxy', 150);
   }
 
-  // TEMAS
+  // --- TEMAS ---
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
   if (currentTheme === 'cyberpunk') {
     btnThemeCyber.textContent = 'Equipado';
@@ -347,7 +350,12 @@ function applySkinVisuals() {
     ball.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
     ball.style.boxShadow = '0 0 20px #8b5cf6';
   } else {
-    updateDifficulty();
+    // Si se selecciona la clásica, se limpia cualquier degradado para usar el color normal
+    ball.style.background = '';
+    const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
+    currentColor = colors[colorIndex];
+    ball.style.backgroundColor = currentColor;
+    ball.style.boxShadow = `0 0 15px ${currentColor}`;
   }
 }
 
@@ -746,7 +754,6 @@ function endGame() {
   gameOverScreen.classList.remove('hidden');
 }
 
-// Configuración del botón "Jugar otra vez" y reinicio de partida
 function restartGame() {
   clearInterval(timerInterval);
   clearTimeout(autoMoveTimeout);
@@ -781,7 +788,7 @@ function restartGame() {
   startTimer();
 }
 
-// Cargar el tema guardado al iniciar
+// Cargar el tema e iniciar el juego
 document.body.className = `theme-${currentTheme}`;
 updateDifficulty();
 moveBall();
