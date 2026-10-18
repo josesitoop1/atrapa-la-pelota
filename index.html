@@ -8,6 +8,11 @@
 </head>
 <body id="game-body" class="theme-cyberpunk">
 
+  <!-- Botón / Flecha flotante desplegable del Casino en la esquina superior derecha -->
+  <div id="casino-trigger" onclick="toggleCasinoMenu()">
+    <span id="casino-trigger-text">Casino</span> 🎰 <span id="casino-arrow">◀</span>
+  </div>
+
   <!-- Contenedor principal del juego -->
   <div id="game-container">
     <!-- Cursor personalizado para PC -->
@@ -89,7 +94,7 @@
       </div>
     </div>
 
-    <!-- Menú de la Tienda -->
+    <!-- Menú de la Tienda Principal -->
     <div id="shop-menu" class="hidden">
       <h2>Tienda 🛒</h2>
       <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
@@ -115,6 +120,10 @@
           <span>🌌 Bola Galaxia (150 🪙)</span>
           <button id="buy-galaxy" class="shop-btn">Comprar</button>
         </div>
+        <div class="shop-item">
+          <span>⭐ Bola Dorada VIP (Casino)</span>
+          <button id="buy-vip-gold" class="shop-btn">Comprar en Casino</button>
+        </div>
       </div>
 
       <!-- Sección de Fondos Originales -->
@@ -130,6 +139,10 @@
         <div class="shop-item">
           <span>🌅 Atardecer 80s (200 🪙)</span>
           <button id="buy-theme-sunset" class="shop-btn">Comprar</button>
+        </div>
+        <div class="shop-item">
+          <span>🕶️ Fondo Matrix (Casino)</span>
+          <button id="buy-theme-matrix" class="shop-btn">Comprar en Casino</button>
         </div>
       </div>
 
@@ -159,6 +172,74 @@
       <p>Monedas ganadas: +<span id="earned-coins">0</span> 🪙</p>
       <p>Tu mejor marca: <span id="final-high-score">0</span></p>
       <button id="restart-btn" onclick="reiniciarJuego()">Jugar otra vez</button>
+    </div>
+  </div>
+
+  <!-- Apartado de Casino (Desplegable) -->
+  <div id="casino-menu" class="casino-hidden">
+    <div class="casino-header">
+      <h2>🎰 Casino & Suerte 🎲</h2>
+      <button id="close-casino-btn" onclick="toggleCasinoMenu()">✖️ Cerrar</button>
+    </div>
+
+    <div class="casino-balances">
+      <p>Monedas: <span id="casino-monedas-val">0</span> 🪙</p>
+      <p>Fichas: <span id="casino-fichas-val">0</span> 🎲</p>
+      <button id="open-exchange-btn" onclick="abrirModalCambio()">Cambiar Monedas por Fichas 🔄</button>
+    </div>
+
+    <!-- Pestañas de Casino -->
+    <div class="casino-tabs">
+      <button class="casino-tab active" onclick="cambiarSeccionCasino('minijuegos')">Minijuegos</button>
+      <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda VIP</button>
+    </div>
+
+    <!-- Sección de Minijuegos -->
+    <div id="casino-minijuegos-section" class="casino-section">
+      <div class="casino-box">
+        <h3>Tragamonedas 🍒</h3>
+        <div class="slots-container">
+          <span id="slot-1">🍋</span>
+          <span id="slot-2">🔔</span>
+          <span id="slot-3">💎</span>
+        </div>
+        <p id="slot-msg">¡Gira por 10 fichas!</p>
+        <button onclick="jugarSlots()">Girar Tragamonedas</button>
+      </div>
+
+      <div class="casino-box">
+        <h3>Ruleta de la Suerta 🎯</h3>
+        <div id="ruleta-display">🎲</div>
+        <p id="ruleta-msg">Apuesta 15 fichas</p>
+        <div class="ruleta-buttons">
+          <button onclick="jugarRuleta('rojo')">Rojo (x2)</button>
+          <button onclick="jugarRuleta('verde')">Verde (x10)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Tienda VIP de Casino -->
+    <div id="casino-tienda-section" class="casino-section hidden">
+      <h3>Tienda Exclusiva con Fichas 🛒</h3>
+      <div class="casino-shop-item">
+        <span>⭐ Bola Dorada VIP (100 🎲)</span>
+        <button id="casino-buy-gold" onclick="comprarItemCasino('gold', 100)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>🕶️ Fondo Matrix (250 🎲)</span>
+        <button id="casino-buy-matrix" onclick="comprarItemCasino('matrix', 250)">Comprar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Comprar Fichas -->
+  <div id="exchange-modal" class="hidden">
+    <div class="modal-content">
+      <h3>Banco de Fichas 🏦</h3>
+      <p>10 Monedas 🪙 = 1 Ficha 🎲</p>
+      <input type="number" id="exchange-input" min="1" value="10" placeholder="Monedas a cambiar">
+      <button onclick="realizarCambioMonedas()">Comprar Fichas</button>
+      <button onclick="abrirModalCambio()" style="background:#ef4444; margin-top:5px;">Cancelar</button>
     </div>
   </div>
 
