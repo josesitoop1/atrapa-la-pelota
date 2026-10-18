@@ -69,7 +69,7 @@ let activePowerUps = [];
 // MODO DE PRUEBAS Y ADMINISTRACIÓN
 // ==========================================
 
-// Botón para sumar +100 monedas en modo prueba
+// Configuración del botón para sumar +100 monedas en modo prueba
 function addTestCoins() {
   totalCoins += 100;
   localStorage.setItem('ballGameCoins', totalCoins);
@@ -79,9 +79,9 @@ function addTestCoins() {
   playSound('powerup');
 }
 
-// Botón para borrar todo el progreso (monedas, récords, skins y temas)
+// Configuración del botón para resetear todo el progreso guardado
 function resetFullProgress() {
-  if (confirm("¿Estás seguro de resetear todo el progreso y las compras?")) {
+  if (confirm("¿Estás seguro de borrar todo el progreso, monedas y compras?")) {
     localStorage.clear();
 
     highScore = 0;
@@ -746,6 +746,7 @@ function endGame() {
   gameOverScreen.classList.remove('hidden');
 }
 
+// Configuración del botón "Jugar otra vez" y reinicio de partida
 function restartGame() {
   clearInterval(timerInterval);
   clearTimeout(autoMoveTimeout);
