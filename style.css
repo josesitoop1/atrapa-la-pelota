@@ -32,7 +32,6 @@ body.theme-cyberpunk {
 }
 body.theme-cyberpunk #game-container {
   background-color: #2b2b3d;
-  background-image: none;
 }
 
 /* 2. Tema Espacio Exterior */
@@ -42,7 +41,6 @@ body.theme-space {
 body.theme-space #game-container {
   background: radial-gradient(circle at center, #111827 0%, #030712 100%);
   border: 1px solid #1f2937;
-  background-image: none;
 }
 
 /* 3. Tema Atardecer 80s / Outrun */
@@ -51,47 +49,43 @@ body.theme-sunset {
 }
 body.theme-sunset #game-container {
   background: linear-gradient(180deg, #3b0764 0%, #701a75 50%, #831843 100%);
-  background-image: none;
 }
 
 /* ==========================================
-   FONDOS DE IMAGEN PERSONALIZADOS (Color + Imagen separados sin errores)
+   FONDOS DE IMAGEN PERSONALIZADOS
    ========================================== */
 
-/* 1. Fondo Snoopy */
+/* 1. Fondo Snoopy (Color de fondo + Nueva imagen combinados) */
 body.theme-snoopy {
   background-color: #111827;
 }
 body.theme-snoopy #game-container {
-  background-color: #111827;
-  background-image: url('https://i.pinimg.com/originals/cc/81/08/cc81086d0bdf670a796051eb34ef9c19.jpg?nii=t');
+  background: linear-gradient(rgba(17, 24, 39, 0.45), rgba(17, 24, 39, 0.45)), 
+              url('https://tse3.mm.bing.net/th/id/OIP.36n5ymkpVi-AWOUgevpHdQHaHo?r=0&rs=1&pid=ImgDetMain&o=7&rm=3');
   background-size: cover;
   background-position: center;
-  background-blend-mode: overlay; /* Esto mezcla el color y la imagen perfectamente */
 }
 
-/* 2. Fondo Capibara */
+/* 2. Fondo Capibara (Color de fondo + Nueva imagen combinados) */
 body.theme-capybara {
   background-color: #1c1917;
 }
 body.theme-capybara #game-container {
-  background-color: #1c1917;
-  background-image: url('https://tse1.explicit.bing.net/th/id/OIP.Cq7PhB6zFqYFSUlS3kVuvwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3');
+  background: linear-gradient(rgba(28, 25, 23, 0.45), rgba(28, 25, 23, 0.45)), 
+              url('https://tse4.mm.bing.net/th/id/OIP.0SKKDnmM8czVauYnWtsFOAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3');
   background-size: cover;
   background-position: center;
-  background-blend-mode: overlay;
 }
 
-/* 3. Fondo Spider-Man */
+/* 3. Fondo Spider-Man (Color de fondo + Nueva imagen combinados) */
 body.theme-spiderman {
   background-color: #311212;
 }
 body.theme-spiderman #game-container {
-  background-color: #311212;
-  background-image: url('https://tse4.mm.bing.net/th/id/OIP.a1KVVLfbFD1goXL7_sHMRQHaLG?r=0&rs=1&pid=ImgDetMain&o=7&rm=3');
+  background: linear-gradient(rgba(49, 18, 18, 0.45), rgba(49, 18, 18, 0.45)), 
+              url('https://tse1.mm.bing.net/th/id/OIP.VB5sECs6_W3UpBCNNsNhzAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3');
   background-size: cover;
   background-position: center;
-  background-blend-mode: overlay;
 }
 
 /* ==========================================
@@ -99,7 +93,7 @@ body.theme-spiderman #game-container {
    ========================================== */
 #game-container {
   text-align: center;
-  width: 100vw;
+  width: 95vw;
   max-width: 420px;
   height: 90vh;
   max-height: 420px;
@@ -109,8 +103,6 @@ body.theme-spiderman #game-container {
   overflow: hidden;
   touch-action: none;
   transition: background 0.4s ease;
-  display: flex;
-  flex-direction: column;
 }
 
 #custom-cursor {
