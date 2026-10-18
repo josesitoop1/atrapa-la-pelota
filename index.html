@@ -8,7 +8,7 @@
 </head>
 <body id="game-body" class="theme-cyberpunk">
 
-  <!-- Botón / Flecha flotante desplegable del Casino en la esquina superior derecha -->
+  <!-- Botón / Flecha flotante desplegable del Casino -->
   <div id="casino-trigger" onclick="toggleCasinoMenu()">
     <span id="casino-trigger-text">Casino</span> 🎰 <span id="casino-arrow">◀</span>
   </div>
@@ -21,7 +21,7 @@
     <!-- Aviso flotante de racha -->
     <div id="streak-popup" class="hidden">¡RACHA x2!</div>
 
-    <!-- Menú Principal / Pantalla de Título -->
+    <!-- Menú Principal -->
     <div id="main-menu">
       <h2>Atrapa la Pelota 🎮</h2>
       <p>Monedas: <span id="menu-coins">0</span> 🪙</p>
@@ -34,8 +34,8 @@
     <div id="info-menu" class="hidden">
       <h2>Información del Juego ℹ️</h2>
       <div class="info-content">
-        <p>¡Qué onda! Bienvenido a <strong>Atrapa la Pelota</strong>. Creado con mucho esfuerzo y dedicación por <strong>José</strong>.</p>
-        <p>El objetivo está bien fácil: atrapa la pelota antes de que se mueva de lugar, haz puntos, junta monedas y rompe tu récord. ¡Waters con las trampas y aprovecha los multiplicadores!</p>
+        <p>¡Bienvenido a <strong>Atrapa la Pelota</strong>! Creado por <strong>José</strong>.</p>
+        <p>Atrapa la pelota antes de que cambie de posición, junta monedas, activa power-ups como el 🧲 Imán o la 💣 Superbomba, y evita las trampas.</p>
       </div>
       <button id="close-info-btn" onclick="verInfo()">Cerrar</button>
     </div>
@@ -55,7 +55,7 @@
       <p>Tiempo: <span id="timer">80</span>s</p>
     </div>
 
-    <!-- Pelota interactiva -->
+    <!-- Pelota interactiva principal -->
     <div id="ball"></div>
 
     <!-- Menú de pausa -->
@@ -69,6 +69,10 @@
           <button id="btn-medium" class="diff-btn active" onclick="cambiarDificultad('medium')">Normal</button>
           <button id="btn-hard" class="diff-btn" onclick="cambiarDificultad('hard')">Difícil</button>
         </div>
+      </div>
+
+      <div class="control-group">
+        <button id="bgm-toggle-btn" class="diff-btn" onclick="toggleMusicaFondo()">🎵 Música: OFF</button>
       </div>
 
       <div class="control-group">
@@ -99,7 +103,6 @@
       <h2>Tienda 🛒</h2>
       <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
       
-      <!-- Pestañas de la tienda -->
       <div class="shop-tabs">
         <button id="tab-skins-btn" class="tab-btn active" onclick="cambiarPestanaTienda('skins')">Pelotas</button>
         <button id="tab-themes-btn" class="tab-btn" onclick="cambiarPestanaTienda('themes')">Fondos</button>
@@ -142,7 +145,7 @@
         </div>
       </div>
 
-      <!-- Sección de Fondos Originales -->
+      <!-- Sección de Fondos -->
       <div id="shop-themes-section" class="shop-items hidden">
         <div class="shop-item">
           <span>🟣 Cyberpunk</span>
@@ -178,7 +181,7 @@
         </div>
       </div>
 
-      <!-- Sección de Fondos de Imagen Personalizados -->
+      <!-- Sección de Imágenes -->
       <div id="shop-images-section" class="shop-items hidden">
         <div class="shop-item">
           <span>🦫 Capibara (300 🪙)</span>
@@ -207,7 +210,7 @@
     </div>
   </div>
 
-  <!-- Apartado de Casino (Desplegable) -->
+  <!-- Apartado de Casino Desplegable -->
   <div id="casino-menu" class="casino-hidden">
     <div class="casino-header">
       <h2>🎰 Casino 🎲</h2>
@@ -220,7 +223,6 @@
       <button id="open-exchange-btn" onclick="abrirModalCambio()">Banco de Fichas 🏦</button>
     </div>
 
-    <!-- Pestañas de Casino -->
     <div class="casino-tabs">
       <button class="casino-tab active" onclick="cambiarSeccionCasino('minijuegos')">Minijuegos</button>
       <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda High Roller</button>
@@ -249,13 +251,23 @@
           <button style="background:#111827; border:1px solid #374151;" onclick="jugarRuleta('negro')">Negro (+80)</button>
         </div>
       </div>
+
+      <!-- Nuevo Minijuego: Cara o Cruz -->
+      <div class="casino-box">
+        <h3>Cara o Cruz 🪙</h3>
+        <p id="coinflip-msg">Apuesta tus Monedas (Ganas x2)</p>
+        <input type="number" id="coinflip-input" min="1" value="10" placeholder="Monedas a apostar" style="width: 80%; padding: 5px; margin-bottom: 8px; background: #1e1e2e; color: white; border: 1px solid #4b5563; border-radius: 6px; text-align: center;">
+        <div class="ruleta-buttons">
+          <button style="background:#f59e0b;" onclick="jugarCaraOCruz('cara')">Cara 👑</button>
+          <button style="background:#3b82f6;" onclick="jugarCaraOCruz('cruz')">Cruz 🛡️</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Sección de Tienda VIP de Casino -->
+    <!-- Sección de Tienda VIP del Casino -->
     <div id="casino-tienda-section" class="casino-section hidden">
       <h3>Tienda VIP High Roller 🛒</h3>
       
-      <!-- Skins Pelotas VIP -->
       <div class="casino-shop-item">
         <span>⚡ Bola Plasma (500 🎲)</span>
         <button id="casino-buy-plasma" onclick="comprarItemCasino('plasma', 500)">Comprar</button>
@@ -277,7 +289,6 @@
         <button id="casino-buy-diamond" onclick="comprarItemCasino('diamond', 1000)">Comprar</button>
       </div>
 
-      <!-- Fondos Vivos VIP -->
       <div class="casino-shop-item">
         <span>🌊 Océano Abisal (500 🎲)</span>
         <button id="casino-buy-ocean" onclick="comprarItemCasino('ocean', 500)">Comprar</button>
@@ -301,7 +312,7 @@
     </div>
   </div>
 
-  <!-- Modal para Comprar Fichas (10 Monedas = 1 Ficha) -->
+  <!-- Modal de Cambio de Monedas por Fichas -->
   <div id="exchange-modal" class="hidden">
     <div class="modal-content">
       <h3>Banco del Casino 🏦</h3>
