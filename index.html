@@ -6,7 +6,7 @@
   <title>Atrapa la Pelota - Juego Web</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body id="game-body" class="theme-cyberpunk">
 
   <!-- Contenedor principal donde ocurre toda la acción del juego -->
   <div id="game-container">
@@ -34,7 +34,7 @@
     <!-- La pelota principal que el jugador debe atrapar -->
     <div id="ball"></div>
 
-    <!-- Menú de pausa flotante (incluye selector de dificultad, reinicio y tienda) -->
+    <!-- Menú de pausa flotante -->
     <div id="pause-menu" class="hidden">
       <h2>Juego Pausado</h2>
       
@@ -67,26 +67,53 @@
         <button id="resume-btn" onclick="togglePause()">▶️ Seguir</button>
       </div>
 
-      <button id="reset-highscore-btn" onclick="resetHighScore()" style="margin-top: 10px;">Borrar Récord</button>
+      <!-- Opciones de prueba y administración -->
+      <div class="dev-buttons">
+        <button id="add-coins-btn" onclick="addTestCoins()">+100 Monedas 🪙</button>
+        <button id="reset-all-btn" onclick="resetFullProgress()">Resetear Progreso ⚠️</button>
+      </div>
     </div>
 
-    <!-- Panel de la Tienda de Skins (Oculto por defecto) -->
+    <!-- Panel de la Tienda de Skins y Temas -->
     <div id="shop-menu" class="hidden">
-      <h2>Tienda de Pelotas 🛒</h2>
+      <h2>Tienda 🛒</h2>
       <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
       
-      <div class="shop-items">
+      <!-- Pestañas de la tienda -->
+      <div class="shop-tabs">
+        <button id="tab-skins-btn" class="tab-btn active" onclick="switchShopTab('skins')">Pelotas</button>
+        <button id="tab-themes-btn" class="tab-btn" onclick="switchShopTab('themes')">Fondos</button>
+      </div>
+
+      <!-- Sección de Pelotas -->
+      <div id="shop-skins-section" class="shop-items">
         <div class="shop-item">
           <span>🔴 Clásica Neón</span>
           <button id="buy-classic" class="shop-btn" disabled>Equipada</button>
         </div>
         <div class="shop-item">
           <span>🔥 Bola Fuego (50 🪙)</span>
-          <button id="buy-fire" class="shop-btn" onclick="buySkin('fire', 50)">Comprar</button>
+          <button id="buy-fire" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
           <span>🌌 Bola Galaxia (150 🪙)</span>
-          <button id="buy-galaxy" class="shop-btn" onclick="buySkin('galaxy', 150)">Comprar</button>
+          <button id="buy-galaxy" class="shop-btn">Comprar</button>
+        </div>
+      </div>
+
+      <!-- Sección de Temas de Fondo -->
+      <div id="shop-themes-section" class="shop-items hidden">
+        <div class="shop-item">
+          <span>🟣 Cyberpunk</span>
+          <button id="buy-theme-cyberpunk" class="shop-btn" disabled>Equipado</button>
+        </div>
+        <div class="shop-item">
+          <span>✨ Espacio Exterior (100 🪙)</span>
+          <button id="buy-theme-space" class="shop-btn">Comprar</button>
+        </div>
+        <div class="shop-item">
+          <span>🌅 Atardecer 80s (200 🪙)</span>
+          <button id="buy-theme-sunset" class="shop-btn">Comprar</button>
         </div>
       </div>
 
