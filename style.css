@@ -451,11 +451,25 @@ input[type="range"] {
   cursor: pointer;
 }
 
-.menu-buttons, .dev-buttons {
+/* Alineación limpia tipo grid para los botones del menú de pausa */
+.menu-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 85%;
+  max-width: 280px;
+  margin-top: 8px;
+}
+
+.menu-buttons button {
+  width: 100%;
+  margin: 0;
+}
+
+.dev-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
+  margin-top: 10px;
   justify-content: center;
 }
 
