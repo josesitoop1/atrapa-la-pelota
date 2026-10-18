@@ -19,6 +19,7 @@ body {
   -webkit-user-select: none;
   touch-action: manipulation;
   overflow: hidden;
+  perspective: 1000px; /* Perspectiva 3D para la cámara de la laptop */
   transition: background-color 0.4s ease;
 }
 
@@ -172,11 +173,12 @@ body.theme-spiderman #game-container {
   max-height: 420px;
   border-radius: 15px;
   position: relative;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
   overflow: hidden;
   touch-action: none;
-  transition: background 0.4s ease;
+  transition: background 0.4s ease, transform 0.1s ease-out; /* Transición suave para el efecto 3D */
   flex-shrink: 0;
+  transform-style: preserve-3d;
 }
 
 #custom-cursor {
@@ -588,7 +590,10 @@ input[type="range"] {
   background-color: #10b981;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
   font-size: 0.7rem;
   font-weight: bold;
   border-radius: 6px;
