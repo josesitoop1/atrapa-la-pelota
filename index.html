@@ -74,9 +74,11 @@
       <h2>Tienda 🛒</h2>
       <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
       
+      <!-- Pestañas de la tienda -->
       <div class="shop-tabs">
         <button id="tab-skins-btn" class="tab-btn active" onclick="switchShopTab('skins')">Pelotas</button>
         <button id="tab-themes-btn" class="tab-btn" onclick="switchShopTab('themes')">Fondos</button>
+        <button id="tab-images-btn" class="tab-btn" onclick="switchShopTab('images')">Imágenes</button>
       </div>
 
       <!-- Sección de Pelotas -->
@@ -95,22 +97,34 @@
         </div>
       </div>
 
-      <!-- Sección de Fondos de Imagen / Personajes -->
+      <!-- Sección de Fondos Originales (Cyberpunk, Espacio, Atardecer) -->
       <div id="shop-themes-section" class="shop-items hidden">
         <div class="shop-item">
           <span>🟣 Cyberpunk</span>
           <button id="buy-theme-cyberpunk" class="shop-btn" disabled>Equipado</button>
         </div>
         <div class="shop-item">
+          <span>✨ Espacio Exterior (100 🪙)</span>
+          <button id="buy-theme-space" class="shop-btn">Comprar</button>
+        </div>
+        <div class="shop-item">
+          <span>🌅 Atardecer 80s (200 🪙)</span>
+          <button id="buy-theme-sunset" class="shop-btn">Comprar</button>
+        </div>
+      </div>
+
+      <!-- Sección de Fondos de Imagen con tus Links -->
+      <div id="shop-images-section" class="shop-items hidden">
+        <div class="shop-item">
           <span>🐶 Snoopy (100 🪙)</span>
           <button id="buy-theme-snoopy" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
-          <span>🦫 Capibara (200 🪙)</span>
+          <span>🦫 Capibara (150 🪙)</span>
           <button id="buy-theme-capybara" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
-          <span>🕷️ Spider-Man (300 🪙)</span>
+          <span>🕷️ Spider-Man (200 🪙)</span>
           <button id="buy-theme-spiderman" class="shop-btn">Comprar</button>
         </div>
       </div>
