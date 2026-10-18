@@ -10,16 +10,19 @@ let autoMoveTimeout;
 let isPlaying = true;
 let isPaused = false;
 
-// Variables de la Tienda y Skins
+// Variables de Skins y Temas
 let currentSkin = localStorage.getItem('ballGameActiveSkin') || 'classic';
 let unlockedSkins = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
 
-// Variables del sistema de Racha / Combo Multiplicador
+let currentTheme = localStorage.getItem('ballGameActiveTheme') || 'cyberpunk';
+let unlockedThemes = JSON.parse(localStorage.getItem('ballGameUnlockedThemes')) || ['cyberpunk'];
+
+// Variables de Racha
 let currentStreak = 0;
 let multiplier = 1;
 let streakTimeout;
 
-// Variables principales de tamaño, velocidad y color
+// Variables de tamaño y velocidad
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
 let currentSpeed = 1200;
@@ -28,13 +31,13 @@ let customBonusSize = 0;
 
 let currentDifficulty = 'medium';
 
-// Variables para control por ratón virtual (PC) y táctil
+// Controls PC / Táctil
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
 let isTouchDevice = false;
 
-// Referencias a los elementos del DOM
+// Elementos DOM
 const ball = document.getElementById('ball');
 const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
@@ -54,13 +57,48 @@ const earnedCoinsDisplay = document.getElementById('earned-coins');
 const finalHighScoreDisplay = document.getElementById('final-high-score');
 const sensValueDisplay = document.getElementById('sens-value');
 
-// Paleta de colores base
 const colors = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
 highScoreDisplay.textContent = highScore;
 coinsDisplay.textContent = totalCoins;
 
 let activeTraps = [];
 let activePowerUps = [];
+
+
+// ==========================================
+// MODO DE PRUEBAS Y ADMINISTRACIÓN
+// ==========================================
+
+// Botón para sumar +100 monedas en modo prueba
+function addTestCoins() {
+  totalCoins += 100;
+  localStorage.setItem('ballGameCoins', totalCoins);
+  coinsDisplay.textContent = totalCoins;
+  shopCoinsDisplay.textContent = totalCoins;
+  updateShopButtons();
+  playSound('powerup');
+}
+
+// Botón para borrar todo el progreso (monedas, récords, skins y temas)
+function resetFullProgress() {
+  if (confirm("¿Estás seguro de resetear todo el progreso y las compras?")) {
+    localStorage.clear();
+
+    highScore = 0;
+    totalCoins = 0;
+    currentSkin = 'classic';
+    unlockedSkins = ['classic'];
+    currentTheme = 'cyberpunk';
+    unlockedThemes = ['cyberpunk'];
+
+    highScoreDisplay.textContent = '0';
+    coinsDisplay.textContent = '0';
+    shopCoinsDisplay.textContent = '0';
+    document.body.className = 'theme-cyberpunk';
+
+    restartGame();
+  }
+}
 
 
 // ==========================================
@@ -160,7 +198,7 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// SISTEMA DE TIENDA Y SKINS
+// TIENDA, SKINS Y TEMAS DE FONDO
 // ==========================================
 
 function toggleShop() {
@@ -169,8 +207,16 @@ function toggleShop() {
   updateShopButtons();
 }
 
+function switchShopTab(tab) {
+  document.getElementById('tab-skins-btn').classList.toggle('active', tab === 'skins');
+  document.getElementById('tab-themes-btn').classList.toggle('active', tab === 'themes');
+
+  document.getElementById('shop-skins-section').classList.toggle('hidden', tab !== 'skins');
+  document.getElementById('shop-themes-section').classList.toggle('hidden', tab !== 'themes');
+}
+
 function updateShopButtons() {
-  // Botón Clásica
+  // SKINS
   const btnClassic = document.getElementById('buy-classic');
   if (currentSkin === 'classic') {
     btnClassic.textContent = 'Equipada';
@@ -181,7 +227,6 @@ function updateShopButtons() {
     btnClassic.onclick = () => equipSkin('classic');
   }
 
-  // Botón Fuego
   const btnFire = document.getElementById('buy-fire');
   if (currentSkin === 'fire') {
     btnFire.textContent = 'Equipada';
@@ -196,7 +241,6 @@ function updateShopButtons() {
     btnFire.onclick = () => buySkin('fire', 50);
   }
 
-  // Botón Galaxia
   const btnGalaxy = document.getElementById('buy-galaxy');
   if (currentSkin === 'galaxy') {
     btnGalaxy.textContent = 'Equipada';
@@ -209,6 +253,45 @@ function updateShopButtons() {
     btnGalaxy.textContent = 'Comprar (150 🪙)';
     btnGalaxy.disabled = totalCoins < 150;
     btnGalaxy.onclick = () => buySkin('galaxy', 150);
+  }
+
+  // TEMAS
+  const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
+  if (currentTheme === 'cyberpunk') {
+    btnThemeCyber.textContent = 'Equipado';
+    btnThemeCyber.disabled = true;
+  } else if (unlockedThemes.includes('cyberpunk')) {
+    btnThemeCyber.textContent = 'Equipar';
+    btnThemeCyber.disabled = false;
+    btnThemeCyber.onclick = () => equipTheme('cyberpunk');
+  }
+
+  const btnThemeSpace = document.getElementById('buy-theme-space');
+  if (currentTheme === 'space') {
+    btnThemeSpace.textContent = 'Equipado';
+    btnThemeSpace.disabled = true;
+  } else if (unlockedThemes.includes('space')) {
+    btnThemeSpace.textContent = 'Equipar';
+    btnThemeSpace.disabled = false;
+    btnThemeSpace.onclick = () => equipTheme('space');
+  } else {
+    btnThemeSpace.textContent = 'Comprar (100 🪙)';
+    btnThemeSpace.disabled = totalCoins < 100;
+    btnThemeSpace.onclick = () => buyTheme('space', 100);
+  }
+
+  const btnThemeSunset = document.getElementById('buy-theme-sunset');
+  if (currentTheme === 'sunset') {
+    btnThemeSunset.textContent = 'Equipado';
+    btnThemeSunset.disabled = true;
+  } else if (unlockedThemes.includes('sunset')) {
+    btnThemeSunset.textContent = 'Equipar';
+    btnThemeSunset.disabled = false;
+    btnThemeSunset.onclick = () => equipTheme('sunset');
+  } else {
+    btnThemeSunset.textContent = 'Comprar (200 🪙)';
+    btnThemeSunset.disabled = totalCoins < 200;
+    btnThemeSunset.onclick = () => buyTheme('sunset', 200);
   }
 }
 
@@ -234,6 +317,28 @@ function equipSkin(skinName) {
   applySkinVisuals();
 }
 
+function buyTheme(themeName, price) {
+  if (totalCoins >= price) {
+    totalCoins -= price;
+    coinsDisplay.textContent = totalCoins;
+    shopCoinsDisplay.textContent = totalCoins;
+    localStorage.setItem('ballGameCoins', totalCoins);
+
+    unlockedThemes.push(themeName);
+    localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(unlockedThemes));
+
+    equipTheme(themeName);
+    playSound('powerup');
+  }
+}
+
+function equipTheme(themeName) {
+  currentTheme = themeName;
+  localStorage.setItem('ballGameActiveTheme', themeName);
+  document.body.className = `theme-${themeName}`;
+  updateShopButtons();
+}
+
 function applySkinVisuals() {
   if (currentSkin === 'fire') {
     ball.style.background = 'linear-gradient(135deg, #f97316, #ef4444)';
@@ -242,7 +347,7 @@ function applySkinVisuals() {
     ball.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
     ball.style.boxShadow = '0 0 20px #8b5cf6';
   } else {
-    updateDifficulty(); // Color clásico por defecto
+    updateDifficulty();
   }
 }
 
@@ -290,7 +395,6 @@ function catchBall() {
   score += 1 * multiplier;
   scoreDisplay.textContent = score;
 
-  // Límite de 40 puntos en fácil para pasar a normal
   if (currentDifficulty === 'easy' && score >= 40) {
     currentDifficulty = 'medium';
     document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
@@ -539,13 +643,6 @@ function changeDifficulty(level) {
   restartGame();
 }
 
-function resetHighScore() {
-  highScore = 0;
-  localStorage.removeItem('ballGameHighScore');
-  highScoreDisplay.textContent = '0';
-  finalHighScoreDisplay.textContent = '0';
-}
-
 function playSound(type) {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   
@@ -601,7 +698,7 @@ function togglePause() {
     customCursor.style.display = 'none';
   } else {
     pauseMenu.classList.add('hidden');
-    shopMenu.classList.add('hidden'); // Asegurar que la tienda se cierre si estaba abierta
+    shopMenu.classList.add('hidden');
     if (!isTouchDevice) customCursor.style.display = 'block';
     startTimer();
     moveBall();
@@ -631,7 +728,6 @@ function endGame() {
   
   playSound('gameover');
 
-  // Sumar puntos obtenidos como monedas para la tienda
   totalCoins += score;
   localStorage.setItem('ballGameCoins', totalCoins);
   coinsDisplay.textContent = totalCoins;
@@ -684,7 +780,8 @@ function restartGame() {
   startTimer();
 }
 
-// Inicializar y arrancar el juego al cargar
+// Cargar el tema guardado al iniciar
+document.body.className = `theme-${currentTheme}`;
 updateDifficulty();
 moveBall();
 startTimer();
