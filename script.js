@@ -815,14 +815,21 @@ let contextoAudio;
 let gananciaMaster;
 
 function inicializarAudio() {
-  if (!contextoAudio) {
-    contextoAudio = new (window.AudioContext || window.webkitAudioContext)();
-    gananciaMaster = contextoAudio.createGain();
-    gananciaMaster.gain.value = 0.3;
-    gananciaMaster.connect(contextoAudio.destination);
-  }
-  if (contextoAudio.state === 'suspended') {
-    contextoAudio.resume();
+  try {
+    if (!contextoAudio) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        contextoAudio = new AudioCtx();
+        gananciaMaster = contextoAudio.createGain();
+        gananciaMaster.gain.value = 0.3;
+        gananciaMaster.connect(contextoAudio.destination);
+      }
+    }
+    if (contextoAudio && contextoAudio.state === 'suspended') {
+      contextoAudio.resume();
+    }
+  } catch (e) {
+    console.log("Audio no soportado:", e);
   }
 }
 
@@ -959,6 +966,7 @@ function terminarJuego() {
 }
 
 function reiniciarJuego() {
+  inicializarAudio(); // Forzar activación del audio al reiniciar o empezar
   clearInterval(relojIntervalo);
   clearTimeout(muevePelotaTimeout);
 
@@ -1002,9 +1010,9 @@ function reiniciarJuego() {
   iniciarReloj();
 }
 
-// Escuchar clics globales para activar el audio en cualquier momento
-window.addEventListener('click', inicializarAudio, { once: true });
-window.addEventListener('touchstart', inicializarAudio, { once: true });
+// Escuchar clics y toques globales para activar el audio en dispositivos móviles
+document.addEventListener('touchstart', inicializarAudio, { once: true });
+document.addEventListener('click', inicializarAudio, { once: true });
 
 // Cargar tema inicial
 document.body.className = `theme-${temaActual}`;
