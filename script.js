@@ -1,82 +1,91 @@
 let score = 0;
 let highScore = localStorage.getItem('ballGameHighScore') || 0;
-let defaultTime = 30;
-let timeLeft = 30;
+let totalCoins = parseInt(localStorage.getItem('ballGameCoins')) || 0;
+
+// Tiempo predeterminado fijo en 80 segundos
+let defaultTime = 80;
+let timeLeft = 80;
 let timerInterval;
 let autoMoveTimeout;
 let isPlaying = true;
 let isPaused = false;
 
+// Variables de la Tienda y Skins
+let currentSkin = localStorage.getItem('ballGameActiveSkin') || 'classic';
+let unlockedSkins = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
+
 // Variables del sistema de Racha / Combo Multiplicador
 let currentStreak = 0;
 let multiplier = 1;
-let streakTimeout; // Controla cuánto tiempo dura visible el aviso en pantalla
+let streakTimeout;
 
-// Variables principales de tamaño, velocidad y personalización visual de la bola
+// Variables principales de tamaño, velocidad y color
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
 let currentSpeed = 1200;
 let currentColor = '#ff0055';
-let customBonusSize = 0; // Guarda el tamaño extra temporal si cae el power-up de tamaño
+let customBonusSize = 0;
 
 let currentDifficulty = 'medium';
 
-// Variables para el control de movimiento con ratón virtual (PC) y detección táctil
+// Variables para control por ratón virtual (PC) y táctil
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
 let isTouchDevice = false;
 
-// Referencias directas a los elementos del documento HTML (DOM)
+// Referencias a los elementos del DOM
 const ball = document.getElementById('ball');
 const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
+const coinsDisplay = document.getElementById('coins');
+const shopCoinsDisplay = document.getElementById('shop-coins');
 const streakDisplay = document.getElementById('streak-display');
 const multiplierVal = document.getElementById('multiplier-val');
 const streakPopup = document.getElementById('streak-popup');
 const highScoreDisplay = document.getElementById('high-score');
 const timerDisplay = document.getElementById('timer');
-const menuTimeDisplay = document.getElementById('menu-time-display');
 const container = document.getElementById('game-container');
 const gameOverScreen = document.getElementById('game-over');
 const pauseMenu = document.getElementById('pause-menu');
+const shopMenu = document.getElementById('shop-menu');
 const finalScoreDisplay = document.getElementById('final-score');
+const earnedCoinsDisplay = document.getElementById('earned-coins');
 const finalHighScoreDisplay = document.getElementById('final-high-score');
 const sensValueDisplay = document.getElementById('sens-value');
 
-// Paleta de colores cíclicos para la bola principal y las trampas
+// Paleta de colores base
 const colors = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
 highScoreDisplay.textContent = highScore;
+coinsDisplay.textContent = totalCoins;
 
 let activeTraps = [];
 let activePowerUps = [];
 
 
 // ==========================================
-// DETECCIÓN AUTOMÁTICA DE DISPOSITIVO (TÁCTIL VS PC)
+// DETECCIÓN TÁCTIL VS PC
 // ==========================================
 window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch') {
     isTouchDevice = true;
     customCursor.style.display = 'none';
     const sensGroup = document.getElementById('sensitivity-group');
-    if (sensGroup) sensGroup.style.display = 'none'; // Oculta la configuración de sensibilidad en celulares
+    if (sensGroup) sensGroup.style.display = 'none';
   }
 }, { once: true });
 
 
 // ==========================================
-// CONFIGURACIÓN DE EVENTOS Y CONTROLES
+// CONTROLES Y EVENTOS
 // ==========================================
 
-// Tecla Escape para pausar / reanudar el juego rápidamente
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
     togglePause();
   }
 });
 
-// Control de bloqueo de puntero para jugar con comodidad en computadoras
 document.addEventListener('pointerlockchange', () => {
   if (document.pointerLockElement !== container && isPlaying && !isPaused && !isTouchDevice) {
     togglePause();
@@ -89,7 +98,6 @@ container.addEventListener('click', () => {
   }
 });
 
-// Cálculo del movimiento del cursor virtual dentro del área de juego
 document.addEventListener('mousemove', (e) => {
   if (isPaused || !isPlaying || isTouchDevice) return;
 
@@ -106,24 +114,20 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
-// Sistema de clics virtuales para computadoras (comprueba colisiones con la posición del cursor)
 document.addEventListener('mousedown', () => {
   if (!isPlaying || isPaused || isTouchDevice || document.pointerLockElement !== container) return;
 
-  const containerRect = container.getBoundingClientRect();
-
   const ballRect = ball.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
   const ballLeft = ballRect.left - containerRect.left;
   const ballTop = ballRect.top - containerRect.top;
   const ballSize = ball.clientWidth;
 
-  // Comprobar si se hizo clic en la pelota principal
   if (virtualX >= ballLeft && virtualX <= ballLeft + ballSize && virtualY >= ballTop && virtualY <= ballTop + ballSize) {
     catchBall();
     return;
   }
 
-  // Comprobar si se hizo clic en alguna pelota dorada activa
   activePowerUps.forEach((pow) => {
     const powRect = pow.getBoundingClientRect();
     const powLeft = powRect.left - containerRect.left;
@@ -136,7 +140,6 @@ document.addEventListener('mousedown', () => {
     }
   });
 
-  // Comprobar si se hizo clic en una trampa por error
   activeTraps.forEach((trap) => {
     const trapRect = trap.getBoundingClientRect();
     const trapLeft = trapRect.left - containerRect.left;
@@ -149,7 +152,6 @@ document.addEventListener('mousedown', () => {
   });
 });
 
-// Soporte para toques directos en pantallas táctiles de celulares o tablets
 ball.addEventListener('pointerdown', (e) => {
   if (!isPlaying || isPaused) return;
   e.preventDefault();
@@ -158,10 +160,97 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// LÓGICA PRINCIPAL DE JUEGO Y MECÁNICAS
+// SISTEMA DE TIENDA Y SKINS
 // ==========================================
 
-// Muestra un aviso flotante llamativo en el centro de la pantalla al subir la racha
+function toggleShop() {
+  shopMenu.classList.toggle('hidden');
+  shopCoinsDisplay.textContent = totalCoins;
+  updateShopButtons();
+}
+
+function updateShopButtons() {
+  // Botón Clásica
+  const btnClassic = document.getElementById('buy-classic');
+  if (currentSkin === 'classic') {
+    btnClassic.textContent = 'Equipada';
+    btnClassic.disabled = true;
+  } else if (unlockedSkins.includes('classic')) {
+    btnClassic.textContent = 'Equipar';
+    btnClassic.disabled = false;
+    btnClassic.onclick = () => equipSkin('classic');
+  }
+
+  // Botón Fuego
+  const btnFire = document.getElementById('buy-fire');
+  if (currentSkin === 'fire') {
+    btnFire.textContent = 'Equipada';
+    btnFire.disabled = true;
+  } else if (unlockedSkins.includes('fire')) {
+    btnFire.textContent = 'Equipar';
+    btnFire.disabled = false;
+    btnFire.onclick = () => equipSkin('fire');
+  } else {
+    btnFire.textContent = 'Comprar (50 🪙)';
+    btnFire.disabled = totalCoins < 50;
+    btnFire.onclick = () => buySkin('fire', 50);
+  }
+
+  // Botón Galaxia
+  const btnGalaxy = document.getElementById('buy-galaxy');
+  if (currentSkin === 'galaxy') {
+    btnGalaxy.textContent = 'Equipada';
+    btnGalaxy.disabled = true;
+  } else if (unlockedSkins.includes('galaxy')) {
+    btnGalaxy.textContent = 'Equipar';
+    btnGalaxy.disabled = false;
+    btnGalaxy.onclick = () => equipSkin('galaxy');
+  } else {
+    btnGalaxy.textContent = 'Comprar (150 🪙)';
+    btnGalaxy.disabled = totalCoins < 150;
+    btnGalaxy.onclick = () => buySkin('galaxy', 150);
+  }
+}
+
+function buySkin(skinName, price) {
+  if (totalCoins >= price) {
+    totalCoins -= price;
+    coinsDisplay.textContent = totalCoins;
+    shopCoinsDisplay.textContent = totalCoins;
+    localStorage.setItem('ballGameCoins', totalCoins);
+
+    unlockedSkins.push(skinName);
+    localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(unlockedSkins));
+
+    equipSkin(skinName);
+    playSound('powerup');
+  }
+}
+
+function equipSkin(skinName) {
+  currentSkin = skinName;
+  localStorage.setItem('ballGameActiveSkin', skinName);
+  updateShopButtons();
+  applySkinVisuals();
+}
+
+function applySkinVisuals() {
+  if (currentSkin === 'fire') {
+    ball.style.background = 'linear-gradient(135deg, #f97316, #ef4444)';
+    ball.style.boxShadow = '0 0 20px #f97316';
+  } else if (currentSkin === 'galaxy') {
+    ball.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+    ball.style.boxShadow = '0 0 20px #8b5cf6';
+  } else {
+    updateDifficulty(); // Color clásico por defecto
+  }
+}
+
+
+// ==========================================
+// MECÁNICAS DE JUEGO Y RACHAS
+// ==========================================
+
 function showStreakPopup(text) {
   clearTimeout(streakTimeout);
   streakPopup.textContent = text;
@@ -170,10 +259,9 @@ function showStreakPopup(text) {
 
   streakTimeout = setTimeout(() => {
     streakPopup.classList.remove('show');
-  }, 600); // El aviso dura visible 0.6 segundos
+  }, 600);
 }
 
-// Actualiza el indicador visual de la racha en la barra superior y activa el popup
 function updateStreakUI() {
   if (multiplier > 1) {
     multiplierVal.textContent = `x${multiplier}`;
@@ -189,23 +277,20 @@ function updateStreakUI() {
 function catchBall() {
   playSound('catch');
 
-  // Incrementar racha y calcular multiplicador (cada 3 aciertos sube +1, máx x4)
   currentStreak++;
   let oldMultiplier = multiplier;
   multiplier = Math.min(4, 1 + Math.floor(currentStreak / 3));
 
-  // Si el multiplicador acaba de subir, mostramos el aviso en el centro de la pantalla
   if (multiplier > oldMultiplier) {
     showStreakPopup(`¡RACHA x${multiplier}! 🔥`);
   }
 
   updateStreakUI();
 
-  // Sumar puntos multiplicados según la racha
   score += 1 * multiplier;
   scoreDisplay.textContent = score;
 
-  // Transición automática: si estás en modo fácil y llegas a 40 puntos, cambia a normal
+  // Límite de 40 puntos en fácil para pasar a normal
   if (currentDifficulty === 'easy' && score >= 40) {
     currentDifficulty = 'medium';
     document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
@@ -216,42 +301,36 @@ function catchBall() {
   moveBall();
 }
 
-// Opciones aleatorias de la pelota dorada configuradas con sus porcentajes exactos
 function catchPowerUp(pow) {
   playSound('powerup');
-  const suerte = Math.random() * 100; // Genera un valor numérico entre 0 y 100
+  const suerte = Math.random() * 100;
 
   if (suerte < 40) {
-    // Opción 1: Sumar 3 puntos sin aumentar dificultad (40% de probabilidad)
     score += 3 * multiplier;
     scoreDisplay.textContent = score;
   } else if (suerte < 43) {
-    // Opción 2: Sumar 10 puntos sin aumentar dificultad (3% de probabilidad)
     score += 10 * multiplier;
     scoreDisplay.textContent = score;
   } else if (suerte < 63) {
-    // Opción 3: La bola cambia a un color aleatorio seguro diferente a las trampas (20% de probabilidad)
     let coloresLibres = colors.filter(c => c !== currentColor);
     currentColor = coloresLibres[Math.floor(Math.random() * coloresLibres.length)];
-    ball.style.backgroundColor = currentColor;
-    ball.style.boxShadow = `0 0 15px ${currentColor}`;
+    if (currentSkin === 'classic') {
+      ball.style.backgroundColor = currentColor;
+      ball.style.boxShadow = `0 0 15px ${currentColor}`;
+    }
     score += 3 * multiplier;
     scoreDisplay.textContent = score;
   } else if (suerte < 73) {
-    // Opción 4: La bola se hace grande y muestra un puntito blanco en el centro (10% de probabilidad)
     customBonusSize = 18;
-    
     if (!ball.querySelector('.main-ball-dot')) {
       const dot = document.createElement('div');
       dot.className = 'main-ball-dot';
       ball.appendChild(dot);
     }
-
     updateDifficulty();
     score += 3 * multiplier;
     scoreDisplay.textContent = score;
   } else {
-    // Margen restante (27%): Otorga 3 puntos estándar de respaldo
     score += 3 * multiplier;
     scoreDisplay.textContent = score;
   }
@@ -260,11 +339,8 @@ function catchPowerUp(pow) {
   activePowerUps = activePowerUps.filter(p => p !== pow);
 }
 
-// Penalización al tocar una trampa (resta 3 puntos y reinicia la racha a cero)
 function hitTrap(trap) {
   playSound('bomb');
-  
-  // Reiniciar la racha a cero
   currentStreak = 0;
   multiplier = 1;
   updateStreakUI();
@@ -278,10 +354,9 @@ function hitTrap(trap) {
 
 
 // ==========================================
-// MOVIMIENTO, POSICIONAMIENTO Y APARICIÓN DE OBJETOS
+// MOVIMIENTO Y APARICIÓN DE OBJETOS
 // ==========================================
 
-// Función auxiliar para instanciar pelotas doradas en pantalla evitando solapamientos
 function spawnPowerUp(maxX, maxY, usedPositions) {
   const pow = document.createElement('div');
   pow.className = 'powerup-ball';
@@ -335,7 +410,6 @@ function moveBall() {
   ball.style.left = `${randomX}px`;
   ball.style.top = `${randomY}px`;
 
-  // Cantidad de trampas dinámicas según el nivel seleccionado
   let numTrampas = 0;
   if (currentDifficulty === 'medium' && score >= 5) {
     numTrampas = 1 + Math.floor((score - 5) / 3);
@@ -345,7 +419,6 @@ function moveBall() {
 
   let posicionesUsadas = [{ x: randomX, y: randomY }];
 
-  // Generar trampas en posiciones aleatorias seguras
   for (let i = 0; i < numTrampas; i++) {
     const trap = document.createElement('div');
     trap.className = 'trap-ball';
@@ -387,14 +460,10 @@ function moveBall() {
     activeTraps.push(trap);
   }
 
-  // REGLA: En modo fácil NO aparece la pelota dorada
   if (currentDifficulty !== 'easy') {
-    // 10% de probabilidad de aparición para la primera pelota dorada
     if (Math.random() < 0.10) {
       spawnPowerUp(maxX, maxY, posicionesUsadas);
     }
-
-    // REGLA: En modo difícil se agrega una segunda pelota dorada adicional
     if (currentDifficulty === 'hard') {
       if (Math.random() < 0.10) {
         spawnPowerUp(maxX, maxY, posicionesUsadas);
@@ -402,7 +471,6 @@ function moveBall() {
     }
   }
 
-  // Temporizador de salto automático: Si la pelota salta sola porque no la atrapaste, rompe la racha
   autoMoveTimeout = setTimeout(() => {
     if (currentStreak > 0) {
       currentStreak = 0;
@@ -413,7 +481,6 @@ function moveBall() {
   }, currentSpeed);
 }
 
-// Actualiza el tamaño y la velocidad de la bola según los puntos acumulados y la dificultad
 function updateDifficulty() {
   const baseSize = Math.max(MIN_SIZE, INITIAL_SIZE - score);
   const finalSize = baseSize + customBonusSize;
@@ -432,16 +499,13 @@ function updateDifficulty() {
     const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
     currentColor = colors[colorIndex];
     
-    // Remueve el puntito central si el efecto de tamaño ya expiró
     const dot = ball.querySelector('.main-ball-dot');
     if (dot) dot.remove();
   }
   
-  ball.style.backgroundColor = currentColor;
-  ball.style.boxShadow = `0 0 15px ${currentColor}`;
+  applySkinVisuals();
 }
 
-// Limpia todas las trampas y power-ups activos del DOM
 function clearEntities() {
   activeTraps.forEach(trap => trap.remove());
   activeTraps = [];
@@ -451,7 +515,7 @@ function clearEntities() {
 
 
 // ==========================================
-// AUDIO, CRONÓMETRO Y ESTADOS DEL JUEGO
+// AUDIO, CRONÓMETRO Y ESTADOS
 // ==========================================
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -475,18 +539,6 @@ function changeDifficulty(level) {
   restartGame();
 }
 
-function adjustTime(seconds) {
-  let nuevoTiempo = defaultTime + seconds;
-  if (nuevoTiempo > 100) nuevoTiempo = 100;
-  if (nuevoTiempo < 10) nuevoTiempo = 10;
-
-  defaultTime = nuevoTiempo;
-  timeLeft = defaultTime;
-  timerDisplay.textContent = timeLeft;
-  menuTimeDisplay.textContent = `${timeLeft}s`;
-  playSound('catch');
-}
-
 function resetHighScore() {
   highScore = 0;
   localStorage.removeItem('ballGameHighScore');
@@ -494,7 +546,6 @@ function resetHighScore() {
   finalHighScoreDisplay.textContent = '0';
 }
 
-// Sintetizador de efectos de sonido procedurales mediante la Web Audio API
 function playSound(type) {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   
@@ -550,6 +601,7 @@ function togglePause() {
     customCursor.style.display = 'none';
   } else {
     pauseMenu.classList.add('hidden');
+    shopMenu.classList.add('hidden'); // Asegurar que la tienda se cierre si estaba abierta
     if (!isTouchDevice) customCursor.style.display = 'block';
     startTimer();
     moveBall();
@@ -579,7 +631,11 @@ function endGame() {
   
   playSound('gameover');
 
-  // Actualizar y guardar el récord máximo en el almacenamiento local del navegador
+  // Sumar puntos obtenidos como monedas para la tienda
+  totalCoins += score;
+  localStorage.setItem('ballGameCoins', totalCoins);
+  coinsDisplay.textContent = totalCoins;
+
   if (score > highScore) {
     highScore = score;
     localStorage.setItem('ballGameHighScore', highScore);
@@ -589,6 +645,7 @@ function endGame() {
   ball.style.display = 'none';
   customCursor.style.display = 'none';
   finalScoreDisplay.textContent = score;
+  earnedCoinsDisplay.textContent = score;
   finalHighScoreDisplay.textContent = highScore;
   gameOverScreen.classList.remove('hidden');
 }
@@ -610,23 +667,24 @@ function restartGame() {
   updateDifficulty();
 
   scoreDisplay.textContent = score;
+  coinsDisplay.textContent = totalCoins;
   timerDisplay.textContent = timeLeft;
   highScoreDisplay.textContent = highScore;
   
   ball.style.width = `${INITIAL_SIZE}px`;
   ball.style.height = `${INITIAL_SIZE}px`;
-  ball.style.backgroundColor = currentColor;
-  ball.style.boxShadow = `0 0 15px ${currentColor}`;
   ball.style.display = 'block';
   if (!isTouchDevice) customCursor.style.display = 'block';
 
   pauseMenu.classList.add('hidden');
+  shopMenu.classList.add('hidden');
   gameOverScreen.classList.add('hidden');
   
   moveBall();
   startTimer();
 }
 
-// Inicializar y arrancar el juego automáticamente al cargar el script
+// Inicializar y arrancar el juego al cargar
+updateDifficulty();
 moveBall();
 startTimer();
