@@ -1,12 +1,7 @@
-// ==========================================
-// JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica de juego con tienda dividida en Pelotas, Fondos, Fondos de Imagen y Casino.
-// ==========================================
-
 let puntos = 0;
 let recordMax = localStorage.getItem('ballGameHighScore') || 0;
 let monedasTotales = parseInt(localStorage.getItem('ballGameCoins')) || 0;
-let fichasCasino = parseInt(localStorage.getItem('ballGameCasinoChips')) || 0; // Inicia con 0 Fichas
+let fichasCasino = parseInt(localStorage.getItem('ballGameCasinoChips')) || 0;
 
 let tiempoBase = 80;
 let tiempoRestante = 80;
@@ -15,19 +10,19 @@ let muevePelotaTimeout;
 let juegoActivo = false;
 let estaPausado = false;
 
-// Variables de Skins y Temas
 let skinActual = localStorage.getItem('ballGameActiveSkin') || 'classic';
 let skinsDesbloqueadas = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
 
 let temaActual = localStorage.getItem('ballGameActiveTheme') || 'cyberpunk';
 let temasDesbloqueados = JSON.parse(localStorage.getItem('ballGameUnlockedThemes')) || ['cyberpunk'];
 
-// Variables de Racha
 let rachaActual = 0;
 let multi = 1;
 let tiempoRacha;
 
-// Tamaño y velocidad
+let modoImanActivo = false;
+let tiempoImanTimeout;
+
 const TAMAÑO_INICIAL = 50;
 const TAMAÑO_MIN = 20;
 let velocidadActual = 1200;
@@ -36,13 +31,11 @@ let extraTamaño = 0;
 
 let dificultadActual = 'medium';
 
-// PC / Táctil
 let sensi = 1.0;
 let posXVirtual = 210;
 let posYVirtual = 210;
 let esCel = false;
 
-// Elementos DOM
 const bola = document.getElementById('ball');
 const cursorPro = document.getElementById('custom-cursor');
 const marcadorPuntos = document.getElementById('score');
@@ -65,7 +58,6 @@ const monedasGanadas = document.getElementById('earned-coins');
 const recordFinal = document.getElementById('final-high-score');
 const textoSensi = document.getElementById('sens-value');
 
-// Casino DOM
 const casinoMenu = document.getElementById('casino-menu');
 const casinoTrigger = document.getElementById('casino-trigger');
 const casinoMonedasVal = document.getElementById('casino-monedas-val');
@@ -80,15 +72,10 @@ if (menuMonedas) menuMonedas.textContent = monedasTotales;
 let trampasActivas = [];
 let poderesActivos = [];
 
-// Mostrar flecha de casino al cargar con animación inicial
 setTimeout(() => {
   if (casinoTrigger) casinoTrigger.classList.add('show-trigger');
 }, 500);
 
-
-// ==========================================
-// MODO PRUEBAS Y CASINO
-// ==========================================
 function darMonedasPro() {
   monedasTotales += 100;
   localStorage.setItem('ballGameCoins', monedasTotales);
@@ -102,7 +89,7 @@ function borrarTodoElProgreso() {
 
     recordMax = 0;
     monedasTotales = 0;
-    fichasCasino = 0; // Reinicio a 0 fichas
+    fichasCasino = 0;
     skinActual = 'classic';
     skinsDesbloqueadas = ['classic'];
     temaActual = 'cyberpunk';
@@ -116,7 +103,6 @@ function borrarTodoElProgreso() {
   }
 }
 
-// Funciones del Casino
 function toggleCasinoMenu() {
   if (casinoMenu && casinoTrigger) {
     casinoMenu.classList.toggle('casino-open');
@@ -130,16 +116,17 @@ function cambiarSeccionCasino(seccion) {
   const secTienda = document.getElementById('casino-tienda-section');
   const tabs = document.querySelectorAll('.casino-tab');
 
+  if (!secMinijuegos || !secTienda) return;
   tabs.forEach(t => t.classList.remove('active'));
 
   if (seccion === 'minijuegos') {
     secMinijuegos.classList.remove('hidden');
     secTienda.classList.add('hidden');
-    tabs[0].classList.add('active');
+    if (tabs[0]) tabs[0].classList.add('active');
   } else {
     secMinijuegos.classList.add('hidden');
     secTienda.classList.remove('hidden');
-    tabs[1].classList.add('active');
+    if (tabs[1]) tabs[1].classList.add('active');
     checarBotonesTienda();
   }
 }
@@ -159,8 +146,9 @@ function calcularCostoCambio(val) {
 }
 
 function realizarCambioMonedas() {
-  const cantidadInput = parseInt(document.getElementById('exchange-input').value) || 0;
-  const costoMonedas = cantidadInput * 10; // Tasa de cambio: 10 Monedas = 1 Ficha
+  const inputEl = document.getElementById('exchange-input');
+  const cantidadInput = inputEl ? (parseInt(inputEl.value) || 0) : 0;
+  const costoMonedas = cantidadInput * 10;
 
   if (monedasTotales < costoMonedas) {
     alert("¡No tienes suficientes monedas! 10 Monedas valen 1 Ficha.");
@@ -177,7 +165,7 @@ function realizarCambioMonedas() {
 }
 
 function jugarSlots() {
-  const costoFichas = 20; // Límite mínimo de 20 fichas
+  const costoFichas = 20;
   if (fichasCasino < costoFichas) {
     alert("¡Necesitas mínimo 20 fichas para jugar al Tragamonedas!");
     return;
@@ -186,37 +174,40 @@ function jugarSlots() {
   fichasCasino -= costoFichas;
   actualizarMonedasUI();
 
-  // Dificultad ajustada: Símbolos más variados para hacer más difícil ganar
   const simbolos = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🍇', '🍉'];
   const s1 = simbolos[Math.floor(Math.random() * simbolos.length)];
   const s2 = simbolos[Math.floor(Math.random() * simbolos.length)];
   const s3 = simbolos[Math.floor(Math.random() * simbolos.length)];
 
-  document.getElementById('slot-1').textContent = s1;
-  document.getElementById('slot-2').textContent = s2;
-  document.getElementById('slot-3').textContent = s3;
+  const slot1El = document.getElementById('slot-1');
+  const slot2El = document.getElementById('slot-2');
+  const slot3El = document.getElementById('slot-3');
+  if (slot1El) slot1El.textContent = s1;
+  if (slot2El) slot2El.textContent = s2;
+  if (slot3El) slot3El.textContent = s3;
 
   const msg = document.getElementById('slot-msg');
 
   if (s1 === s2 && s2 === s3) {
     let premio = s1 === '7️⃣' ? 300 : 150;
     fichasCasino += premio;
-    msg.textContent = `¡JACKPOT EXTRAORDINARIO! +${premio} 🎲`;
+    if (msg) msg.textContent = `¡JACKPOT EXTRAORDINARIO! +${premio} 🎲`;
+    activarTemblorPantalla();
     sonarEfecto('powerup');
   } else if (s1 === s2 || s2 === s3 || s1 === s3) {
     let premio = 30;
     fichasCasino += premio;
-    msg.textContent = `¡Par de aciertos! +${premio} 🎲`;
+    if (msg) msg.textContent = `¡Par de aciertos! +${premio} 🎲`;
     sonarEfecto('catch');
   } else {
-    msg.textContent = "Sin suerte esta vez. Perdiste 20 fichas.";
+    if (msg) msg.textContent = "Sin suerte esta vez. Perdiste 20 fichas.";
     sonarEfecto('bomb');
   }
   actualizarMonedasUI();
 }
 
 function jugarRuleta(eleccion) {
-  const costoFichas = 20; // Límite mínimo de 20 fichas
+  const costoFichas = 20;
   if (fichasCasino < costoFichas) {
     alert("¡Necesitas mínimo 20 fichas para jugar a la Ruleta!");
     return;
@@ -225,13 +216,12 @@ function jugarRuleta(eleccion) {
   fichasCasino -= costoFichas;
   actualizarMonedasUI();
 
-  // Probabilidades de Ruleta más complejas y retadoras
   const opciones = ['rojo', 'negro', 'rojo', 'negro', 'rojo', 'negro', 'negro', 'verde', 'blanco'];
   const resultado = opciones[Math.floor(Math.random() * opciones.length)];
   const disp = document.getElementById('ruleta-display');
   const msg = document.getElementById('ruleta-msg');
 
-  disp.textContent = resultado === 'rojo' ? '🔴' : resultado === 'verde' ? '🟢' : resultado === 'negro' ? '⚫' : '⚪';
+  if (disp) disp.textContent = resultado === 'rojo' ? '🔴' : resultado === 'verde' ? '🟢' : resultado === 'negro' ? '⚫' : '⚪';
 
   if (eleccion === resultado) {
     let premio = 0;
@@ -240,12 +230,45 @@ function jugarRuleta(eleccion) {
     else if (resultado === 'negro') premio = 80;
 
     fichasCasino += premio;
-    msg.textContent = `¡Cayó ${resultado.toUpperCase()}! Ganaste +${premio} 🎲`;
+    if (msg) msg.textContent = `¡Cayó ${resultado.toUpperCase()}! Ganaste +${premio} 🎲`;
     sonarEfecto('powerup');
   } else {
-    msg.textContent = `Cayó ${resultado.toUpperCase()}. Perdiste tu apuesta.`;
+    if (msg) msg.textContent = `Cayó ${resultado.toUpperCase()}. Perdiste tu apuesta.`;
     sonarEfecto('bomb');
   }
+  actualizarMonedasUI();
+}
+
+function jugarCaraOCruz(eleccion) {
+  const inputApuesta = document.getElementById('coinflip-input');
+  const apuestaMonedas = inputApuesta ? (parseInt(inputApuesta.value) || 0) : 0;
+  const msg = document.getElementById('coinflip-msg');
+
+  if (apuestaMonedas <= 0) {
+    alert("Ingresa una cantidad válida de monedas para apostar.");
+    return;
+  }
+
+  if (monedasTotales < apuestaMonedas) {
+    alert("¡No tienes suficientes monedas para realizar esta apuesta!");
+    return;
+  }
+
+  monedasTotales -= apuestaMonedas;
+
+  const opciones = ['cara', 'cruz', 'cruz'];
+  const resultado = opciones[Math.floor(Math.random() * opciones.length)];
+
+  if (eleccion === resultado) {
+    const ganado = apuestaMonedas * 2;
+    monedasTotales += ganado;
+    if (msg) msg.textContent = `¡Salió ${resultado.toUpperCase()}! Ganaste +${ganado} 🪙`;
+    sonarEfecto('powerup');
+  } else {
+    if (msg) msg.textContent = `Salió ${resultado.toUpperCase()}. Perdiste ${apuestaMonedas} 🪙`;
+    sonarEfecto('bomb');
+  }
+
   actualizarMonedasUI();
 }
 
@@ -274,7 +297,7 @@ function comprarItemCasino(item, precio) {
   actualizarMonedasUI();
   checarBotonesTienda();
   sonarEfecto('powerup');
-  alert("¡Compra VIP realizada! Ahora puedes equipar/desequipar este ítem en tu menú.");
+  alert("¡Compra VIP realizada! Puedes equiparla desde tu menú.");
 }
 
 function actualizarMonedasUI() {
@@ -288,10 +311,6 @@ function actualizarMonedasUI() {
   if (casinoFichasVal) casinoFichasVal.textContent = fichasCasino;
 }
 
-
-// ==========================================
-// CONTROLES Y TÁCTIL
-// ==========================================
 window.addEventListener('pointerdown', (e) => {
   inicializarAudio();
   if (e.pointerType === 'touch') {
@@ -317,16 +336,10 @@ document.addEventListener('pointerlockchange', () => {
 if (contenedor) {
   contenedor.addEventListener('click', (e) => {
     inicializarAudio();
-    if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.tagName === 'INPUT') {
-      return;
-    }
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.tagName === 'INPUT') return;
     if (juegoActivo && !estaPausado && !esCel) {
       if (document.pointerLockElement !== contenedor) {
-        try {
-          contenedor.requestPointerLock();
-        } catch (err) {
-          console.log("No se pudo bloquear el puntero:", err);
-        }
+        try { contenedor.requestPointerLock(); } catch (err) {}
       }
     }
   });
@@ -425,11 +438,6 @@ if (bola) {
     atraparPelota();
   });
 }
-
-
-// ==========================================
-// MENÚ PRINCIPAL, INFORMACIÓN Y TIENDA
-// ==========================================
 
 function empezarJuego() {
   inicializarAudio();
@@ -531,7 +539,6 @@ function checarBotonesTienda() {
     }
   }
 
-  // Sincronización de Skins VIP de Casino
   const skinsVipArray = [
     { idBtn: 'buy-vip-plasma', idCasino: 'casino-buy-plasma', key: 'plasma' },
     { idBtn: 'buy-vip-dragon', idCasino: 'casino-buy-dragon', key: 'dragon' },
@@ -591,7 +598,6 @@ function checarBotonesTienda() {
     }
   }
 
-  // Sincronización de Temas Vivos VIP de Casino
   const temasVipArray = [
     { idBtn: 'buy-theme-ocean', idCasino: 'casino-buy-ocean', key: 'ocean' },
     { idBtn: 'buy-theme-storm', idCasino: 'casino-buy-storm', key: 'storm' },
@@ -747,11 +753,6 @@ function actualizarEstilosSkin() {
   }
 }
 
-
-// ==========================================
-// MECÁNICAS DE JUEGO Y RACHAS
-// ==========================================
-
 function mostrarAvisoRacha(texto) {
   clearTimeout(tiempoRacha);
   if (popupRacha) {
@@ -801,6 +802,13 @@ function sacarParticulas(x, y) {
   }
 }
 
+function activarTemblorPantalla() {
+  if (!contenedor) return;
+  contenedor.classList.remove('shake-screen');
+  void contenedor.offsetWidth;
+  contenedor.classList.add('shake-screen');
+}
+
 function atraparPelota() {
   sonarEfecto('catch');
 
@@ -838,35 +846,44 @@ function atraparPelota() {
 
 function atraparPoder(pow) {
   sonarEfecto('powerup');
-  const suerte = Math.random() * 100;
 
-  if (suerte < 40) {
-    puntos += 3 * multi;
-    if (marcadorPuntos) marcadorPuntos.textContent = puntos;
-  } else if (suerte < 43) {
-    puntos += 10 * multi;
-    if (marcadorPuntos) marcadorPuntos.textContent = puntos;
-  } else if (suerte < 63) {
-    let libres = paletaColores.filter(c => c !== colorActual);
-    colorActual = libres[Math.floor(Math.random() * libres.length)];
-    if (skinActual === 'classic' && bola) {
-      bola.style.backgroundColor = colorActual;
-      bola.style.boxShadow = `0 0 15px ${colorActual}`;
-    }
-    puntos += 3 * multi;
-    if (marcadorPuntos) marcadorPuntos.textContent = puntos;
-  } else if (suerte < 73) {
-    extraTamaño = 18;
-    if (bola && !bola.querySelector('.main-ball-dot')) {
-      const puntoExtra = document.createElement('div');
-      puntoExtra.className = 'main-ball-dot';
-      bola.appendChild(puntoExtra);
-    }
-    ajustarDificultad();
-    puntos += 3 * multi;
-    if (marcadorPuntos) marcadorPuntos.textContent = puntos;
+  if (pow.classList.contains('powerup-magnet')) {
+    modoImanActivo = true;
+    mostrarAvisoRacha('¡IMÁN ACTIVADO! 🧲');
+    clearTimeout(tiempoImanTimeout);
+    tiempoImanTimeout = setTimeout(() => {
+      modoImanActivo = false;
+    }, 5000);
+  } else if (pow.classList.contains('powerup-bomb')) {
+    trampasActivas.forEach(trap => trap.remove());
+    trampasActivas = [];
+    mostrarAvisoRacha('¡SUPERBOMBA! 💣');
   } else {
-    puntos += 3 * multi;
+    const suerte = Math.random() * 100;
+    if (suerte < 40) {
+      puntos += 3 * multi;
+    } else if (suerte < 43) {
+      puntos += 10 * multi;
+    } else if (suerte < 63) {
+      let libres = paletaColores.filter(c => c !== colorActual);
+      colorActual = libres[Math.floor(Math.random() * libres.length)];
+      if (skinActual === 'classic' && bola) {
+        bola.style.backgroundColor = colorActual;
+        bola.style.boxShadow = `0 0 15px ${colorActual}`;
+      }
+      puntos += 3 * multi;
+    } else if (suerte < 73) {
+      extraTamaño = 18;
+      if (bola && !bola.querySelector('.main-ball-dot')) {
+        const puntoExtra = document.createElement('div');
+        puntoExtra.className = 'main-ball-dot';
+        bola.appendChild(puntoExtra);
+      }
+      ajustarDificultad();
+      puntos += 3 * multi;
+    } else {
+      puntos += 3 * multi;
+    }
     if (marcadorPuntos) marcadorPuntos.textContent = puntos;
   }
 
@@ -876,6 +893,7 @@ function atraparPoder(pow) {
 
 function pegarTrampa(trap) {
   sonarEfecto('bomb');
+  activarTemblorPantalla();
   rachaActual = 0;
   multi = 1;
   actualizarRachaUI();
@@ -887,21 +905,22 @@ function pegarTrampa(trap) {
   ajustarDificultad();
 }
 
-
-// ==========================================
-// MOVIMIENTO Y APARICIÓN DE OBJETOS
-// ==========================================
-
-function spawnPowerUp(maxX, maxY, usados) {
+function spawnPowerUpGenerico(tipo, maxX, maxY, usados) {
   if (!contenedor || !bola) return;
   const pow = document.createElement('div');
-  pow.className = 'powerup-ball';
-  
+
+  if (tipo === 'magnet') {
+    pow.className = 'powerup-magnet';
+    pow.textContent = '🧲';
+  } else if (tipo === 'bomb') {
+    pow.className = 'powerup-bomb';
+    pow.textContent = '💣';
+  } else {
+    pow.className = 'powerup-ball';
+  }
+
   pow.style.width = `${Math.max(18, bola.clientWidth - 4)}px`;
   pow.style.height = `${Math.max(18, bola.clientHeight - 4)}px`;
-  pow.style.position = 'absolute';
-  pow.style.borderRadius = '50%';
-  pow.style.zIndex = '6';
 
   let pX, pY, choca, intentos = 0;
   do {
@@ -941,6 +960,12 @@ function spawnPowerUp(maxX, maxY, usados) {
 function moverPelota() {
   if (!juegoActivo || estaPausado || !contenedor || !bola) return;
   clearTimeout(muevePelotaTimeout);
+
+  if (modoImanActivo) {
+    atraparPelota();
+    return;
+  }
+
   limpiarTodoEnPantalla();
 
   const maxX = contenedor.clientWidth - bola.clientWidth;
@@ -964,7 +989,7 @@ function moverPelota() {
   for (let i = 0; i < trampasTotales; i++) {
     const trap = document.createElement('div');
     trap.className = 'trap-ball';
-    
+
     trap.style.width = bola.style.width;
     trap.style.height = bola.style.height;
     trap.style.backgroundColor = colorActual;
@@ -1008,14 +1033,24 @@ function moverPelota() {
     trampasActivas.push(trap);
   }
 
-  if (dificultadActual !== 'easy') {
-    if (Math.random() < 0.10) {
-      spawnPowerUp(maxX, maxY, posicionesOcupadas);
+  if (dificultadActual === 'medium') {
+    const azar = Math.random();
+    if (azar < 0.05) {
+      spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
+    } else if (azar < 0.07) {
+      spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
+    } else if (azar < 0.08) {
+      spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
     }
-    if (dificultadActual === 'hard') {
-      if (Math.random() < 0.10) {
-        spawnPowerUp(maxX, maxY, posicionesOcupadas);
-      }
+  } else if (dificultadActual === 'hard') {
+    if (Math.random() < 0.05) {
+      spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
+    }
+    if (Math.random() < 0.03) {
+      spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
+    }
+    if (Math.random() < 0.02) {
+      spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
     }
   }
 
@@ -1062,13 +1097,10 @@ function limpiarTodoEnPantalla() {
   poderesActivos = [];
 }
 
-
-// ==========================================
-// AUDIO, CRONÓMETRO Y ESTADOS
-// ==========================================
-
 let contextoAudio;
 let gananciaMaster;
+let musicaActiva = false;
+let osciladorMusicaIntervalo;
 
 function inicializarAudio() {
   try {
@@ -1087,6 +1119,44 @@ function inicializarAudio() {
   } catch (e) {
     console.log("Audio no soportado:", e);
   }
+}
+
+function toggleMusicaFondo() {
+  inicializarAudio();
+  musicaActiva = !musicaActiva;
+  const btn = document.getElementById('bgm-toggle-btn');
+  if (btn) btn.textContent = `🎵 Música: ${musicaActiva ? 'ON' : 'OFF'}`;
+
+  if (musicaActiva) {
+    reproducirMusicaRetro();
+  } else {
+    clearInterval(osciladorMusicaIntervalo);
+  }
+}
+
+function reproducirMusicaRetro() {
+  if (!musicaActiva || !contextoAudio) return;
+  clearInterval(osciladorMusicaIntervalo);
+
+  const notas = [220, 261.63, 293.66, 329.63, 261.63, 220, 196, 220];
+  let paso = 0;
+
+  osciladorMusicaIntervalo = setInterval(() => {
+    if (!musicaActiva || estaPausado || !juegoActivo) return;
+    try {
+      const osc = contextoAudio.createOscillator();
+      const g = contextoAudio.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(notas[paso], contextoAudio.currentTime);
+      g.gain.setValueAtTime(0.08, contextoAudio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, contextoAudio.currentTime + 0.25);
+      osc.connect(g);
+      g.connect(gananciaMaster);
+      osc.start();
+      osc.stop(contextoAudio.currentTime + 0.25);
+      paso = (paso + 1) % notas.length;
+    } catch(e) {}
+  }, 300);
 }
 
 function cambiarVolumen(vol) {
@@ -1193,6 +1263,9 @@ function iniciarReloj() {
 
 function terminarJuego() {
   juegoActivo = false;
+  modoImanActivo = false;
+  clearTimeout(tiempoImanTimeout);
+
   if (!esCel && document.exitPointerLock) {
     try { document.exitPointerLock(); } catch(e){}
   }
@@ -1228,6 +1301,8 @@ function reiniciarJuego() {
   puntos = 0;
   rachaActual = 0;
   multi = 1;
+  modoImanActivo = false;
+  clearTimeout(tiempoImanTimeout);
   actualizarRachaUI();
 
   tiempoRestante = tiempoBase;
@@ -1264,11 +1339,9 @@ function reiniciarJuego() {
   iniciarReloj();
 }
 
-// Escuchar clics y toques globales para activar el audio en dispositivos móviles
 document.addEventListener('touchstart', inicializarAudio, { once: true });
 document.addEventListener('click', inicializarAudio, { once: true });
 
-// Cargar tema inicial y sincronizar estado de tiendas
 document.body.className = `theme-${temaActual}`;
 if (bola) bola.style.display = 'none';
 checarBotonesTienda();
