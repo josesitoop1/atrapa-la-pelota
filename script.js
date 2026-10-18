@@ -161,9 +161,8 @@ document.addEventListener('mousemove', (e) => {
     const mouseX = e.clientX - centroX;
     const mouseY = e.clientY - centroY;
     
-    // Calculamos los grados de rotación (delimitados para que se vea chido y sutil)
-    const rotX = (-mouseY / centroY) * 12; // Inclinación en eje X
-    const rotY = (mouseX / centroX) * 12;  // Inclinación en eje Y
+    const rotX = (-mouseY / centroY) * 12;
+    const rotY = (mouseX / centroX) * 12;
     
     contenedor.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
   }
@@ -188,7 +187,6 @@ document.addEventListener('mousemove', (e) => {
   cursorPro.style.top = `${posYVirtual}px`;
 });
 
-// Resetear la inclinación 3D de la cámara cuando el mouse sale de la ventana
 document.addEventListener('mouseleave', () => {
   if (contenedor && !esCel) {
     contenedor.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
@@ -717,4 +715,8 @@ function moverPelota() {
   const azarY = Math.floor(Math.random() * (maxY - 40)) + 60;
 
   bola.style.left = `${azarX}px`;
-  bola.style.top = `${azar
+  bola.style.top = `${azarY}px`;
+
+  let trampasTotales = 0;
+  if (dificultadActual === 'medium' && puntos >= 5) {
+    trampasTotales =
