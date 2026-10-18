@@ -8,7 +8,7 @@
 </head>
 <body id="game-body" class="theme-cyberpunk">
 
-  <!-- Botón / Flecha flotante desplegable del Casino -->
+  <!-- Botón flotante desplegable del Casino -->
   <div id="casino-trigger" onclick="toggleCasinoMenu()">
     <span id="casino-trigger-text">Casino</span> 🎰 <span id="casino-arrow">◀</span>
   </div>
@@ -55,7 +55,7 @@
       <p>Tiempo: <span id="timer">80</span>s</p>
     </div>
 
-    <!-- Pelota interactiva principal -->
+    <!-- Pelota principal -->
     <div id="ball"></div>
 
     <!-- Menú de pausa -->
@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <!-- Menú de la Tienda Principal -->
+    <!-- Tienda Principal -->
     <div id="shop-menu" class="hidden">
       <h2>Tienda 🛒</h2>
       <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
@@ -109,7 +109,6 @@
         <button id="tab-images-btn" class="tab-btn" onclick="cambiarPestanaTienda('images')">Imágenes</button>
       </div>
 
-      <!-- Sección de Pelotas -->
       <div id="shop-skins-section" class="shop-items">
         <div class="shop-item">
           <span>🔴 Clásica Neón</span>
@@ -145,7 +144,6 @@
         </div>
       </div>
 
-      <!-- Sección de Fondos -->
       <div id="shop-themes-section" class="shop-items hidden">
         <div class="shop-item">
           <span>🟣 Cyberpunk</span>
@@ -181,7 +179,6 @@
         </div>
       </div>
 
-      <!-- Sección de Imágenes -->
       <div id="shop-images-section" class="shop-items hidden">
         <div class="shop-item">
           <span>🦫 Capibara (300 🪙)</span>
@@ -200,7 +197,7 @@
       <button id="close-shop-btn" onclick="abrirTienda()">Volver</button>
     </div>
 
-    <!-- Pantalla de Game Over -->
+    <!-- Game Over -->
     <div id="game-over" class="hidden">
       <h2>¡Se Acabó el Tiempo!</h2>
       <p>Hiciste: <span id="final-score">0</span> puntos</p>
@@ -210,7 +207,7 @@
     </div>
   </div>
 
-  <!-- Apartado de Casino Desplegable -->
+  <!-- Menú de Casino -->
   <div id="casino-menu" class="casino-hidden">
     <div class="casino-header">
       <h2>🎰 Casino 🎲</h2>
@@ -228,7 +225,6 @@
       <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda High Roller</button>
     </div>
 
-    <!-- Sección de Minijuegos -->
     <div id="casino-minijuegos-section" class="casino-section">
       <div class="casino-box">
         <h3>Tragamonedas 🍒</h3>
@@ -252,7 +248,6 @@
         </div>
       </div>
 
-      <!-- Nuevo Minijuego: Cara o Cruz -->
       <div class="casino-box">
         <h3>Cara o Cruz 🪙</h3>
         <p id="coinflip-msg">Apuesta tus Monedas (Ganas x2)</p>
@@ -264,7 +259,6 @@
       </div>
     </div>
 
-    <!-- Sección de Tienda VIP del Casino -->
     <div id="casino-tienda-section" class="casino-section hidden">
       <h3>Tienda VIP High Roller 🛒</h3>
       
@@ -312,7 +306,7 @@
     </div>
   </div>
 
-  <!-- Modal de Cambio de Monedas por Fichas -->
+  <!-- Modal de Cambio de Monedas -->
   <div id="exchange-modal" class="hidden">
     <div class="modal-content">
       <h3>Banco del Casino 🏦</h3>
