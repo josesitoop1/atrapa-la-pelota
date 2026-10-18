@@ -16,6 +16,14 @@
     <!-- Aviso flotante de racha -->
     <div id="streak-popup" class="hidden">¡RACHA x2!</div>
 
+    <!-- Menú Principal / Pantalla de Título -->
+    <div id="main-menu">
+      <h2>Atrapa la Pelota 🎮</h2>
+      <p>Monedas: <span id="menu-coins">0</span> 🪙</p>
+      <button id="start-game-btn" onclick="startGameFromMenu()">▶️ Jugar</button>
+      <button id="menu-shop-btn" onclick="toggleShop()">🛒 Tienda</button>
+    </div>
+
     <!-- Barra superior -->
     <div id="top-bar">
       <h1>Atrapa la Pelota</h1>
@@ -113,7 +121,7 @@
         </div>
       </div>
 
-      <!-- Sección de Fondos de Imagen Personalizados (Ordenados de menor a mayor precio) -->
+      <!-- Sección de Fondos de Imagen Personalizados -->
       <div id="shop-images-section" class="shop-items hidden">
         <div class="shop-item">
           <span>🦫 Capibara (300 🪙)</span>
@@ -129,7 +137,7 @@
         </div>
       </div>
 
-      <button id="close-shop-btn" onclick="toggleShop()">Volver al Menú</button>
+      <button id="close-shop-btn" onclick="toggleShop()">Volver</button>
     </div>
 
     <!-- Pantalla de Game Over -->
