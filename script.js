@@ -1,3 +1,8 @@
+// ==========================================
+// JUEGO WEB: "ATRAPA LA PELOTA"
+// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
+// ==========================================
+
 let score = 0;
 let highScore = localStorage.getItem('ballGameHighScore') || 0;
 let totalCoins = parseInt(localStorage.getItem('ballGameCoins')) || 0;
@@ -6,7 +11,7 @@ let defaultTime = 80;
 let timeLeft = 80;
 let timerInterval;
 let autoMoveTimeout;
-let isPlaying = true;
+let isPlaying = false; // Empieza falso para mostrar el menú principal primero
 let isPaused = false;
 
 // Variables de Skins y Temas
@@ -42,12 +47,14 @@ const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
 const coinsDisplay = document.getElementById('coins');
 const shopCoinsDisplay = document.getElementById('shop-coins');
+const menuCoinsDisplay = document.getElementById('menu-coins');
 const streakDisplay = document.getElementById('streak-display');
 const multiplierVal = document.getElementById('multiplier-val');
 const streakPopup = document.getElementById('streak-popup');
 const highScoreDisplay = document.getElementById('high-score');
 const timerDisplay = document.getElementById('timer');
 const container = document.getElementById('game-container');
+const mainMenu = document.getElementById('main-menu');
 const gameOverScreen = document.getElementById('game-over');
 const pauseMenu = document.getElementById('pause-menu');
 const shopMenu = document.getElementById('shop-menu');
@@ -59,6 +66,7 @@ const sensValueDisplay = document.getElementById('sens-value');
 const colors = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
 highScoreDisplay.textContent = highScore;
 coinsDisplay.textContent = totalCoins;
+menuCoinsDisplay.textContent = totalCoins;
 
 let activeTraps = [];
 let activePowerUps = [];
@@ -72,6 +80,7 @@ function addTestCoins() {
   localStorage.setItem('ballGameCoins', totalCoins);
   coinsDisplay.textContent = totalCoins;
   shopCoinsDisplay.textContent = totalCoins;
+  menuCoinsDisplay.textContent = totalCoins;
   updateShopButtons();
   playSound('powerup');
 }
@@ -90,6 +99,7 @@ function resetFullProgress() {
     highScoreDisplay.textContent = '0';
     coinsDisplay.textContent = '0';
     shopCoinsDisplay.textContent = '0';
+    menuCoinsDisplay.textContent = '0';
     document.body.className = 'theme-cyberpunk';
 
     restartGame();
@@ -111,7 +121,7 @@ window.addEventListener('pointerdown', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
-    togglePause();
+    if (isPlaying) togglePause();
   }
 });
 
@@ -189,12 +199,18 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// TIENDA: PESTAÑAS Y COMPRAS
+// MENÚ PRINCIPAL Y TIENDA
 // ==========================================
+
+function startGameFromMenu() {
+  mainMenu.classList.add('hidden');
+  restartGame();
+}
 
 function toggleShop() {
   shopMenu.classList.toggle('hidden');
   shopCoinsDisplay.textContent = totalCoins;
+  menuCoinsDisplay.textContent = totalCoins;
   updateShopButtons();
 }
 
@@ -209,7 +225,6 @@ function switchShopTab(tab) {
 }
 
 function updateShopButtons() {
-  // 1. SKINS DE PELOTAS
   const btnClassic = document.getElementById('buy-classic');
   if (btnClassic) {
     if (currentSkin === 'classic') {
@@ -254,7 +269,6 @@ function updateShopButtons() {
     }
   }
 
-  // 2. FONDOS ORIGINALES (Con opción de Desequipar)
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
   if (btnThemeCyber) {
     if (currentTheme === 'cyberpunk') {
@@ -301,7 +315,6 @@ function updateShopButtons() {
     }
   }
 
-  // 3. FONDOS DE IMAGEN (Con opción de Desequipar y precios ordenados de menor a mayor)
   const btnThemeCapy = document.getElementById('buy-theme-capybara');
   if (btnThemeCapy) {
     if (currentTheme === 'capybara') {
@@ -359,6 +372,7 @@ function buySkin(skinName, price) {
     totalCoins -= price;
     coinsDisplay.textContent = totalCoins;
     shopCoinsDisplay.textContent = totalCoins;
+    menuCoinsDisplay.textContent = totalCoins;
     localStorage.setItem('ballGameCoins', totalCoins);
 
     unlockedSkins.push(skinName);
@@ -381,6 +395,7 @@ function buyTheme(themeName, price) {
     totalCoins -= price;
     coinsDisplay.textContent = totalCoins;
     shopCoinsDisplay.textContent = totalCoins;
+    menuCoinsDisplay.textContent = totalCoins;
     localStorage.setItem('ballGameCoins', totalCoins);
 
     unlockedThemes.push(themeName);
@@ -442,8 +457,38 @@ function updateStreakUI() {
   }
 }
 
+// Generar efecto de confeti / partículas al atrapar la pelota
+function createCatchParticles(x, y) {
+  const numParticles = 8;
+  for (let i = 0; i < numParticles; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = `${x}px`;
+    p.style.top = `${y}px`;
+    p.style.backgroundColor = currentColor;
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 30 + Math.random() * 40;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
+
+    p.style.setProperty('--dx', `${dx}px`);
+    p.style.setProperty('--dy', `${dy}px`);
+
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 400);
+  }
+}
+
 function catchBall() {
   playSound('catch');
+
+  // Coordenadas actuales de la pelota para las partículas
+  const ballRect = ball.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const pX = (ballRect.left - containerRect.left) + (ballRect.width / 2);
+  const pY = (ballRect.top - containerRect.top) + (ballRect.height / 2);
+  createCatchParticles(pX, pY);
 
   currentStreak++;
   let oldMultiplier = multiplier;
@@ -794,6 +839,7 @@ function endGame() {
   totalCoins += score;
   localStorage.setItem('ballGameCoins', totalCoins);
   coinsDisplay.textContent = totalCoins;
+  menuCoinsDisplay.textContent = totalCoins;
 
   if (score > highScore) {
     highScore = score;
@@ -827,6 +873,7 @@ function restartGame() {
 
   scoreDisplay.textContent = score;
   coinsDisplay.textContent = totalCoins;
+  menuCoinsDisplay.textContent = totalCoins;
   timerDisplay.textContent = timeLeft;
   highScoreDisplay.textContent = highScore;
   
@@ -835,6 +882,7 @@ function restartGame() {
   ball.style.display = 'block';
   if (!isTouchDevice) customCursor.style.display = 'block';
 
+  mainMenu.classList.add('hidden');
   pauseMenu.classList.add('hidden');
   shopMenu.classList.add('hidden');
   gameOverScreen.classList.add('hidden');
@@ -843,8 +891,6 @@ function restartGame() {
   startTimer();
 }
 
-// Cargar tema e iniciar
+// Cargar tema inicial (la pelota y el juego esperan a que pulses "Jugar" en el menú)
 document.body.className = `theme-${currentTheme}`;
-updateDifficulty();
-moveBall();
-startTimer();
+ball.style.display = 'none';
