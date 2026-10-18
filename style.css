@@ -51,6 +51,30 @@ body {
   display: none;
 }
 
+/* Aviso flotante de racha en el centro de la pantalla */
+#streak-popup {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  background: rgba(250, 204, 21, 0.9);
+  color: #1e1e2e;
+  font-size: 1.4rem;
+  font-weight: bold;
+  padding: 8px 18px;
+  border-radius: 20px;
+  z-index: 8;
+  pointer-events: none;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
+  opacity: 0;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+}
+
+#streak-popup.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
 /* Cabecera superior */
 #top-bar {
   display: flex;
@@ -90,7 +114,7 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Indicador dinámico de racha / combo */
+/* Indicador de racha en la barra superior */
 #streak-display {
   color: #facc15;
   transition: transform 0.2s ease, opacity 0.3s ease;
