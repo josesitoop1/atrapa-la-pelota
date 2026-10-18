@@ -46,7 +46,6 @@ body.theme-space #game-container {
   overflow: hidden;
 }
 
-/* Capa de estrellas parpadeantes usando sombras múltiples */
 body.theme-space #game-container::before {
   content: "";
   position: absolute;
@@ -60,10 +59,7 @@ body.theme-space #game-container::before {
     radial-gradient(1px 1px at 90px 40px, #e0e7ff, rgba(0,0,0,0)),
     radial-gradient(2px 2px at 160px 120px, #ffffff, rgba(0,0,0,0)),
     radial-gradient(1px 1px at 220px 180px, #93c5fd, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 300px 80px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 350px 250px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 100px 320px, #e0e7ff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 380px 380px, #93c5fd, rgba(0,0,0,0));
+    radial-gradient(2px 2px at 300px 80px, #ffffff, rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 400px 400px;
   opacity: 0.8;
@@ -76,7 +72,7 @@ body.theme-space #game-container::before {
   100% { opacity: 0.95; transform: scale(1.02); }
 }
 
-/* 3. Tema Atardecer 80s / Outrun (Con sol retro y cuadrícula animada) */
+/* 3. Tema Atardecer 80s / Outrun */
 body.theme-sunset {
   background-color: #2e1065;
 }
@@ -86,7 +82,6 @@ body.theme-sunset #game-container {
   overflow: hidden;
 }
 
-/* Sol retro ochentero en el horizonte */
 body.theme-sunset #game-container::before {
   content: "";
   position: absolute;
@@ -98,14 +93,12 @@ body.theme-sunset #game-container::before {
   background: linear-gradient(180deg, #fde047 0%, #f97316 60%, #e11d48 100%);
   border-radius: 50%;
   box-shadow: 0 0 30px #f43f5e;
-  /* Líneas horizontales para darle el efecto recortado de los 80s */
   mask-image: linear-gradient(to bottom, black 55%, transparent 55%, transparent 62%, black 62%);
   -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 55%, transparent 62%, black 62%);
   pointer-events: none;
   z-index: 1;
 }
 
-/* Cuadrícula o suelo futurista en movimiento */
 body.theme-sunset #game-container::after {
   content: "";
   position: absolute;
@@ -132,8 +125,6 @@ body.theme-sunset #game-container::after {
 /* ==========================================
    FONDOS DE IMAGEN PERSONALIZADOS
    ========================================== */
-
-/* 1. Fondo Snoopy */
 body.theme-snoopy {
   background-color: #111827;
 }
@@ -146,7 +137,6 @@ body.theme-snoopy #game-container {
   background-repeat: no-repeat;
 }
 
-/* 2. Fondo Capibara */
 body.theme-capybara {
   background-color: #1c1917;
 }
@@ -159,7 +149,6 @@ body.theme-capybara #game-container {
   background-repeat: no-repeat;
 }
 
-/* 3. Fondo Spider-Man */
 body.theme-spiderman {
   background-color: #311212;
 }
@@ -328,6 +317,28 @@ h1 {
   100% { transform: scale(1.12); }
 }
 
+/* Estilos para el efecto de confeti / partículas al atrapar */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 7;
+  animation: explosionParticula 0.4s ease-out forwards;
+}
+
+@keyframes explosionParticula {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+
 .hidden {
   display: none !important;
 }
@@ -335,7 +346,7 @@ h1 {
 /* ==========================================
    MENÚS Y TIENDA
    ========================================== */
-#pause-menu, #game-over, #shop-menu {
+#main-menu, #pause-menu, #game-over, #shop-menu {
   position: absolute;
   top: 0;
   left: 0;
@@ -350,10 +361,27 @@ h1 {
   cursor: default;
 }
 
-#pause-menu h2, #game-over h2, #shop-menu h2 {
+#main-menu h2, #pause-menu h2, #game-over h2, #shop-menu h2 {
   color: #ff0055;
-  font-size: 1.3rem;
-  margin-bottom: 5px;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+#start-game-btn, #menu-shop-btn {
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 5px;
+  width: 150px;
+}
+
+#menu-shop-btn {
+  background-color: #f59e0b;
 }
 
 .difficulty-group {
