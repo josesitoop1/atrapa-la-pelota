@@ -8,17 +8,12 @@
 </head>
 <body id="game-body" class="theme-cyberpunk">
 
-  <!-- Botón flotante desplegable del Casino -->
   <div id="casino-trigger" onclick="toggleCasinoMenu()">
     <span id="casino-trigger-text">Casino</span> 🎰 <span id="casino-arrow">◀</span>
   </div>
 
-  <!-- Contenedor principal del juego -->
   <div id="game-container">
-    <!-- Cursor personalizado para PC -->
     <div id="custom-cursor"></div>
-
-    <!-- Aviso flotante de racha -->
     <div id="streak-popup" class="hidden">¡RACHA x2!</div>
 
     <!-- Menú Principal -->
@@ -30,23 +25,21 @@
       <button id="menu-info-btn" onclick="verInfo()">ℹ️ Info</button>
     </div>
 
-    <!-- Ventana de Información -->
+    <!-- Menú de Información -->
     <div id="info-menu" class="hidden">
       <h2>Información del Juego ℹ️</h2>
       <div class="info-content">
         <p>¡Bienvenido a <strong>Atrapa la Pelota</strong>! Creado por <strong>José</strong>.</p>
-        <p>Atrapa la pelota antes de que cambie de posición, junta monedas, activa power-ups como el 🧲 Imán o la 💣 Superbomba, y evita las trampas.</p>
+        <p>Atrapa la pelota, usa power-ups como el 🧲 Imán (corregido) o la 💣 Superbomba, y disfruta de los fondos con vida en PC y celular.</p>
       </div>
       <button id="close-info-btn" onclick="verInfo()">Cerrar</button>
     </div>
 
-    <!-- Barra superior -->
     <div id="top-bar">
       <h1>Atrapa la Pelota</h1>
       <button id="pause-btn" onclick="pausarJuego()">⏸️</button>
     </div>
     
-    <!-- Barra de estado -->
     <div id="info-bar">
       <p>Puntos: <span id="score">0</span></p>
       <p>Monedas: <span id="coins">0</span> 🪙</p>
@@ -55,10 +48,9 @@
       <p>Tiempo: <span id="timer">80</span>s</p>
     </div>
 
-    <!-- Pelota principal -->
     <div id="ball"></div>
 
-    <!-- Menú de pausa -->
+    <!-- Menú de Pausa -->
     <div id="pause-menu" class="hidden">
       <h2>Juego Pausado</h2>
       
@@ -98,7 +90,7 @@
       </div>
     </div>
 
-    <!-- Tienda Principal -->
+    <!-- Tienda -->
     <div id="shop-menu" class="hidden">
       <h2>Tienda 🛒</h2>
       <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
@@ -261,57 +253,23 @@
 
     <div id="casino-tienda-section" class="casino-section hidden">
       <h3>Tienda VIP High Roller 🛒</h3>
-      
-      <div class="casino-shop-item">
-        <span>⚡ Bola Plasma (500 🎲)</span>
-        <button id="casino-buy-plasma" onclick="comprarItemCasino('plasma', 500)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>🐉 Dragón Neón (600 🎲)</span>
-        <button id="casino-buy-dragon" onclick="comprarItemCasino('dragon', 600)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>🕳️ Agujero Negro (750 🎲)</span>
-        <button id="casino-buy-blackhole" onclick="comprarItemCasino('blackhole', 750)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>🔥 Fuego Valyrio (850 🎲)</span>
-        <button id="casino-buy-valyrian" onclick="comprarItemCasino('valyrian', 850)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>💎 Cristal Diamante (1000 🎲)</span>
-        <button id="casino-buy-diamond" onclick="comprarItemCasino('diamond', 1000)">Comprar</button>
-      </div>
-
-      <div class="casino-shop-item">
-        <span>🌊 Océano Abisal (500 🎲)</span>
-        <button id="casino-buy-ocean" onclick="comprarItemCasino('ocean', 500)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>⚡ Tormenta Electrólica (650 🎲)</span>
-        <button id="casino-buy-storm" onclick="comprarItemCasino('storm', 650)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>🌌 Galaxia Animada (750 🎲)</span>
-        <button id="casino-buy-animatedgalaxy" onclick="comprarItemCasino('animatedgalaxy', 750)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>🌆 Ciudad Cyber 2099 (900 🎲)</span>
-        <button id="casino-buy-cybercity" onclick="comprarItemCasino('cybercity', 900)">Comprar</button>
-      </div>
-      <div class="casino-shop-item">
-        <span>🌋 Núcleo de Magma (1000 🎲)</span>
-        <button id="casino-buy-magma" onclick="comprarItemCasino('magma', 1000)">Comprar</button>
-      </div>
+      <div class="casino-shop-item"><span>⚡ Bola Plasma (500 🎲)</span><button id="casino-buy-plasma" onclick="comprarItemCasino('plasma', 500)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🐉 Dragón Neón (600 🎲)</span><button id="casino-buy-dragon" onclick="comprarItemCasino('dragon', 600)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🕳️ Agujero Negro (750 🎲)</span><button id="casino-buy-blackhole" onclick="comprarItemCasino('blackhole', 750)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🔥 Fuego Valyrio (850 🎲)</span><button id="casino-buy-valyrian" onclick="comprarItemCasino('valyrian', 850)">Comprar</button></div>
+      <div class="casino-shop-item"><span>💎 Cristal Diamante (1000 🎲)</span><button id="casino-buy-diamond" onclick="comprarItemCasino('diamond', 1000)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🌊 Océano Abisal (500 🎲)</span><button id="casino-buy-ocean" onclick="comprarItemCasino('ocean', 500)">Comprar</button></div>
+      <div class="casino-shop-item"><span>⚡ Tormenta Electrólica (650 🎲)</span><button id="casino-buy-storm" onclick="comprarItemCasino('storm', 650)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🌌 Galaxia Animada (750 🎲)</span><button id="casino-buy-animatedgalaxy" onclick="comprarItemCasino('animatedgalaxy', 750)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🌆 Ciudad Cyber 2099 (900 🎲)</span><button id="casino-buy-cybercity" onclick="comprarItemCasino('cybercity', 900)">Comprar</button></div>
+      <div class="casino-shop-item"><span>🌋 Núcleo de Magma (1000 🎲)</span><button id="casino-buy-magma" onclick="comprarItemCasino('magma', 1000)">Comprar</button></div>
     </div>
   </div>
 
-  <!-- Modal de Cambio de Monedas -->
   <div id="exchange-modal" class="hidden">
     <div class="modal-content">
       <h3>Banco del Casino 🏦</h3>
       <p style="color:#f59e0b; font-weight:bold;">10 Monedas 🪙 = 1 Ficha 🎲</p>
-      <label for="exchange-input" style="font-size:0.75rem;">¿Cuántas Fichas quieres comprar?</label>
       <input type="number" id="exchange-input" min="1" value="10" placeholder="Cantidad de Fichas" oninput="calcularCostoCambio(this.value)">
       <p id="exchange-cost-text" style="font-size:0.75rem; color:#a6accd;">Costo: 100 Monedas 🪙</p>
       <button onclick="realizarCambioMonedas()">Confirmar Cambio</button>
