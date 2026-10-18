@@ -1,5 +1,5 @@
 /* ==========================================
-   ESTILOS GENERALES Y RESETEO BÁSICO
+   ESTILOS GENERALES
    ========================================== */
 * {
   box-sizing: border-box;
@@ -23,10 +23,10 @@ body {
 }
 
 /* ==========================================
-   TEMAS VISUALES Y FONDOS ORIGINALES
+   TEMAS DE FONDO ORIGINALES
    ========================================== */
 
-/* 1. Tema Cyberpunk (Predeterminado) */
+/* 1. Tema Cyberpunk */
 body.theme-cyberpunk {
   background-color: #1e1e2e;
 }
@@ -43,7 +43,7 @@ body.theme-space #game-container {
   border: 1px solid #1f2937;
 }
 
-/* 3. Tema Atardecer 80s */
+/* 3. Tema Atardecer 80s / Outrun */
 body.theme-sunset {
   background-color: #2e1065;
 }
@@ -89,7 +89,7 @@ body.theme-spiderman #game-container {
 }
 
 /* ==========================================
-   CONTENEDOR PRINCIPAL (ÁREA DE JUEGO)
+   CONTENEDOR PRINCIPAL
    ========================================== */
 #game-container {
   text-align: center;
@@ -105,7 +105,6 @@ body.theme-spiderman #game-container {
   transition: background 0.4s ease;
 }
 
-/* Cursor personalizado */
 #custom-cursor {
   width: 14px;
   height: 14px;
@@ -120,7 +119,6 @@ body.theme-spiderman #game-container {
   display: none;
 }
 
-/* Aviso flotante de racha */
 #streak-popup {
   position: absolute;
   top: 40%;
@@ -144,7 +142,6 @@ body.theme-spiderman #game-container {
   transform: translate(-50%, -50%) scale(1.2);
 }
 
-/* Cabecera superior */
 #top-bar {
   display: flex;
   justify-content: space-between;
@@ -183,7 +180,6 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Indicador de racha */
 #streak-display {
   color: #facc15;
   transition: transform 0.2s ease, opacity 0.3s ease;
@@ -201,9 +197,8 @@ h1 {
 }
 
 /* ==========================================
-   ELEMENTOS INTERACTIVOS (BOLAS Y TRAMPAS)
+   PELOTAS Y OBJETOS
    ========================================== */
-
 #ball {
   width: 50px;
   height: 50px;
@@ -249,7 +244,7 @@ h1 {
 }
 
 /* ==========================================
-   MENÚS FLOTANTES, PAUSA Y TIENDA
+   MENÚS Y TIENDA
    ========================================== */
 #pause-menu, #game-over, #shop-menu {
   position: absolute;
@@ -296,17 +291,11 @@ h1 {
   font-size: 0.8rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.diff-btn:hover {
-  background-color: #4c4c6a;
 }
 
 .diff-btn.active {
   background-color: #7c3aed;
   border-color: #a78bfa;
-  box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
 }
 
 .control-group {
@@ -325,16 +314,10 @@ input[type="range"] {
   cursor: pointer;
 }
 
-.menu-buttons {
+.menu-buttons, .dev-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 5px;
-}
-
-.dev-buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 #add-coins-btn {
@@ -348,10 +331,6 @@ input[type="range"] {
   cursor: pointer;
 }
 
-#add-coins-btn:hover {
-  background-color: #059669;
-}
-
 #reset-all-btn {
   background-color: #dc2626;
   color: white;
@@ -361,10 +340,6 @@ input[type="range"] {
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
-}
-
-#reset-all-btn:hover {
-  background-color: #b91c1c;
 }
 
 #shop-toggle-btn {
@@ -400,10 +375,10 @@ input[type="range"] {
   font-weight: bold;
 }
 
-/* Pestañas de la Tienda */
+/* Pestañas e ítems de la Tienda */
 .shop-tabs {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-top: 5px;
   margin-bottom: 10px;
 }
@@ -412,8 +387,8 @@ input[type="range"] {
   background-color: #3b3b52;
   color: #a6accd;
   border: none;
-  padding: 5px 8px;
-  font-size: 0.7rem;
+  padding: 6px 10px;
+  font-size: 0.75rem;
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
@@ -424,7 +399,6 @@ input[type="range"] {
   color: white;
 }
 
-/* Estilos de los ítems de la Tienda */
 .shop-items {
   display: flex;
   flex-direction: column;
