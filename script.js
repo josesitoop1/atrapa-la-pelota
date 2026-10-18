@@ -134,36 +134,43 @@ document.addEventListener('pointerlockchange', () => {
 });
 
 if (contenedor) {
-  contenedor.addEventListener('click', () => {
+  contenedor.addEventListener('click', (e) => {
     inicializarAudio();
-    if (juegoActivo && !estaPausado && !esCel && document.pointerLockElement !== contenedor) {
-      try {
-        contenedor.requestPointerLock();
-      } catch (err) {
-        console.log("No se pudo bloquear el puntero:", err);
+    if (juegoActivo && !estaPausado && !esCel) {
+      if (document.pointerLockElement !== contenedor) {
+        try {
+          contenedor.requestPointerLock();
+        } catch (err) {
+          console.log("No se pudo bloquear el puntero:", err);
+        }
       }
     }
   });
 }
 
 document.addEventListener('mousemove', (e) => {
-  if (estaPausado || !juegoActivo || esCel || !cursorPro) return;
+  if (estaPausado || !juegoActivo || esCel || !cursorPro || !contenedor) return;
+
+  cursorPro.style.display = 'block';
 
   if (document.pointerLockElement === contenedor) {
-    cursorPro.style.display = 'block';
     posXVirtual += e.movementX * sensi;
     posYVirtual += e.movementY * sensi;
-
-    posXVirtual = Math.max(8, Math.min(contenedor.clientWidth - 8, posXVirtual));
-    posXVirtual = Math.max(8, Math.min(contenedor.clientHeight - 8, posYVirtual));
-
-    cursorPro.style.left = `${posXVirtual}px`;
-    cursorPro.style.top = `${posYVirtual}px`;
+  } else {
+    const rectCont = contenedor.getBoundingClientRect();
+    posXVirtual = e.clientX - rectCont.left;
+    posYVirtual = e.clientY - rectCont.top;
   }
+
+  posXVirtual = Math.max(0, Math.min(contenedor.clientWidth, posXVirtual));
+  posYVirtual = Math.max(0, Math.min(contenedor.clientHeight, posYVirtual));
+
+  cursorPro.style.left = `${posXVirtual}px`;
+  cursorPro.style.top = `${posYVirtual}px`;
 });
 
-document.addEventListener('mousedown', () => {
-  if (!juegoActivo || estaPausado || esCel || document.pointerLockElement !== contenedor || !bola) return;
+document.addEventListener('mousedown', (e) => {
+  if (!juegoActivo || estaPausado || esCel || !bola || !contenedor) return;
 
   const rectBola = bola.getBoundingClientRect();
   const rectCont = contenedor.getBoundingClientRect();
@@ -938,6 +945,11 @@ function reiniciarJuego() {
   juegoActivo = true;
   estaPausado = false;
   
+  if (contenedor) {
+    posXVirtual = contenedor.clientWidth / 2;
+    posYVirtual = contenedor.clientHeight / 2;
+  }
+
   ajustarDificultad();
 
   if (marcadorPuntos) marcadorPuntos.textContent = puntos;
