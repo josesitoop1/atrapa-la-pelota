@@ -13,13 +13,16 @@
     <!-- Puntero virtual personalizado (para jugar fluido en computadora) -->
     <div id="custom-cursor"></div>
 
+    <!-- Aviso flotante gigante cuando subes tu racha de combo -->
+    <div id="streak-popup" class="hidden">¡RACHA x2!</div>
+
     <!-- Barra superior: Título del juego y botón para abrir el menú de pausa -->
     <div id="top-bar">
       <h1>Atrapa la Pelota</h1>
       <button id="pause-btn" onclick="togglePause()">⏸️</button>
     </div>
     
-    <!-- Barra de información con la puntuación, el multiplicador de racha, récord y tiempo -->
+    <!-- Barra de información con la puntuación, el multiplicador, récord y tiempo -->
     <div id="info-bar">
       <p>Puntos: <span id="score">0</span></p>
       <p id="streak-display" class="streak-hidden">Racha: <span id="multiplier-val">x1</span></p>
