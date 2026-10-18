@@ -112,6 +112,7 @@ function borrarTodoElProgreso() {
 // CONTROLES Y TÁCTIL
 // ==========================================
 window.addEventListener('pointerdown', (e) => {
+  inicializarAudio();
   if (e.pointerType === 'touch') {
     esCel = true;
     if (cursorPro) cursorPro.style.display = 'none';
@@ -134,6 +135,7 @@ document.addEventListener('pointerlockchange', () => {
 
 if (contenedor) {
   contenedor.addEventListener('click', () => {
+    inicializarAudio();
     if (juegoActivo && !estaPausado && !esCel && document.pointerLockElement !== contenedor) {
       try {
         contenedor.requestPointerLock();
@@ -153,7 +155,7 @@ document.addEventListener('mousemove', (e) => {
     posYVirtual += e.movementY * sensi;
 
     posXVirtual = Math.max(8, Math.min(contenedor.clientWidth - 8, posXVirtual));
-    posYVirtual = Math.max(8, Math.min(contenedor.clientHeight - 8, posYVirtual));
+    posXVirtual = Math.max(8, Math.min(contenedor.clientHeight - 8, posYVirtual));
 
     cursorPro.style.left = `${posXVirtual}px`;
     cursorPro.style.top = `${posYVirtual}px`;
@@ -212,6 +214,7 @@ if (bola) {
 // ==========================================
 
 function empezarJuego() {
+  inicializarAudio();
   if (menuPrincipal) menuPrincipal.classList.add('hidden');
   reiniciarJuego();
 }
@@ -789,6 +792,9 @@ function inicializarAudio() {
     gananciaMaster.gain.value = 0.3;
     gananciaMaster.connect(contextoAudio.destination);
   }
+  if (contextoAudio.state === 'suspended') {
+    contextoAudio.resume();
+  }
 }
 
 function cambiarVolumen(vol) {
@@ -812,9 +818,6 @@ function cambiarDificultad(nivel) {
 
 function sonarEfecto(tipo) {
   inicializarAudio();
-  if (contextoAudio.state === 'suspended') {
-    contextoAudio.resume();
-  }
   
   const oscilador = contextoAudio.createOscillator();
   const ganancia = contextoAudio.createGain();
@@ -959,6 +962,10 @@ function reiniciarJuego() {
   moverPelota();
   iniciarReloj();
 }
+
+// Escuchar clics globales para activar el audio en cualquier momento
+window.addEventListener('click', inicializarAudio, { once: true });
+window.addEventListener('touchstart', inicializarAudio, { once: true });
 
 // Cargar tema inicial
 document.body.className = `theme-${temaActual}`;
