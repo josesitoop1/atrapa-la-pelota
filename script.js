@@ -1,11 +1,12 @@
 // ==========================================
 // JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
+// Lógica de juego con tienda dividida en Pelotas, Fondos, Fondos de Imagen y Casino.
 // ==========================================
 
 let puntos = 0;
 let recordMax = localStorage.getItem('ballGameHighScore') || 0;
 let monedasTotales = parseInt(localStorage.getItem('ballGameCoins')) || 0;
+let fichasCasino = parseInt(localStorage.getItem('ballGameCasinoChips')) || 50;
 
 let tiempoBase = 80;
 let tiempoRestante = 80;
@@ -64,6 +65,13 @@ const monedasGanadas = document.getElementById('earned-coins');
 const recordFinal = document.getElementById('final-high-score');
 const textoSensi = document.getElementById('sens-value');
 
+// Casino DOM
+const casinoMenu = document.getElementById('casino-menu');
+const casinoTrigger = document.getElementById('casino-trigger');
+const casinoMonedasVal = document.getElementById('casino-monedas-val');
+const casinoFichasVal = document.getElementById('casino-fichas-val');
+const exchangeModal = document.getElementById('exchange-modal');
+
 const paletaColores = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
 if (marcadorRecord) marcadorRecord.textContent = recordMax;
 if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
@@ -72,17 +80,19 @@ if (menuMonedas) menuMonedas.textContent = monedasTotales;
 let trampasActivas = [];
 let poderesActivos = [];
 
+// Mostrar flecha de casino al cargar con animación inicial
+setTimeout(() => {
+  if (casinoTrigger) casinoTrigger.classList.add('show-trigger');
+}, 500);
+
 
 // ==========================================
-// MODO PRUEBAS
+// MODO PRUEBAS Y CASINO
 // ==========================================
 function darMonedasPro() {
   monedasTotales += 100;
   localStorage.setItem('ballGameCoins', monedasTotales);
-  if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
-  if (tiendaMonedas) tiendaMonedas.textContent = monedasTotales;
-  if (menuMonedas) menuMonedas.textContent = monedasTotales;
-  checarBotonesTienda();
+  actualizarMonedasUI();
   sonarEfecto('powerup');
 }
 
@@ -92,19 +102,174 @@ function borrarTodoElProgreso() {
 
     recordMax = 0;
     monedasTotales = 0;
+    fichasCasino = 50;
     skinActual = 'classic';
     skinsDesbloqueadas = ['classic'];
     temaActual = 'cyberpunk';
     temasDesbloqueados = ['cyberpunk'];
 
     if (marcadorRecord) marcadorRecord.textContent = '0';
-    if (marcadorMonedas) marcadorMonedas.textContent = '0';
-    if (tiendaMonedas) tiendaMonedas.textContent = '0';
-    if (menuMonedas) menuMonedas.textContent = '0';
+    actualizarMonedasUI();
     document.body.className = 'theme-cyberpunk';
 
     reiniciarJuego();
   }
+}
+
+// Funciones del Casino
+function toggleCasinoMenu() {
+  if (casinoMenu && casinoTrigger) {
+    casinoMenu.classList.toggle('casino-open');
+    casinoTrigger.classList.toggle('open-state');
+    actualizarMonedasUI();
+  }
+}
+
+function cambiarSeccionCasino(seccion) {
+  const secMinijuegos = document.getElementById('casino-minijuegos-section');
+  const secTienda = document.getElementById('casino-tienda-section');
+  const tabs = document.querySelectorAll('.casino-tab');
+
+  tabs.forEach(t => t.classList.remove('active'));
+
+  if (seccion === 'minijuegos') {
+    secMinijuegos.classList.remove('hidden');
+    secTienda.classList.add('hidden');
+    tabs[0].classList.add('active');
+  } else {
+    secMinijuegos.classList.add('hidden');
+    secTienda.classList.remove('hidden');
+    tabs[1].classList.add('active');
+    checarBotonesTienda();
+  }
+}
+
+function abrirModalCambio() {
+  if (exchangeModal) {
+    exchangeModal.classList.toggle('hidden');
+  }
+}
+
+function realizarCambioMonedas() {
+  const cantidadInput = parseInt(document.getElementById('exchange-input').value) || 0;
+  const costoMonedas = cantidadInput * 10;
+
+  if (monedasTotales < costoMonedas) {
+    alert("¡No tienes suficientes monedas para hacer este cambio!");
+    return;
+  }
+
+  monedasTotales -= costoMonedas;
+  fichasCasino += cantidadInput;
+
+  localStorage.setItem('ballGameCasinoChips', fichasCasino);
+  actualizarMonedasUI();
+  abrirModalCambio();
+  sonarEfecto('powerup');
+}
+
+function jugarSlots() {
+  const costoFichas = 10;
+  if (fichasCasino < costoFichas) {
+    alert("¡Te faltan fichas! Cámbialas por monedas.");
+    return;
+  }
+
+  fichasCasino -= costoFichas;
+  actualizarMonedasUI();
+
+  const simbolos = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+  const s1 = simbolos[Math.floor(Math.random() * simbolos.length)];
+  const s2 = simbolos[Math.floor(Math.random() * simbolos.length)];
+  const s3 = simbolos[Math.floor(Math.random() * simbolos.length)];
+
+  document.getElementById('slot-1').textContent = s1;
+  document.getElementById('slot-2').textContent = s2;
+  document.getElementById('slot-3').textContent = s3;
+
+  const msg = document.getElementById('slot-msg');
+
+  if (s1 === s2 && s2 === s3) {
+    let premio = s1 === '7️⃣' ? 150 : 75;
+    fichasCasino += premio;
+    msg.textContent = `¡JACKPOT! Ganaste +${premio} 🎲`;
+    sonarEfecto('powerup');
+  } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+    let premio = 20;
+    fichasCasino += premio;
+    msg.textContent = `¡Par! Ganaste +${premio} 🎲`;
+    sonarEfecto('catch');
+  } else {
+    msg.textContent = "Suerte la próxima, perdiste 10 fichas.";
+    sonarEfecto('bomb');
+  }
+  actualizarMonedasUI();
+}
+
+function jugarRuleta(eleccion) {
+  const costoFichas = 15;
+  if (fichasCasino < costoFichas) {
+    alert("¡No tienes suficientes fichas!");
+    return;
+  }
+
+  fichasCasino -= costoFichas;
+  actualizarMonedasUI();
+
+  const opciones = ['rojo', 'rojo', 'verde', 'rojo', 'negro'];
+  const resultado = opciones[Math.floor(Math.random() * opciones.length)];
+  const disp = document.getElementById('ruleta-display');
+  const msg = document.getElementById('ruleta-msg');
+
+  disp.textContent = resultado === 'rojo' ? '🔴' : resultado === 'verde' ? '🟢' : '⚫';
+
+  if (eleccion === resultado) {
+    let multiPremio = resultado === 'verde' ? 10 : 2;
+    let premio = costoFichas * multiPremio;
+    fichasCasino += premio;
+    msg.textContent = `¡Cayó ${resultado.toUpperCase()}! Ganaste +${premio} 🎲`;
+    sonarEfecto('powerup');
+  } else {
+    msg.textContent = `Cayó ${resultado.toUpperCase()}. Perdiste tu apuesta.`;
+    sonarEfecto('bomb');
+  }
+  actualizarMonedasUI();
+}
+
+function comprarItemCasino(item, precio) {
+  if (fichasCasino < precio) {
+    alert("¡No tienes suficientes fichas para comprar esto en la tienda VIP!");
+    return;
+  }
+
+  fichasCasino -= precio;
+  localStorage.setItem('ballGameCasinoChips', fichasCasino);
+
+  if (item === 'gold') {
+    skinsDesbloqueadas.push('gold');
+    localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(skinsDesbloqueadas));
+    ponerSkin('gold');
+  } else if (item === 'matrix') {
+    temasDesbloqueados.push('matrix');
+    localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(temasDesbloqueados));
+    ponerTema('matrix');
+  }
+
+  actualizarMonedasUI();
+  checarBotonesTienda();
+  sonarEfecto('powerup');
+  alert("¡Compra realizada! El ítem ya está guardado en tu tienda principal.");
+}
+
+function actualizarMonedasUI() {
+  localStorage.setItem('ballGameCoins', monedasTotales);
+  localStorage.setItem('ballGameCasinoChips', fichasCasino);
+
+  if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
+  if (menuMonedas) menuMonedas.textContent = monedasTotales;
+  if (tiendaMonedas) tiendaMonedas.textContent = monedasTotales;
+  if (casinoMonedasVal) casinoMonedasVal.textContent = monedasTotales;
+  if (casinoFichasVal) casinoFichasVal.textContent = fichasCasino;
 }
 
 
@@ -154,7 +319,6 @@ if (contenedor) {
 document.addEventListener('mousemove', (e) => {
   if (!contenedor) return;
 
-  // EFECTO CÁMARA 3D: Inclinación basada en la posición del mouse respecto al centro de la pantalla
   if (!esCel) {
     const centroX = window.innerWidth / 2;
     const centroY = window.innerHeight / 2;
@@ -351,6 +515,26 @@ function checarBotonesTienda() {
     }
   }
 
+  // Integración de la Bola Dorada VIP comprada en el casino
+  const btnGoldVip = document.getElementById('buy-vip-gold');
+  const casinoBuyGold = document.getElementById('casino-buy-gold');
+  if (btnGoldVip) {
+    if (skinActual === 'gold') {
+      btnGoldVip.textContent = 'Equipada';
+      btnGoldVip.disabled = true;
+      if (casinoBuyGold) { casinoBuyGold.textContent = 'Equipada'; casinoBuyGold.disabled = true; }
+    } else if (skinsDesbloqueadas.includes('gold')) {
+      btnGoldVip.textContent = 'Equipar';
+      btnGoldVip.disabled = false;
+      btnGoldVip.onclick = () => ponerSkin('gold');
+      if (casinoBuyGold) { casinoBuyGold.textContent = 'Equipar'; casinoBuyGold.disabled = false; casinoBuyGold.onclick = () => ponerSkin('gold'); }
+    } else {
+      btnGoldVip.textContent = 'Ir al Casino';
+      btnGoldVip.disabled = false;
+      btnGoldVip.onclick = () => toggleCasinoMenu();
+    }
+  }
+
   const btnTemaCyber = document.getElementById('buy-theme-cyberpunk');
   if (btnTemaCyber) {
     if (temaActual === 'cyberpunk') {
@@ -394,6 +578,27 @@ function checarBotonesTienda() {
       btnTemaSunset.textContent = 'Comprar (200 🪙)';
       btnTemaSunset.disabled = monedasTotales < 200;
       btnTemaSunset.onclick = () => comprarTema('sunset', 200);
+    }
+  }
+
+  // Integración del Fondo Matrix comprado en el casino
+  const btnMatrix = document.getElementById('buy-theme-matrix');
+  const casinoBuyMatrix = document.getElementById('casino-buy-matrix');
+  if (btnMatrix) {
+    if (temaActual === 'matrix') {
+      btnMatrix.textContent = 'Desequipar';
+      btnMatrix.disabled = false;
+      btnMatrix.onclick = () => ponerTema('cyberpunk');
+      if (casinoBuyMatrix) { casinoBuyMatrix.textContent = 'Desequipar'; casinoBuyMatrix.disabled = false; casinoBuyMatrix.onclick = () => ponerTema('cyberpunk'); }
+    } else if (temasDesbloqueados.includes('matrix')) {
+      btnMatrix.textContent = 'Equipar';
+      btnMatrix.disabled = false;
+      btnMatrix.onclick = () => ponerTema('matrix');
+      if (casinoBuyMatrix) { casinoBuyMatrix.textContent = 'Equipar'; casinoBuyMatrix.disabled = false; casinoBuyMatrix.onclick = () => ponerTema('matrix'); }
+    } else {
+      btnMatrix.textContent = 'Ir al Casino';
+      btnMatrix.disabled = false;
+      btnMatrix.onclick = () => toggleCasinoMenu();
     }
   }
 
@@ -452,10 +657,7 @@ function checarBotonesTienda() {
 function comprarSkin(nombreSkin, precio) {
   if (monedasTotales >= precio) {
     monedasTotales -= precio;
-    if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
-    if (tiendaMonedas) tiendaMonedas.textContent = monedasTotales;
-    if (menuMonedas) menuMonedas.textContent = monedasTotales;
-    localStorage.setItem('ballGameCoins', monedasTotales);
+    actualizarMonedasUI();
 
     skinsDesbloqueadas.push(nombreSkin);
     localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(skinsDesbloqueadas));
@@ -475,10 +677,7 @@ function ponerSkin(nombreSkin) {
 function comprarTema(nombreTema, precio) {
   if (monedasTotales >= precio) {
     monedasTotales -= precio;
-    if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
-    if (tiendaMonedas) tiendaMonedas.textContent = monedasTotales;
-    if (menuMonedas) menuMonedas.textContent = monedasTotales;
-    localStorage.setItem('ballGameCoins', monedasTotales);
+    actualizarMonedasUI();
 
     temasDesbloqueados.push(nombreTema);
     localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(temasDesbloqueados));
@@ -503,6 +702,9 @@ function actualizarEstilosSkin() {
   } else if (skinActual === 'galaxy') {
     bola.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
     bola.style.boxShadow = '0 0 20px #8b5cf6';
+  } else if (skinActual === 'gold') {
+    bola.style.background = 'linear-gradient(135deg, #fbbf24, #d97706)';
+    bola.style.boxShadow = '0 0 25px #fbbf24';
   } else {
     bola.style.background = '';
     const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
@@ -969,8 +1171,7 @@ function terminarJuego() {
 
   monedasTotales += puntos;
   localStorage.setItem('ballGameCoins', monedasTotales);
-  if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
-  if (menuMonedas) menuMonedas.textContent = monedasTotales;
+  actualizarMonedasUI();
 
   if (puntos > recordMax) {
     recordMax = puntos;
@@ -983,7 +1184,6 @@ function terminarJuego() {
   if (puntosFinales) puntosFinales.textContent = puntos;
   if (monedasGanadas) monedasGanadas.textContent = puntos;
   if (recordFinal) recordFinal.textContent = recordMax;
-  if (pantallaGameOver) pantallaGameOver.classList.add('hidden'); // Asegurando que se muestre con remove, aquí corregido
   if (pantallaGameOver) pantallaGameOver.classList.remove('hidden');
 }
 
@@ -1010,8 +1210,7 @@ function reiniciarJuego() {
   ajustarDificultad();
 
   if (marcadorPuntos) marcadorPuntos.textContent = puntos;
-  if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
-  if (menuMonedas) menuMonedas.textContent = monedasTotales;
+  actualizarMonedasUI();
   if (marcadorTiempo) marcadorTiempo.textContent = tiempoRestante;
   if (marcadorRecord) marcadorRecord.textContent = recordMax;
   
@@ -1026,6 +1225,7 @@ function reiniciarJuego() {
   if (menuInfo) menuInfo.classList.add('hidden');
   if (menuPausa) menuPausa.classList.add('hidden');
   if (menuTienda) menuTienda.classList.add('hidden');
+  if (pantallaGameOver) menuTienda.classList.add('hidden');
   if (pantallaGameOver) pantallaGameOver.classList.add('hidden');
   
   moverPelota();
@@ -1036,6 +1236,7 @@ function reiniciarJuego() {
 document.addEventListener('touchstart', inicializarAudio, { once: true });
 document.addEventListener('click', inicializarAudio, { once: true });
 
-// Cargar tema inicial
+// Cargar tema inicial y sincronizar estado de tiendas
 document.body.className = `theme-${temaActual}`;
 if (bola) bola.style.display = 'none';
+checarBotonesTienda();
