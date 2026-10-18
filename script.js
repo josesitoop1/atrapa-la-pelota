@@ -1258,7 +1258,6 @@ function reiniciarJuego() {
   if (menuInfo) menuInfo.classList.add('hidden');
   if (menuPausa) menuPausa.classList.add('hidden');
   if (menuTienda) menuTienda.classList.add('hidden');
-  if (pantallaGameOver) menuTienda.classList.add('hidden');
   if (pantallaGameOver) pantallaGameOver.classList.add('hidden');
   
   moverPelota();
