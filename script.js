@@ -3,107 +3,107 @@
 // Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
 // ==========================================
 
-let score = 0;
-let highScore = localStorage.getItem('ballGameHighScore') || 0;
-let totalCoins = parseInt(localStorage.getItem('ballGameCoins')) || 0;
+let puntos = 0;
+let recordMax = localStorage.getItem('ballGameHighScore') || 0;
+let lanaTotal = parseInt(localStorage.getItem('ballGameCoins')) || 0;
 
-let defaultTime = 80;
-let timeLeft = 80;
-let timerInterval;
-let autoMoveTimeout;
-let isPlaying = false;
-let isPaused = false;
+let tiempoBase = 80;
+let tiempoRestante = 80;
+let relojIntervalo;
+let muevePelotaTimeout;
+let juegoActivo = false;
+let estaPausado = false;
 
 // Variables de Skins y Temas
-let currentSkin = localStorage.getItem('ballGameActiveSkin') || 'classic';
-let unlockedSkins = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
+let skinActual = localStorage.getItem('ballGameActiveSkin') || 'classic';
+let skinsDesbloqueadas = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
 
-let currentTheme = localStorage.getItem('ballGameActiveTheme') || 'cyberpunk';
-let unlockedThemes = JSON.parse(localStorage.getItem('ballGameUnlockedThemes')) || ['cyberpunk'];
+let temaActual = localStorage.getItem('ballGameActiveTheme') || 'cyberpunk';
+let temasDesbloqueados = JSON.parse(localStorage.getItem('ballGameUnlockedThemes')) || ['cyberpunk'];
 
 // Variables de Racha
-let currentStreak = 0;
-let multiplier = 1;
-let streakTimeout;
+let rachaActual = 0;
+let multi = 1;
+let tiempoRacha;
 
 // Tamaño y velocidad
-const INITIAL_SIZE = 50;
-const MIN_SIZE = 20;
-let currentSpeed = 1200;
-let currentColor = '#ff0055';
-let customBonusSize = 0;
+const TAMAÑO_INICIAL = 50;
+const TAMAÑO_MIN = 20;
+let velocidadActual = 1200;
+let colorActual = '#ff0055';
+let extraTamaño = 0;
 
-let currentDifficulty = 'medium';
+let dificultadActual = 'medium';
 
 // PC / Táctil
-let sensitivity = 1.0;
-let virtualX = 210;
-let virtualY = 210;
-let isTouchDevice = false;
+let sensi = 1.0;
+let posXVirtual = 210;
+let posYVirtual = 210;
+let esCel = false;
 
 // Elementos DOM
-const ball = document.getElementById('ball');
-const customCursor = document.getElementById('custom-cursor');
-const scoreDisplay = document.getElementById('score');
-const coinsDisplay = document.getElementById('coins');
-const shopCoinsDisplay = document.getElementById('shop-coins');
-const menuCoinsDisplay = document.getElementById('menu-coins');
-const streakDisplay = document.getElementById('streak-display');
-const multiplierVal = document.getElementById('multiplier-val');
-const streakPopup = document.getElementById('streak-popup');
-const highScoreDisplay = document.getElementById('high-score');
-const timerDisplay = document.getElementById('timer');
-const container = document.getElementById('game-container');
-const mainMenu = document.getElementById('main-menu');
-const infoMenu = document.getElementById('info-menu');
-const gameOverScreen = document.getElementById('game-over');
-const pauseMenu = document.getElementById('pause-menu');
-const shopMenu = document.getElementById('shop-menu');
-const finalScoreDisplay = document.getElementById('final-score');
-const earnedCoinsDisplay = document.getElementById('earned-coins');
-const finalHighScoreDisplay = document.getElementById('final-high-score');
-const sensValueDisplay = document.getElementById('sens-value');
+const bola = document.getElementById('ball');
+const cursorPro = document.getElementById('custom-cursor');
+const marcadorPuntos = document.getElementById('score');
+const marcadorLanas = document.getElementById('coins');
+const tiendaLanas = document.getElementById('shop-coins');
+const menuLanas = document.getElementById('menu-coins');
+const displayRacha = document.getElementById('streak-display');
+const textoMulti = document.getElementById('multiplier-val');
+const popupRacha = document.getElementById('streak-popup');
+const marcadorRecord = document.getElementById('high-score');
+const marcadorTiempo = document.getElementById('timer');
+const contenedor = document.getElementById('game-container');
+const menuPrincipal = document.getElementById('main-menu');
+const menuInfo = document.getElementById('info-menu');
+const pantallaGameOver = document.getElementById('game-over');
+const menuPausa = document.getElementById('pause-menu');
+const menuTienda = document.getElementById('shop-menu');
+const puntosFinales = document.getElementById('final-score');
+const lanasGanadas = document.getElementById('earned-coins');
+const recordFinal = document.getElementById('final-high-score');
+const textoSensi = document.getElementById('sens-value');
 
-const colors = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
-highScoreDisplay.textContent = highScore;
-coinsDisplay.textContent = totalCoins;
-menuCoinsDisplay.textContent = totalCoins;
+const paletaColores = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
+marcadorRecord.textContent = recordMax;
+marcadorLanas.textContent = lanaTotal;
+menuLanas.textContent = lanaTotal;
 
-let activeTraps = [];
-let activePowerUps = [];
+let trampasActivas = [];
+let poderesActivos = [];
 
 
 // ==========================================
 // MODO PRUEBAS
 // ==========================================
-function addTestCoins() {
-  totalCoins += 100;
-  localStorage.setItem('ballGameCoins', totalCoins);
-  coinsDisplay.textContent = totalCoins;
-  shopCoinsDisplay.textContent = totalCoins;
-  menuCoinsDisplay.textContent = totalCoins;
-  updateShopButtons();
-  playSound('powerup');
+function darMonedasPro() {
+  lanaTotal += 100;
+  localStorage.setItem('ballGameCoins', lanaTotal);
+  marcadorLanas.textContent = lanaTotal;
+  tiendaLanas.textContent = lanaTotal;
+  menuLanas.textContent = lanaTotal;
+  checarBotonesTienda();
+  sonarEfecto('powerup');
 }
 
-function resetFullProgress() {
+function borrarTodoElProgreso() {
   if (confirm("¿Estás seguro de borrar todo el progreso, monedas y compras?")) {
     localStorage.clear();
 
-    highScore = 0;
-    totalCoins = 0;
-    currentSkin = 'classic';
-    unlockedSkins = ['classic'];
-    currentTheme = 'cyberpunk';
-    unlockedThemes = ['cyberpunk'];
+    recordMax = 0;
+    lanaTotal = 0;
+    skinActual = 'classic';
+    skinsDesbloqueadas = ['classic'];
+    temaActual = 'cyberpunk';
+    temasDesbloqueados = ['cyberpunk'];
 
-    highScoreDisplay.textContent = '0';
-    coinsDisplay.textContent = '0';
-    shopCoinsDisplay.textContent = '0';
-    menuCoinsDisplay.textContent = '0';
+    marcadorRecord.textContent = '0';
+    marcadorLanas.textContent = '0';
+    tiendaLanas.textContent = '0';
+    menuLanas.textContent = '0';
     document.body.className = 'theme-cyberpunk';
 
-    restartGame();
+    reiniciarJuego();
   }
 }
 
@@ -113,89 +113,89 @@ function resetFullProgress() {
 // ==========================================
 window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch') {
-    isTouchDevice = true;
-    customCursor.style.display = 'none';
-    const sensGroup = document.getElementById('sensitivity-group');
-    if (sensGroup) sensGroup.style.display = 'none';
+    esCel = true;
+    cursorPro.style.display = 'none';
+    const grupoSensi = document.getElementById('sensitivity-group');
+    if (grupoSensi) grupoSensi.style.display = 'none';
   }
 }, { once: true });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
-    if (isPlaying) togglePause();
+    if (juegoActivo) pausarJuego();
   }
 });
 
 document.addEventListener('pointerlockchange', () => {
-  if (document.pointerLockElement !== container && isPlaying && !isPaused && !isTouchDevice) {
-    togglePause();
+  if (document.pointerLockElement !== contenedor && juegoActivo && !estaPausado && !esCel) {
+    pausarJuego();
   }
 });
 
-container.addEventListener('click', () => {
-  if (isPlaying && !isPaused && !isTouchDevice && document.pointerLockElement !== container) {
-    container.requestPointerLock();
+contenedor.addEventListener('click', () => {
+  if (juegoActivo && !estaPausado && !esCel && document.pointerLockElement !== contenedor) {
+    contenedor.requestPointerLock();
   }
 });
 
 document.addEventListener('mousemove', (e) => {
-  if (isPaused || !isPlaying || isTouchDevice) return;
+  if (estaPausado || !juegoActivo || esCel) return;
 
-  if (document.pointerLockElement === container) {
-    customCursor.style.display = 'block';
-    virtualX += e.movementX * sensitivity;
-    virtualY += e.movementY * sensitivity;
+  if (document.pointerLockElement === contenedor) {
+    cursorPro.style.display = 'block';
+    posXVirtual += e.movementX * sensi;
+    posYVirtual += e.movementY * sensi;
 
-    virtualX = Math.max(8, Math.min(container.clientWidth - 8, virtualX));
-    virtualY = Math.max(8, Math.min(container.clientHeight - 8, virtualY));
+    posXVirtual = Math.max(8, Math.min(contenedor.clientWidth - 8, posXVirtual));
+    posYVirtual = Math.max(8, Math.min(contenedor.clientHeight - 8, posYVirtual));
 
-    customCursor.style.left = `${virtualX}px`;
-    customCursor.style.top = `${virtualY}px`;
+    cursorPro.style.left = `${posXVirtual}px`;
+    cursorPro.style.top = `${posYVirtual}px`;
   }
 });
 
 document.addEventListener('mousedown', () => {
-  if (!isPlaying || isPaused || isTouchDevice || document.pointerLockElement !== container) return;
+  if (!juegoActivo || estaPausado || esCel || document.pointerLockElement !== contenedor) return;
 
-  const ballRect = ball.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
-  const ballLeft = ballRect.left - containerRect.left;
-  const ballTop = ballRect.top - containerRect.top;
-  const ballSize = ball.clientWidth;
+  const rectBola = bola.getBoundingClientRect();
+  const rectCont = contenedor.getBoundingClientRect();
+  const bolaIzquierda = rectBola.left - rectCont.left;
+  const bolaArriba = rectBola.top - rectCont.top;
+  const tamañoBola = bola.clientWidth;
 
-  if (virtualX >= ballLeft && virtualX <= ballLeft + ballSize && virtualY >= ballTop && virtualY <= ballTop + ballSize) {
-    catchBall();
+  if (posXVirtual >= bolaIzquierda && posXVirtual <= bolaIzquierda + tamañoBola && posYVirtual >= bolaArriba && posYVirtual <= bolaArriba + tamañoBola) {
+    atraparPelota();
     return;
   }
 
-  activePowerUps.forEach((pow) => {
-    const powRect = pow.getBoundingClientRect();
-    const powLeft = powRect.left - containerRect.left;
-    const powTop = powRect.top - containerRect.top;
-    const powSize = pow.clientWidth;
+  poderesActivos.forEach((pow) => {
+    const rectPow = pow.getBoundingClientRect();
+    const powIzquierda = rectPow.left - rectCont.left;
+    const powArriba = rectPow.top - rectCont.top;
+    const tamañoPow = pow.clientWidth;
 
-    if (virtualX >= powLeft && virtualX <= powLeft + powSize && virtualY >= powTop && virtualY <= powTop + powSize) {
-      catchPowerUp(pow);
+    if (posXVirtual >= powIzquierda && posXVirtual <= powIzquierda + tamañoPow && posYVirtual >= powArriba && posYVirtual <= powArriba + tamañoPow) {
+      atraparPoder(pow);
       return;
     }
   });
 
-  activeTraps.forEach((trap) => {
-    const trapRect = trap.getBoundingClientRect();
-    const trapLeft = trapRect.left - containerRect.left;
-    const trapTop = trapRect.top - containerRect.top;
-    const trapSize = trap.clientWidth;
+  trampasActivas.forEach((trap) => {
+    const rectTrap = trap.getBoundingClientRect();
+    const trapIzquierda = rectTrap.left - rectCont.left;
+    const trapArriba = rectTrap.top - rectCont.top;
+    const tamañoTrap = trap.clientWidth;
 
-    if (virtualX >= trapLeft && virtualX <= trapLeft + trapSize && virtualY >= trapTop && virtualY <= trapTop + trapSize) {
-      hitTrap(trap);
+    if (posXVirtual >= trapIzquierda && posXVirtual <= trapIzquierda + tamañoTrap && posYVirtual >= trapArriba && posYVirtual <= trapArriba + tamañoTrap) {
+      pegarTrampa(trap);
     }
   });
 });
 
-ball.addEventListener('pointerdown', (e) => {
-  if (!isPlaying || isPaused) return;
+bola.addEventListener('pointerdown', (e) => {
+  if (!juegoActivo || estaPausado) return;
   e.preventDefault();
-  catchBall();
+  atraparPelota();
 });
 
 
@@ -203,252 +203,252 @@ ball.addEventListener('pointerdown', (e) => {
 // MENÚ PRINCIPAL, INFORMACIÓN Y TIENDA
 // ==========================================
 
-function startGameFromMenu() {
-  mainMenu.classList.add('hidden');
-  restartGame();
+function empezarJuego() {
+  menuPrincipal.classList.add('hidden');
+  reiniciarJuego();
 }
 
-function toggleShop() {
-  shopMenu.classList.toggle('hidden');
-  shopCoinsDisplay.textContent = totalCoins;
-  menuCoinsDisplay.textContent = totalCoins;
-  updateShopButtons();
+function abrirTienda() {
+  menuTienda.classList.toggle('hidden');
+  tiendaLanas.textContent = lanaTotal;
+  menuLanas.textContent = lanaTotal;
+  checarBotonesTienda();
 }
 
-function toggleInfo() {
-  infoMenu.classList.toggle('hidden');
+function verInfo() {
+  menuInfo.classList.toggle('hidden');
 }
 
-function returnToMainMenu() {
-  clearInterval(timerInterval);
-  clearTimeout(autoMoveTimeout);
-  isPlaying = false;
-  isPaused = false;
-  if (!isTouchDevice) document.exitPointerLock();
+function irAlMenuPrincipal() {
+  clearInterval(relojIntervalo);
+  clearTimeout(muevePelotaTimeout);
+  juegoActivo = false;
+  estaPausado = false;
+  if (!esCel) document.exitPointerLock();
 
-  pauseMenu.classList.add('hidden');
-  shopMenu.classList.add('hidden');
-  infoMenu.classList.add('hidden');
-  gameOverScreen.classList.add('hidden');
-  ball.style.display = 'none';
-  customCursor.style.display = 'none';
+  menuPausa.classList.add('hidden');
+  menuTienda.classList.add('hidden');
+  menuInfo.classList.add('hidden');
+  pantallaGameOver.classList.add('hidden');
+  bola.style.display = 'none';
+  cursorPro.style.display = 'none';
 
-  menuCoinsDisplay.textContent = totalCoins;
-  mainMenu.classList.remove('hidden');
+  menuLanas.textContent = lanaTotal;
+  menuPrincipal.classList.remove('hidden');
 }
 
-function switchShopTab(tab) {
-  document.getElementById('tab-skins-btn').classList.toggle('active', tab === 'skins');
-  document.getElementById('tab-themes-btn').classList.toggle('active', tab === 'themes');
-  document.getElementById('tab-images-btn').classList.toggle('active', tab === 'images');
+function cambiarPestanaTienda(pestaña) {
+  document.getElementById('tab-skins-btn').classList.toggle('active', pestaña === 'skins');
+  document.getElementById('tab-themes-btn').classList.toggle('active', pestaña === 'themes');
+  document.getElementById('tab-images-btn').classList.toggle('active', pestaña === 'images');
 
-  document.getElementById('shop-skins-section').classList.toggle('hidden', tab !== 'skins');
-  document.getElementById('shop-themes-section').classList.toggle('hidden', tab !== 'themes');
-  document.getElementById('shop-images-section').classList.toggle('hidden', tab !== 'images');
+  document.getElementById('shop-skins-section').classList.toggle('hidden', pestaña !== 'skins');
+  document.getElementById('shop-themes-section').classList.toggle('hidden', pestaña !== 'themes');
+  document.getElementById('shop-images-section').classList.toggle('hidden', pestaña !== 'images');
 }
 
-function updateShopButtons() {
-  const btnClassic = document.getElementById('buy-classic');
-  if (btnClassic) {
-    if (currentSkin === 'classic') {
-      btnClassic.textContent = 'Equipada';
-      btnClassic.disabled = true;
+function checarBotonesTienda() {
+  const btnClasica = document.getElementById('buy-classic');
+  if (btnClasica) {
+    if (skinActual === 'classic') {
+      btnClasica.textContent = 'Equipada';
+      btnClasica.disabled = true;
     } else {
-      btnClassic.textContent = 'Equipar';
-      btnClassic.disabled = false;
-      btnClassic.onclick = () => equipSkin('classic');
+      btnClasica.textContent = 'Equipar';
+      btnClasica.disabled = false;
+      btnClasica.onclick = () => ponerSkin('classic');
     }
   }
 
-  const btnFire = document.getElementById('buy-fire');
-  if (btnFire) {
-    if (currentSkin === 'fire') {
-      btnFire.textContent = 'Equipada';
-      btnFire.disabled = true;
-    } else if (unlockedSkins.includes('fire')) {
-      btnFire.textContent = 'Equipar';
-      btnFire.disabled = false;
-      btnFire.onclick = () => equipSkin('fire');
+  const btnFuego = document.getElementById('buy-fire');
+  if (btnFuego) {
+    if (skinActual === 'fire') {
+      btnFuego.textContent = 'Equipada';
+      btnFuego.disabled = true;
+    } else if (skinsDesbloqueadas.includes('fire')) {
+      btnFuego.textContent = 'Equipar';
+      btnFuego.disabled = false;
+      btnFuego.onclick = () => ponerSkin('fire');
     } else {
-      btnFire.textContent = 'Comprar (50 🪙)';
-      btnFire.disabled = totalCoins < 50;
-      btnFire.onclick = () => buySkin('fire', 50);
+      btnFuego.textContent = 'Comprar (50 🪙)';
+      btnFuego.disabled = lanaTotal < 50;
+      btnFuego.onclick = () => comprarSkin('fire', 50);
     }
   }
 
-  const btnGalaxy = document.getElementById('buy-galaxy');
-  if (btnGalaxy) {
-    if (currentSkin === 'galaxy') {
-      btnGalaxy.textContent = 'Equipada';
-      btnGalaxy.disabled = true;
-    } else if (unlockedSkins.includes('galaxy')) {
-      btnGalaxy.textContent = 'Equipar';
-      btnGalaxy.disabled = false;
-      btnGalaxy.onclick = () => equipSkin('galaxy');
+  const btnGalaxia = document.getElementById('buy-galaxy');
+  if (btnGalaxia) {
+    if (skinActual === 'galaxy') {
+      btnGalaxia.textContent = 'Equipada';
+      btnGalaxia.disabled = true;
+    } else if (skinsDesbloqueadas.includes('galaxy')) {
+      btnGalaxia.textContent = 'Equipar';
+      btnGalaxia.disabled = false;
+      btnGalaxia.onclick = () => ponerSkin('galaxy');
     } else {
-      btnGalaxy.textContent = 'Comprar (150 🪙)';
-      btnGalaxy.disabled = totalCoins < 150;
-      btnGalaxy.onclick = () => buySkin('galaxy', 150);
+      btnGalaxia.textContent = 'Comprar (150 🪙)';
+      btnGalaxia.disabled = lanaTotal < 150;
+      btnGalaxia.onclick = () => comprarSkin('galaxy', 150);
     }
   }
 
-  const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
-  if (btnThemeCyber) {
-    if (currentTheme === 'cyberpunk') {
-      btnThemeCyber.textContent = 'Predeterminado';
-      btnThemeCyber.disabled = true;
+  const btnTemaCyber = document.getElementById('buy-theme-cyberpunk');
+  if (btnTemaCyber) {
+    if (temaActual === 'cyberpunk') {
+      btnTemaCyber.textContent = 'Predeterminado';
+      btnTemaCyber.disabled = true;
     } else {
-      btnThemeCyber.textContent = 'Equipar';
-      btnThemeCyber.disabled = false;
-      btnThemeCyber.onclick = () => equipTheme('cyberpunk');
+      btnTemaCyber.textContent = 'Equipar';
+      btnTemaCyber.disabled = false;
+      btnTemaCyber.onclick = () => ponerTema('cyberpunk');
     }
   }
 
-  const btnThemeSpace = document.getElementById('buy-theme-space');
-  if (btnThemeSpace) {
-    if (currentTheme === 'space') {
-      btnThemeSpace.textContent = 'Desequipar';
-      btnThemeSpace.disabled = false;
-      btnThemeSpace.onclick = () => equipTheme('cyberpunk');
-    } else if (unlockedThemes.includes('space')) {
-      btnThemeSpace.textContent = 'Equipar';
-      btnThemeSpace.disabled = false;
-      btnThemeSpace.onclick = () => equipTheme('space');
+  const btnTemaSpace = document.getElementById('buy-theme-space');
+  if (btnTemaSpace) {
+    if (temaActual === 'space') {
+      btnTemaSpace.textContent = 'Desequipar';
+      btnTemaSpace.disabled = false;
+      btnTemaSpace.onclick = () => ponerTema('cyberpunk');
+    } else if (temasDesbloqueados.includes('space')) {
+      btnTemaSpace.textContent = 'Equipar';
+      btnTemaSpace.disabled = false;
+      btnTemaSpace.onclick = () => ponerTema('space');
     } else {
-      btnThemeSpace.textContent = 'Comprar (100 🪙)';
-      btnThemeSpace.disabled = totalCoins < 100;
-      btnThemeSpace.onclick = () => buyTheme('space', 100);
+      btnTemaSpace.textContent = 'Comprar (100 🪙)';
+      btnTemaSpace.disabled = lanaTotal < 100;
+      btnTemaSpace.onclick = () => comprarTema('space', 100);
     }
   }
 
-  const btnThemeSunset = document.getElementById('buy-theme-sunset');
-  if (btnThemeSunset) {
-    if (currentTheme === 'sunset') {
-      btnThemeSunset.textContent = 'Desequipar';
-      btnThemeSunset.disabled = false;
-      btnThemeSunset.onclick = () => equipTheme('cyberpunk');
-    } else if (unlockedThemes.includes('sunset')) {
-      btnThemeSunset.textContent = 'Equipar';
-      btnThemeSunset.disabled = false;
-      btnThemeSunset.onclick = () => equipTheme('sunset');
+  const btnTemaSunset = document.getElementById('buy-theme-sunset');
+  if (btnTemaSunset) {
+    if (temaActual === 'sunset') {
+      btnTemaSunset.textContent = 'Desequipar';
+      btnTemaSunset.disabled = false;
+      btnTemaSunset.onclick = () => ponerTema('cyberpunk');
+    } else if (temasDesbloqueados.includes('sunset')) {
+      btnTemaSunset.textContent = 'Equipar';
+      btnTemaSunset.disabled = false;
+      btnTemaSunset.onclick = () => ponerTema('sunset');
     } else {
-      btnThemeSunset.textContent = 'Comprar (200 🪙)';
-      btnThemeSunset.disabled = totalCoins < 200;
-      btnThemeSunset.onclick = () => buyTheme('sunset', 200);
+      btnTemaSunset.textContent = 'Comprar (200 🪙)';
+      btnTemaSunset.disabled = lanaTotal < 200;
+      btnTemaSunset.onclick = () => comprarTema('sunset', 200);
     }
   }
 
-  const btnThemeCapy = document.getElementById('buy-theme-capybara');
-  if (btnThemeCapy) {
-    if (currentTheme === 'capybara') {
-      btnThemeCapy.textContent = 'Desequipar';
-      btnThemeCapy.disabled = false;
-      btnThemeCapy.onclick = () => equipTheme('cyberpunk');
-    } else if (unlockedThemes.includes('capybara')) {
-      btnThemeCapy.textContent = 'Equipar';
-      btnThemeCapy.disabled = false;
-      btnThemeCapy.onclick = () => equipTheme('capybara');
+  const btnTemaCapy = document.getElementById('buy-theme-capybara');
+  if (btnTemaCapy) {
+    if (temaActual === 'capybara') {
+      btnTemaCapy.textContent = 'Desequipar';
+      btnTemaCapy.disabled = false;
+      btnTemaCapy.onclick = () => ponerTema('cyberpunk');
+    } else if (temasDesbloqueados.includes('capybara')) {
+      btnTemaCapy.textContent = 'Equipar';
+      btnTemaCapy.disabled = false;
+      btnTemaCapy.onclick = () => ponerTema('capybara');
     } else {
-      btnThemeCapy.textContent = 'Comprar (300 🪙)';
-      btnThemeCapy.disabled = totalCoins < 300;
-      btnThemeCapy.onclick = () => buyTheme('capybara', 300);
+      btnTemaCapy.textContent = 'Comprar (300 🪙)';
+      btnTemaCapy.disabled = lanaTotal < 300;
+      btnTemaCapy.onclick = () => comprarTema('capybara', 300);
     }
   }
 
-  const btnThemeSpider = document.getElementById('buy-theme-spiderman');
-  if (btnThemeSpider) {
-    if (currentTheme === 'spiderman') {
-      btnThemeSpider.textContent = 'Desequipar';
-      btnThemeSpider.disabled = false;
-      btnThemeSpider.onclick = () => equipTheme('cyberpunk');
-    } else if (unlockedThemes.includes('spiderman')) {
-      btnThemeSpider.textContent = 'Equipar';
-      btnThemeSpider.disabled = false;
-      btnThemeSpider.onclick = () => equipTheme('spiderman');
+  const btnTemaSpider = document.getElementById('buy-theme-spiderman');
+  if (btnTemaSpider) {
+    if (temaActual === 'spiderman') {
+      btnTemaSpider.textContent = 'Desequipar';
+      btnTemaSpider.disabled = false;
+      btnTemaSpider.onclick = () => ponerTema('cyberpunk');
+    } else if (temasDesbloqueados.includes('spiderman')) {
+      btnTemaSpider.textContent = 'Equipar';
+      btnTemaSpider.disabled = false;
+      btnTemaSpider.onclick = () => ponerTema('spiderman');
     } else {
-      btnThemeSpider.textContent = 'Comprar (400 🪙)';
-      btnThemeSpider.disabled = totalCoins < 400;
-      btnThemeSpider.onclick = () => buyTheme('spiderman', 400);
+      btnTemaSpider.textContent = 'Comprar (400 🪙)';
+      btnTemaSpider.disabled = lanaTotal < 400;
+      btnTemaSpider.onclick = () => comprarTema('spiderman', 400);
     }
   }
 
-  const btnThemeSnoopy = document.getElementById('buy-theme-snoopy');
-  if (btnThemeSnoopy) {
-    if (currentTheme === 'snoopy') {
-      btnThemeSnoopy.textContent = 'Desequipar';
-      btnThemeSnoopy.disabled = false;
-      btnThemeSnoopy.onclick = () => equipTheme('cyberpunk');
-    } else if (unlockedThemes.includes('snoopy')) {
-      btnThemeSnoopy.textContent = 'Equipar';
-      btnThemeSnoopy.disabled = false;
-      btnThemeSnoopy.onclick = () => equipTheme('snoopy');
+  const btnTemaSnoopy = document.getElementById('buy-theme-snoopy');
+  if (btnTemaSnoopy) {
+    if (temaActual === 'snoopy') {
+      btnTemaSnoopy.textContent = 'Desequipar';
+      btnTemaSnoopy.disabled = false;
+      btnTemaSnoopy.onclick = () => ponerTema('cyberpunk');
+    } else if (temasDesbloqueados.includes('snoopy')) {
+      btnTemaSnoopy.textContent = 'Equipar';
+      btnTemaSnoopy.disabled = false;
+      btnTemaSnoopy.onclick = () => ponerTema('snoopy');
     } else {
-      btnThemeSnoopy.textContent = 'Comprar (500 🪙)';
-      btnThemeSnoopy.disabled = totalCoins < 500;
-      btnThemeSnoopy.onclick = () => buyTheme('snoopy', 500);
+      btnTemaSnoopy.textContent = 'Comprar (500 🪙)';
+      btnTemaSnoopy.disabled = lanaTotal < 500;
+      btnTemaSnoopy.onclick = () => comprarTema('snoopy', 500);
     }
   }
 }
 
-function buySkin(skinName, price) {
-  if (totalCoins >= price) {
-    totalCoins -= price;
-    coinsDisplay.textContent = totalCoins;
-    shopCoinsDisplay.textContent = totalCoins;
-    menuCoinsDisplay.textContent = totalCoins;
-    localStorage.setItem('ballGameCoins', totalCoins);
+function comprarSkin(nombreSkin, precio) {
+  if (lanaTotal >= precio) {
+    lanaTotal -= precio;
+    marcadorLanas.textContent = lanaTotal;
+    tiendaLanas.textContent = lanaTotal;
+    menuLanas.textContent = lanaTotal;
+    localStorage.setItem('ballGameCoins', lanaTotal);
 
-    unlockedSkins.push(skinName);
-    localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(unlockedSkins));
+    skinsDesbloqueadas.push(nombreSkin);
+    localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(skinsDesbloqueadas));
 
-    equipSkin(skinName);
-    playSound('powerup');
+    ponerSkin(nombreSkin);
+    sonarEfecto('powerup');
   }
 }
 
-function equipSkin(skinName) {
-  currentSkin = skinName;
-  localStorage.setItem('ballGameActiveSkin', skinName);
-  updateShopButtons();
-  applySkinVisuals();
+function ponerSkin(nombreSkin) {
+  skinActual = nombreSkin;
+  localStorage.setItem('ballGameActiveSkin', nombreSkin);
+  checarBotonesTienda();
+  actualizarEstilosSkin();
 }
 
-function buyTheme(themeName, price) {
-  if (totalCoins >= price) {
-    totalCoins -= price;
-    coinsDisplay.textContent = totalCoins;
-    shopCoinsDisplay.textContent = totalCoins;
-    menuCoinsDisplay.textContent = totalCoins;
-    localStorage.setItem('ballGameCoins', totalCoins);
+function comprarTema(nombreTema, precio) {
+  if (lanaTotal >= precio) {
+    lanaTotal -= precio;
+    marcadorLanas.textContent = lanaTotal;
+    tiendaLanas.textContent = lanaTotal;
+    menuLanas.textContent = lanaTotal;
+    localStorage.setItem('ballGameCoins', lanaTotal);
 
-    unlockedThemes.push(themeName);
-    localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(unlockedThemes));
+    temasDesbloqueados.push(nombreTema);
+    localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(temasDesbloqueados));
 
-    equipTheme(themeName);
-    playSound('powerup');
+    ponerTema(nombreTema);
+    sonarEfecto('powerup');
   }
 }
 
-function equipTheme(themeName) {
-  currentTheme = themeName;
-  localStorage.setItem('ballGameActiveTheme', themeName);
-  document.body.className = `theme-${themeName}`;
-  updateShopButtons();
+function ponerTema(nombreTema) {
+  temaActual = nombreTema;
+  localStorage.setItem('ballGameActiveTheme', nombreTema);
+  document.body.className = `theme-${nombreTema}`;
+  checarBotonesTienda();
 }
 
-function applySkinVisuals() {
-  if (currentSkin === 'fire') {
-    ball.style.background = 'linear-gradient(135deg, #f97316, #ef4444)';
-    ball.style.boxShadow = '0 0 20px #f97316';
-  } else if (currentSkin === 'galaxy') {
-    ball.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
-    ball.style.boxShadow = '0 0 20px #8b5cf6';
+function actualizarEstilosSkin() {
+  if (skinActual === 'fire') {
+    bola.style.background = 'linear-gradient(135deg, #f97316, #ef4444)';
+    bola.style.boxShadow = '0 0 20px #f97316';
+  } else if (skinActual === 'galaxy') {
+    bola.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
+    bola.style.boxShadow = '0 0 20px #8b5cf6';
   } else {
-    ball.style.background = '';
-    const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
-    currentColor = colors[colorIndex];
-    ball.style.backgroundColor = currentColor;
-    ball.style.boxShadow = `0 0 15px ${currentColor}`;
+    bola.style.background = '';
+    const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
+    colorActual = paletaColores[indiceColor];
+    bola.style.backgroundColor = colorActual;
+    bola.style.boxShadow = `0 0 15px ${colorActual}`;
   }
 }
 
@@ -457,132 +457,132 @@ function applySkinVisuals() {
 // MECÁNICAS DE JUEGO Y RACHAS
 // ==========================================
 
-function showStreakPopup(text) {
-  clearTimeout(streakTimeout);
-  streakPopup.textContent = text;
-  streakPopup.classList.remove('hidden');
-  streakPopup.classList.add('show');
+function mostrarAvisoRacha(texto) {
+  clearTimeout(tiempoRacha);
+  popupRacha.textContent = texto;
+  popupRacha.classList.remove('hidden');
+  popupRacha.classList.add('show');
 
-  streakTimeout = setTimeout(() => {
-    streakPopup.classList.remove('show');
+  tiempoRacha = setTimeout(() => {
+    popupRacha.classList.remove('show');
   }, 600);
 }
 
-function updateStreakUI() {
-  if (multiplier > 1) {
-    multiplierVal.textContent = `x${multiplier}`;
-    streakDisplay.classList.remove('streak-hidden');
-    streakDisplay.classList.add('streak-active');
+function actualizarRachaUI() {
+  if (multi > 1) {
+    textoMulti.textContent = `x${multi}`;
+    displayRacha.classList.remove('streak-hidden');
+    displayRacha.classList.add('streak-active');
   } else {
-    multiplierVal.textContent = `x1`;
-    streakDisplay.classList.remove('streak-active');
-    streakDisplay.classList.add('streak-hidden');
+    textoMulti.textContent = `x1`;
+    displayRacha.classList.remove('streak-active');
+    displayRacha.classList.add('streak-hidden');
   }
 }
 
-function createCatchParticles(x, y) {
-  const numParticles = 8;
-  for (let i = 0; i < numParticles; i++) {
+function sacarParticulas(x, y) {
+  const cantidad = 8;
+  for (let i = 0; i < cantidad; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = `${x}px`;
     p.style.top = `${y}px`;
-    p.style.backgroundColor = currentColor;
+    p.style.backgroundColor = colorActual;
 
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 30 + Math.random() * 40;
-    const dx = Math.cos(angle) * distance;
-    const dy = Math.sin(angle) * distance;
+    const angulo = Math.random() * Math.PI * 2;
+    const distancia = 30 + Math.random() * 40;
+    const dx = Math.cos(angulo) * distancia;
+    const dy = Math.sin(angulo) * distancia;
 
     p.style.setProperty('--dx', `${dx}px`);
     p.style.setProperty('--dy', `${dy}px`);
 
-    container.appendChild(p);
+    contenedor.appendChild(p);
     setTimeout(() => p.remove(), 400);
   }
 }
 
-function catchBall() {
-  playSound('catch');
+function atraparPelota() {
+  sonarEfecto('catch');
 
-  const ballRect = ball.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
-  const pX = (ballRect.left - containerRect.left) + (ballRect.width / 2);
-  const pY = (ballRect.top - containerRect.top) + (ballRect.height / 2);
-  createCatchParticles(pX, pY);
+  const rectBola = bola.getBoundingClientRect();
+  const rectCont = contenedor.getBoundingClientRect();
+  const pX = (rectBola.left - rectCont.left) + (rectBola.width / 2);
+  const pY = (rectBola.top - rectCont.top) + (rectBola.height / 2);
+  sacarParticulas(pX, pY);
 
-  currentStreak++;
-  let oldMultiplier = multiplier;
-  multiplier = Math.min(4, 1 + Math.floor(currentStreak / 3));
+  rachaActual++;
+  let viejoMulti = multi;
+  multi = Math.min(4, 1 + Math.floor(rachaActual / 3));
 
-  if (multiplier > oldMultiplier) {
-    showStreakPopup(`¡RACHA x${multiplier}! 🔥`);
+  if (multi > viejoMulti) {
+    mostrarAvisoRacha(`¡RACHA x${multi}! 🔥`);
   }
 
-  updateStreakUI();
+  actualizarRachaUI();
 
-  score += 1 * multiplier;
-  scoreDisplay.textContent = score;
+  puntos += 1 * multi;
+  marcadorPuntos.textContent = puntos;
 
-  if (currentDifficulty === 'easy' && score >= 40) {
-    currentDifficulty = 'medium';
+  if (dificultadActual === 'easy' && puntos >= 40) {
+    dificultadActual = 'medium';
     document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('btn-medium').classList.add('active');
   }
 
-  updateDifficulty();
-  moveBall();
+  ajustarDificultad();
+  moverPelota();
 }
 
-function catchPowerUp(pow) {
-  playSound('powerup');
+function atraparPoder(pow) {
+  sonarEfecto('powerup');
   const suerte = Math.random() * 100;
 
   if (suerte < 40) {
-    score += 3 * multiplier;
-    scoreDisplay.textContent = score;
+    puntos += 3 * multi;
+    marcadorPuntos.textContent = puntos;
   } else if (suerte < 43) {
-    score += 10 * multiplier;
-    scoreDisplay.textContent = score;
+    puntos += 10 * multi;
+    marcadorPuntos.textContent = puntos;
   } else if (suerte < 63) {
-    let coloresLibres = colors.filter(c => c !== currentColor);
-    currentColor = coloresLibres[Math.floor(Math.random() * coloresLibres.length)];
-    if (currentSkin === 'classic') {
-      ball.style.backgroundColor = currentColor;
-      ball.style.boxShadow = `0 0 15px ${currentColor}`;
+    let libres = paletaColores.filter(c => c !== colorActual);
+    colorActual = libres[Math.floor(Math.random() * libres.length)];
+    if (skinActual === 'classic') {
+      bola.style.backgroundColor = colorActual;
+      bola.style.boxShadow = `0 0 15px ${colorActual}`;
     }
-    score += 3 * multiplier;
-    scoreDisplay.textContent = score;
+    puntos += 3 * multi;
+    marcadorPuntos.textContent = puntos;
   } else if (suerte < 73) {
-    customBonusSize = 18;
-    if (!ball.querySelector('.main-ball-dot')) {
-      const dot = document.createElement('div');
-      dot.className = 'main-ball-dot';
-      ball.appendChild(dot);
+    extraTamaño = 18;
+    if (!bola.querySelector('.main-ball-dot')) {
+      const puntoExtra = document.createElement('div');
+      puntoExtra.className = 'main-ball-dot';
+      bola.appendChild(puntoExtra);
     }
-    updateDifficulty();
-    score += 3 * multiplier;
-    scoreDisplay.textContent = score;
+    ajustarDificultad();
+    puntos += 3 * multi;
+    marcadorPuntos.textContent = puntos;
   } else {
-    score += 3 * multiplier;
-    scoreDisplay.textContent = score;
+    puntos += 3 * multi;
+    marcadorPuntos.textContent = puntos;
   }
 
   pow.remove();
-  activePowerUps = activePowerUps.filter(p => p !== pow);
+  poderesActivos = poderesActivos.filter(p => p !== pow);
 }
 
-function hitTrap(trap) {
-  playSound('bomb');
-  currentStreak = 0;
-  multiplier = 1;
-  updateStreakUI();
+function pegarTrampa(trap) {
+  sonarEfecto('bomb');
+  rachaActual = 0;
+  multi = 1;
+  actualizarRachaUI();
 
-  score = Math.max(0, score - 3);
-  scoreDisplay.textContent = score;
+  puntos = Math.max(0, puntos - 3);
+  marcadorPuntos.textContent = puntos;
   trap.remove();
-  activeTraps = activeTraps.filter(t => t !== trap);
-  updateDifficulty();
+  trampasActivas = trampasActivas.filter(t => t !== trap);
+  ajustarDificultad();
 }
 
 
@@ -590,160 +590,160 @@ function hitTrap(trap) {
 // MOVIMIENTO Y APARICIÓN DE OBJETOS
 // ==========================================
 
-function spawnPowerUp(maxX, maxY, usedPositions) {
+function spawnPowerUp(maxX, maxY, usados) {
   const pow = document.createElement('div');
   pow.className = 'powerup-ball';
   
-  pow.style.width = `${Math.max(18, ball.clientWidth - 4)}px`;
-  pow.style.height = `${Math.max(18, ball.clientHeight - 4)}px`;
+  pow.style.width = `${Math.max(18, bola.clientWidth - 4)}px`;
+  pow.style.height = `${Math.max(18, bola.clientHeight - 4)}px`;
   pow.style.position = 'absolute';
   pow.style.borderRadius = '50%';
   pow.style.zIndex = '6';
 
-  let powX, powY, muyCerca, intentos = 0;
+  let pX, pY, choca, intentos = 0;
   do {
-    muyCerca = false;
-    powX = Math.floor(Math.random() * maxX);
-    powY = Math.floor(Math.random() * (maxY - 40)) + 60;
+    choca = false;
+    pX = Math.floor(Math.random() * maxX);
+    pY = Math.floor(Math.random() * (maxY - 40)) + 60;
 
-    for (let pos of usedPositions) {
-      if (Math.abs(powX - pos.x) < 70 && Math.abs(powY - pos.y) < 70) {
-        muyCerca = true;
+    for (let pos of usados) {
+      if (Math.abs(pX - pos.x) < 70 && Math.abs(pY - pos.y) < 70) {
+        choca = true;
         break;
       }
     }
     intentos++;
-  } while (muyCerca && intentos < 50);
+  } while (choca && intentos < 50);
 
-  usedPositions.push({ x: powX, y: powY });
-  pow.style.left = `${powX}px`;
-  pow.style.top = `${powY}px`;
+  usados.push({ x: pX, y: pY });
+  pow.style.left = `${pX}px`;
+  pow.style.top = `${pY}px`;
 
   pow.addEventListener('pointerdown', (e) => {
-    if (!isPlaying || isPaused) return;
+    if (!juegoActivo || estaPausado) return;
     e.preventDefault();
-    catchPowerUp(pow);
+    atraparPoder(pow);
   });
 
-  container.appendChild(pow);
-  activePowerUps.push(pow);
+  contenedor.appendChild(pow);
+  poderesActivos.push(pow);
 }
 
-function moveBall() {
-  if (!isPlaying || isPaused) return;
-  clearTimeout(autoMoveTimeout);
-  clearEntities();
+function moverPelota() {
+  if (!juegoActivo || estaPausado) return;
+  clearTimeout(muevePelotaTimeout);
+  limpiarTodoEnPantalla();
 
-  const maxX = container.clientWidth - ball.clientWidth;
-  const maxY = container.clientHeight - ball.clientHeight - 80;
+  const maxX = contenedor.clientWidth - bola.clientWidth;
+  const maxY = contenedor.clientHeight - bola.clientHeight - 80;
 
-  const randomX = Math.floor(Math.random() * maxX);
-  const randomY = Math.floor(Math.random() * (maxY - 40)) + 60;
+  const azarX = Math.floor(Math.random() * maxX);
+  const azarY = Math.floor(Math.random() * (maxY - 40)) + 60;
 
-  ball.style.left = `${randomX}px`;
-  ball.style.top = `${randomY}px`;
+  bola.style.left = `${azarX}px`;
+  bola.style.top = `${azarY}px`;
 
-  let numTrampas = 0;
-  if (currentDifficulty === 'medium' && score >= 5) {
-    numTrampas = 1 + Math.floor((score - 5) / 3);
-  } else if (currentDifficulty === 'hard' && score >= 5) {
-    numTrampas = 2 + (Math.floor((score - 5) / 2) * 2);
+  let trampasTotales = 0;
+  if (dificultadActual === 'medium' && puntos >= 5) {
+    trampasTotales = 1 + Math.floor((puntos - 5) / 3);
+  } else if (dificultadActual === 'hard' && puntos >= 5) {
+    trampasTotales = 2 + (Math.floor((puntos - 5) / 2) * 2);
   }
 
-  let posicionesUsadas = [{ x: randomX, y: randomY }];
+  let posicionesOcupadas = [{ x: azarX, y: azarY }];
 
-  for (let i = 0; i < numTrampas; i++) {
+  for (let i = 0; i < trampasTotales; i++) {
     const trap = document.createElement('div');
     trap.className = 'trap-ball';
     
-    trap.style.width = ball.style.width;
-    trap.style.height = ball.style.height;
-    trap.style.backgroundColor = currentColor;
-    trap.style.boxShadow = `0 0 15px ${currentColor}`;
+    trap.style.width = bola.style.width;
+    trap.style.height = bola.style.height;
+    trap.style.backgroundColor = colorActual;
+    trap.style.boxShadow = `0 0 15px ${colorActual}`;
     trap.style.position = 'absolute';
     trap.style.borderRadius = '50%';
     trap.style.zIndex = '5';
 
-    let trapX, trapY, muyCerca, intentos = 0;
+    let tX, tY, choca, intentos = 0;
     do {
-      muyCerca = false;
-      trapX = Math.floor(Math.random() * maxX);
-      trapY = Math.floor(Math.random() * (maxY - 40)) + 60;
+      choca = false;
+      tX = Math.floor(Math.random() * maxX);
+      tY = Math.floor(Math.random() * (maxY - 40)) + 60;
 
-      for (let pos of posicionesUsadas) {
-        if (Math.abs(trapX - pos.x) < 70 && Math.abs(trapY - pos.y) < 70) {
-          muyCerca = true;
+      for (let pos of posicionesOcupadas) {
+        if (Math.abs(tX - pos.x) < 70 && Math.abs(tY - pos.y) < 70) {
+          choca = true;
           break;
         }
       }
       intentos++;
-    } while (muyCerca && intentos < 50);
+    } while (choca && intentos < 50);
 
-    posicionesUsadas.push({ x: trapX, y: trapY });
-    trap.style.left = `${trapX}px`;
-    trap.style.top = `${trapY}px`;
+    posicionesOcupadas.push({ x: tX, y: tY });
+    trap.style.left = `${tX}px`;
+    trap.style.top = `${tY}px`;
 
     trap.addEventListener('pointerdown', (e) => {
-      if (!isPlaying || isPaused) return;
+      if (!juegoActivo || estaPausado) return;
       e.preventDefault();
-      hitTrap(trap);
+      pegarTrampa(trap);
     });
 
-    container.appendChild(trap);
-    activeTraps.push(trap);
+    contenedor.appendChild(trap);
+    trampasActivas.push(trap);
   }
 
-  if (currentDifficulty !== 'easy') {
+  if (dificultadActual !== 'easy') {
     if (Math.random() < 0.10) {
-      spawnPowerUp(maxX, maxY, posicionesUsadas);
+      spawnPowerUp(maxX, maxY, posicionesOcupadas);
     }
-    if (currentDifficulty === 'hard') {
+    if (dificultadActual === 'hard') {
       if (Math.random() < 0.10) {
-        spawnPowerUp(maxX, maxY, posicionesUsadas);
+        spawnPowerUp(maxX, maxY, posicionesOcupadas);
       }
     }
   }
 
-  autoMoveTimeout = setTimeout(() => {
-    if (currentStreak > 0) {
-      currentStreak = 0;
-      multiplier = 1;
-      updateStreakUI();
+  muevePelotaTimeout = setTimeout(() => {
+    if (rachaActual > 0) {
+      rachaActual = 0;
+      multi = 1;
+      actualizarRachaUI();
     }
-    moveBall();
-  }, currentSpeed);
+    moverPelota();
+  }, velocidadActual);
 }
 
-function updateDifficulty() {
-  const baseSize = Math.max(MIN_SIZE, INITIAL_SIZE - score);
-  const finalSize = baseSize + customBonusSize;
-  ball.style.width = `${finalSize}px`;
-  ball.style.height = `${finalSize}px`;
+function ajustarDificultad() {
+  const baseTam = Math.max(TAMAÑO_MIN, TAMAÑO_INICIAL - puntos);
+  const tamFinal = baseTam + extraTamaño;
+  bola.style.width = `${tamFinal}px`;
+  bola.style.height = `${tamFinal}px`;
 
-  if (currentDifficulty === 'easy') {
-    currentSpeed = 1600;
-  } else if (currentDifficulty === 'medium') {
-    currentSpeed = Math.max(500, 1200 - (score * 20));
-  } else if (currentDifficulty === 'hard') {
-    currentSpeed = Math.max(250, 800 - (score * 30));
+  if (dificultadActual === 'easy') {
+    velocidadActual = 1600;
+  } else if (dificultadActual === 'medium') {
+    velocidadActual = Math.max(500, 1200 - (puntos * 20));
+  } else if (dificultadActual === 'hard') {
+    velocidadActual = Math.max(250, 800 - (puntos * 30));
   }
 
-  if (customBonusSize === 0) {
-    const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
-    currentColor = colors[colorIndex];
+  if (extraTamaño === 0) {
+    const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
+    colorActual = paletaColores[indiceColor];
     
-    const dot = ball.querySelector('.main-ball-dot');
-    if (dot) dot.remove();
+    const puntoExtra = bola.querySelector('.main-ball-dot');
+    if (puntoExtra) puntoExtra.remove();
   }
   
-  applySkinVisuals();
+  actualizarEstilosSkin();
 }
 
-function clearEntities() {
-  activeTraps.forEach(trap => trap.remove());
-  activeTraps = [];
-  activePowerUps.forEach(pow => pow.remove());
-  activePowerUps = [];
+function limpiarTodoEnPantalla() {
+  trampasActivas.forEach(trap => trap.remove());
+  trampasActivas = [];
+  poderesActivos.forEach(pow => pow.remove());
+  poderesActivos = [];
 }
 
 
@@ -751,168 +751,168 @@ function clearEntities() {
 // AUDIO, CRONÓMETRO Y ESTADOS
 // ==========================================
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let masterGain = audioCtx.createGain();
-masterGain.gain.value = 0.3;
-masterGain.connect(audioCtx.destination);
+const contextoAudio = new (window.AudioContext || window.webkitAudioContext)();
+let gananciaMaster = contextoAudio.createGain();
+gananciaMaster.gain.value = 0.3;
+gananciaMaster.connect(contextoAudio.destination);
 
-function changeVolume(val) {
-  masterGain.gain.value = parseFloat(val);
+function cambiarVolumen(vol) {
+  gananciaMaster.gain.value = parseFloat(vol);
 }
 
-function changeSensitivity(val) {
-  sensitivity = Math.min(2.0, parseFloat(val));
-  sensValueDisplay.textContent = `${sensitivity.toFixed(1)}x`;
+function cambiarSensibilidad(val) {
+  sensi = Math.min(2.0, parseFloat(val));
+  textoSensi.textContent = `${sensi.toFixed(1)}x`;
 }
 
-function changeDifficulty(level) {
-  currentDifficulty = level;
+function cambiarDificultad(nivel) {
+  dificultadActual = nivel;
   document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`btn-${level}`).classList.add('active');
-  restartGame();
+  document.getElementById(`btn-${nivel}`).classList.add('active');
+  reiniciarJuego();
 }
 
-function playSound(type) {
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+function sonarEfecto(tipo) {
+  if (contextoAudio.state === 'suspended') contextoAudio.resume();
   
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(masterGain);
+  const oscilador = contextoAudio.createOscillator();
+  const ganancia = contextoAudio.createGain();
+  oscilador.connect(ganancia);
+  ganancia.connect(gananciaMaster);
 
-  if (type === 'catch') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
-  } else if (type === 'powerup') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
-  } else if (type === 'bomb') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(40, audioCtx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.2);
-  } else if (type === 'gameover') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.4);
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.4);
+  if (tipo === 'catch') {
+    oscilador.type = 'sine';
+    oscilador.frequency.setValueAtTime(440, contextoAudio.currentTime);
+    oscilador.frequency.exponentialRampToValueAtTime(880, contextoAudio.currentTime + 0.1);
+    ganancia.gain.setValueAtTime(0.5, contextoAudio.currentTime);
+    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.1);
+    oscilador.start();
+    oscilador.stop(contextoAudio.currentTime + 0.1);
+  } else if (tipo === 'powerup') {
+    oscilador.type = 'triangle';
+    oscilador.frequency.setValueAtTime(587.33, contextoAudio.currentTime);
+    oscilador.frequency.exponentialRampToValueAtTime(1174.66, contextoAudio.currentTime + 0.15);
+    ganancia.gain.setValueAtTime(0.6, contextoAudio.currentTime);
+    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.15);
+    oscilador.start();
+    oscilador.stop(contextoAudio.currentTime + 0.15);
+  } else if (tipo === 'bomb') {
+    oscilador.type = 'sawtooth';
+    oscilador.frequency.setValueAtTime(150, contextoAudio.currentTime);
+    oscilador.frequency.linearRampToValueAtTime(40, contextoAudio.currentTime + 0.2);
+    ganancia.gain.setValueAtTime(0.6, contextoAudio.currentTime);
+    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.2);
+    oscilador.start();
+    oscilador.stop(contextoAudio.currentTime + 0.2);
+  } else if (tipo === 'gameover') {
+    oscilador.type = 'triangle';
+    oscilador.frequency.setValueAtTime(300, contextoAudio.currentTime);
+    oscilador.frequency.linearRampToValueAtTime(100, contextoAudio.currentTime + 0.4);
+    ganancia.gain.setValueAtTime(0.4, contextoAudio.currentTime);
+    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.4);
+    oscilador.start();
+    oscilador.stop(contextoAudio.currentTime + 0.4);
   }
 }
 
-function togglePause() {
-  if (!isPlaying) return;
-  isPaused = !isPaused;
+function pausarJuego() {
+  if (!juegoActivo) return;
+  estaPausado = !estaPausado;
 
-  if (isPaused) {
-    if (!isTouchDevice) document.exitPointerLock();
-    clearInterval(timerInterval);
-    clearTimeout(autoMoveTimeout);
-    pauseMenu.classList.remove('hidden');
-    customCursor.style.display = 'none';
+  if (estaPausado) {
+    if (!esCel) document.exitPointerLock();
+    clearInterval(relojIntervalo);
+    clearTimeout(muevePelotaTimeout);
+    menuPausa.classList.remove('hidden');
+    cursorPro.style.display = 'none';
   } else {
-    pauseMenu.classList.add('hidden');
-    shopMenu.classList.add('hidden');
-    if (!isTouchDevice) customCursor.style.display = 'block';
-    startTimer();
-    moveBall();
+    menuPausa.classList.add('hidden');
+    menuTienda.classList.add('hidden');
+    if (!esCel) cursorPro.style.display = 'block';
+    iniciarReloj();
+    moverPelota();
   }
 }
 
-function startTimer() {
-  if (isPaused) return;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (isPaused) return;
-    timeLeft--;
-    timerDisplay.textContent = timeLeft;
+function iniciarReloj() {
+  if (estaPausado) return;
+  clearInterval(relojIntervalo);
+  relojIntervalo = setInterval(() => {
+    if (estaPausado) return;
+    tiempoRestante--;
+    marcadorTiempo.textContent = tiempoRestante;
 
-    if (timeLeft <= 0) {
-      endGame();
+    if (tiempoRestante <= 0) {
+      terminarJuego();
     }
   }, 1000);
 }
 
-function endGame() {
-  isPlaying = false;
-  if (!isTouchDevice) document.exitPointerLock();
-  clearInterval(timerInterval);
-  clearTimeout(autoMoveTimeout);
-  clearEntities();
+function terminarJuego() {
+  juegoActivo = false;
+  if (!esCel) document.exitPointerLock();
+  clearInterval(relojIntervalo);
+  clearTimeout(muevePelotaTimeout);
+  limpiarTodoEnPantalla();
   
-  playSound('gameover');
+  sonarEfecto('gameover');
 
-  totalCoins += score;
-  localStorage.setItem('ballGameCoins', totalCoins);
-  coinsDisplay.textContent = totalCoins;
-  menuCoinsDisplay.textContent = totalCoins;
+  lanaTotal += puntos;
+  localStorage.setItem('ballGameCoins', lanaTotal);
+  marcadorLanas.textContent = lanaTotal;
+  menuLanas.textContent = lanaTotal;
 
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem('ballGameHighScore', highScore);
-    highScoreDisplay.textContent = highScore;
+  if (puntos > recordMax) {
+    recordMax = puntos;
+    localStorage.setItem('ballGameHighScore', recordMax);
+    marcadorRecord.textContent = recordMax;
   }
 
-  ball.style.display = 'none';
-  customCursor.style.display = 'none';
-  finalScoreDisplay.textContent = score;
-  earnedCoinsDisplay.textContent = score;
-  finalHighScoreDisplay.textContent = highScore;
-  gameOverScreen.classList.remove('hidden');
+  bola.style.display = 'none';
+  cursorPro.style.display = 'none';
+  puntosFinales.textContent = puntos;
+  lanasGanadas.textContent = puntos;
+  recordFinal.textContent = recordMax;
+  pantallaGameOver.classList.remove('hidden');
 }
 
-function restartGame() {
-  clearInterval(timerInterval);
-  clearTimeout(autoMoveTimeout);
+function reiniciarJuego() {
+  clearInterval(relojIntervalo);
+  clearTimeout(muevePelotaTimeout);
 
-  score = 0;
-  currentStreak = 0;
-  multiplier = 1;
-  updateStreakUI();
+  puntos = 0;
+  rachaActual = 0;
+  multi = 1;
+  actualizarRachaUI();
 
-  timeLeft = defaultTime;
-  customBonusSize = 0;
-  isPlaying = true;
-  isPaused = false;
+  tiempoRestante = tiempoBase;
+  extraTamaño = 0;
+  juegoActivo = true;
+  estaPausado = false;
   
-  updateDifficulty();
+  ajustarDificultad();
 
-  scoreDisplay.textContent = score;
-  coinsDisplay.textContent = totalCoins;
-  menuCoinsDisplay.textContent = totalCoins;
-  timerDisplay.textContent = timeLeft;
-  highScoreDisplay.textContent = highScore;
+  marcadorPuntos.textContent = puntos;
+  marcadorLanas.textContent = lanaTotal;
+  menuLanas.textContent = lanaTotal;
+  marcadorTiempo.textContent = tiempoRestante;
+  marcadorRecord.textContent = recordMax;
   
-  ball.style.width = `${INITIAL_SIZE}px`;
-  ball.style.height = `${INITIAL_SIZE}px`;
-  ball.style.display = 'block';
-  if (!isTouchDevice) customCursor.style.display = 'block';
+  bola.style.width = `${TAMAÑO_INICIAL}px`;
+  bola.style.height = `${TAMAÑO_INICIAL}px`;
+  bola.style.display = 'block';
+  if (!esCel) cursorPro.style.display = 'block';
 
-  mainMenu.classList.add('hidden');
-  infoMenu.classList.add('hidden');
-  pauseMenu.classList.add('hidden');
-  shopMenu.classList.add('hidden');
-  gameOverScreen.classList.add('hidden');
+  menuPrincipal.classList.add('hidden');
+  menuInfo.classList.add('hidden');
+  menuPausa.classList.add('hidden');
+  menuTienda.classList.add('hidden');
+  pantallaGameOver.classList.add('hidden');
   
-  moveBall();
-  startTimer();
+  moverPelota();
+  iniciarReloj();
 }
 
 // Cargar tema inicial
-document.body.className = `theme-${currentTheme}`;
-ball.style.display = 'none';
+document.body.className = `theme-${temaActual}`;
+bola.style.display = 'none';
