@@ -6,7 +6,7 @@
 let puntos = 0;
 let recordMax = localStorage.getItem('ballGameHighScore') || 0;
 let monedasTotales = parseInt(localStorage.getItem('ballGameCoins')) || 0;
-let fichasCasino = parseInt(localStorage.getItem('ballGameCasinoChips')) || 50;
+let fichasCasino = parseInt(localStorage.getItem('ballGameCasinoChips')) || 0; // Inicia con 0 Fichas
 
 let tiempoBase = 80;
 let tiempoRestante = 80;
@@ -102,7 +102,7 @@ function borrarTodoElProgreso() {
 
     recordMax = 0;
     monedasTotales = 0;
-    fichasCasino = 50;
+    fichasCasino = 0; // Reinicio a 0 fichas
     skinActual = 'classic';
     skinsDesbloqueadas = ['classic'];
     temaActual = 'cyberpunk';
@@ -150,12 +150,20 @@ function abrirModalCambio() {
   }
 }
 
+function calcularCostoCambio(val) {
+  const fichas = parseInt(val) || 0;
+  const textoCosto = document.getElementById('exchange-cost-text');
+  if (textoCosto) {
+    textoCosto.textContent = `Costo: ${fichas * 10} Monedas 🪙`;
+  }
+}
+
 function realizarCambioMonedas() {
   const cantidadInput = parseInt(document.getElementById('exchange-input').value) || 0;
-  const costoMonedas = cantidadInput * 10;
+  const costoMonedas = cantidadInput * 10; // Tasa de cambio: 10 Monedas = 1 Ficha
 
   if (monedasTotales < costoMonedas) {
-    alert("¡No tienes suficientes monedas para hacer este cambio!");
+    alert("¡No tienes suficientes monedas! 10 Monedas valen 1 Ficha.");
     return;
   }
 
@@ -169,16 +177,17 @@ function realizarCambioMonedas() {
 }
 
 function jugarSlots() {
-  const costoFichas = 10;
+  const costoFichas = 20; // Límite mínimo de 20 fichas
   if (fichasCasino < costoFichas) {
-    alert("¡Te faltan fichas! Cámbialas por monedas.");
+    alert("¡Necesitas mínimo 20 fichas para jugar al Tragamonedas!");
     return;
   }
 
   fichasCasino -= costoFichas;
   actualizarMonedasUI();
 
-  const simbolos = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+  // Dificultad ajustada: Símbolos más variados para hacer más difícil ganar
+  const simbolos = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🍇', '🍉'];
   const s1 = simbolos[Math.floor(Math.random() * simbolos.length)];
   const s2 = simbolos[Math.floor(Math.random() * simbolos.length)];
   const s3 = simbolos[Math.floor(Math.random() * simbolos.length)];
@@ -190,42 +199,46 @@ function jugarSlots() {
   const msg = document.getElementById('slot-msg');
 
   if (s1 === s2 && s2 === s3) {
-    let premio = s1 === '7️⃣' ? 150 : 75;
+    let premio = s1 === '7️⃣' ? 300 : 150;
     fichasCasino += premio;
-    msg.textContent = `¡JACKPOT! Ganaste +${premio} 🎲`;
+    msg.textContent = `¡JACKPOT EXTRAORDINARIO! +${premio} 🎲`;
     sonarEfecto('powerup');
   } else if (s1 === s2 || s2 === s3 || s1 === s3) {
-    let premio = 20;
+    let premio = 30;
     fichasCasino += premio;
-    msg.textContent = `¡Par! Ganaste +${premio} 🎲`;
+    msg.textContent = `¡Par de aciertos! +${premio} 🎲`;
     sonarEfecto('catch');
   } else {
-    msg.textContent = "Suerte la próxima, perdiste 10 fichas.";
+    msg.textContent = "Sin suerte esta vez. Perdiste 20 fichas.";
     sonarEfecto('bomb');
   }
   actualizarMonedasUI();
 }
 
 function jugarRuleta(eleccion) {
-  const costoFichas = 15;
+  const costoFichas = 20; // Límite mínimo de 20 fichas
   if (fichasCasino < costoFichas) {
-    alert("¡No tienes suficientes fichas!");
+    alert("¡Necesitas mínimo 20 fichas para jugar a la Ruleta!");
     return;
   }
 
   fichasCasino -= costoFichas;
   actualizarMonedasUI();
 
-  const opciones = ['rojo', 'rojo', 'verde', 'rojo', 'negro'];
+  // Probabilidades de Ruleta más complejas y retadoras
+  const opciones = ['rojo', 'negro', 'rojo', 'negro', 'rojo', 'negro', 'negro', 'verde', 'blanco'];
   const resultado = opciones[Math.floor(Math.random() * opciones.length)];
   const disp = document.getElementById('ruleta-display');
   const msg = document.getElementById('ruleta-msg');
 
-  disp.textContent = resultado === 'rojo' ? '🔴' : resultado === 'verde' ? '🟢' : '⚫';
+  disp.textContent = resultado === 'rojo' ? '🔴' : resultado === 'verde' ? '🟢' : resultado === 'negro' ? '⚫' : '⚪';
 
   if (eleccion === resultado) {
-    let multiPremio = resultado === 'verde' ? 10 : 2;
-    let premio = costoFichas * multiPremio;
+    let premio = 0;
+    if (resultado === 'rojo') premio = 30;
+    else if (resultado === 'verde') premio = 50;
+    else if (resultado === 'negro') premio = 80;
+
     fichasCasino += premio;
     msg.textContent = `¡Cayó ${resultado.toUpperCase()}! Ganaste +${premio} 🎲`;
     sonarEfecto('powerup');
@@ -238,27 +251,30 @@ function jugarRuleta(eleccion) {
 
 function comprarItemCasino(item, precio) {
   if (fichasCasino < precio) {
-    alert("¡No tienes suficientes fichas para comprar esto en la tienda VIP!");
+    alert("¡Necesitas más fichas! Consigue más en la Ruleta o cámbialas en el banco.");
     return;
   }
 
   fichasCasino -= precio;
   localStorage.setItem('ballGameCasinoChips', fichasCasino);
 
-  if (item === 'gold') {
-    skinsDesbloqueadas.push('gold');
+  const skinsVip = ['plasma', 'dragon', 'blackhole', 'valyrian', 'diamond'];
+  const temasVip = ['ocean', 'storm', 'animatedgalaxy', 'cybercity', 'magma'];
+
+  if (skinsVip.includes(item)) {
+    skinsDesbloqueadas.push(item);
     localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(skinsDesbloqueadas));
-    ponerSkin('gold');
-  } else if (item === 'matrix') {
-    temasDesbloqueados.push('matrix');
+    ponerSkin(item);
+  } else if (temasVip.includes(item)) {
+    temasDesbloqueados.push(item);
     localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(temasDesbloqueados));
-    ponerTema('matrix');
+    ponerTema(item);
   }
 
   actualizarMonedasUI();
   checarBotonesTienda();
   sonarEfecto('powerup');
-  alert("¡Compra realizada! El ítem ya está guardado en tu tienda principal.");
+  alert("¡Compra VIP realizada! Ahora puedes equipar/desequipar este ítem en tu menú.");
 }
 
 function actualizarMonedasUI() {
@@ -515,25 +531,36 @@ function checarBotonesTienda() {
     }
   }
 
-  // Integración de la Bola Dorada VIP comprada en el casino
-  const btnGoldVip = document.getElementById('buy-vip-gold');
-  const casinoBuyGold = document.getElementById('casino-buy-gold');
-  if (btnGoldVip) {
-    if (skinActual === 'gold') {
-      btnGoldVip.textContent = 'Equipada';
-      btnGoldVip.disabled = true;
-      if (casinoBuyGold) { casinoBuyGold.textContent = 'Equipada'; casinoBuyGold.disabled = true; }
-    } else if (skinsDesbloqueadas.includes('gold')) {
-      btnGoldVip.textContent = 'Equipar';
-      btnGoldVip.disabled = false;
-      btnGoldVip.onclick = () => ponerSkin('gold');
-      if (casinoBuyGold) { casinoBuyGold.textContent = 'Equipar'; casinoBuyGold.disabled = false; casinoBuyGold.onclick = () => ponerSkin('gold'); }
-    } else {
-      btnGoldVip.textContent = 'Ir al Casino';
-      btnGoldVip.disabled = false;
-      btnGoldVip.onclick = () => toggleCasinoMenu();
+  // Sincronización de Skins VIP de Casino
+  const skinsVipArray = [
+    { idBtn: 'buy-vip-plasma', idCasino: 'casino-buy-plasma', key: 'plasma' },
+    { idBtn: 'buy-vip-dragon', idCasino: 'casino-buy-dragon', key: 'dragon' },
+    { idBtn: 'buy-vip-blackhole', idCasino: 'casino-buy-blackhole', key: 'blackhole' },
+    { idBtn: 'buy-vip-valyrian', idCasino: 'casino-buy-valyrian', key: 'valyrian' },
+    { idBtn: 'buy-vip-diamond', idCasino: 'casino-buy-diamond', key: 'diamond' }
+  ];
+
+  skinsVipArray.forEach(item => {
+    const btn = document.getElementById(item.idBtn);
+    const btnCas = document.getElementById(item.idCasino);
+    if (btn) {
+      if (skinActual === item.key) {
+        btn.textContent = 'Equipada';
+        btn.disabled = true;
+        if (btnCas) { btnCas.textContent = 'Equipada'; btnCas.disabled = true; }
+      } else if (skinsDesbloqueadas.includes(item.key)) {
+        btn.textContent = 'Equipar';
+        btn.disabled = false;
+        btn.onclick = () => ponerSkin(item.key);
+        if (btnCas) { btnCas.textContent = 'Equipar'; btnCas.disabled = false; btnCas.onclick = () => ponerSkin(item.key); }
+      } else {
+        btn.textContent = 'Ir al Casino';
+        btn.disabled = false;
+        btn.onclick = () => toggleCasinoMenu();
+        if (btnCas) { btnCas.textContent = 'Comprar'; btnCas.disabled = false; }
+      }
     }
-  }
+  });
 
   const btnTemaCyber = document.getElementById('buy-theme-cyberpunk');
   if (btnTemaCyber) {
@@ -564,43 +591,37 @@ function checarBotonesTienda() {
     }
   }
 
-  const btnTemaSunset = document.getElementById('buy-theme-sunset');
-  if (btnTemaSunset) {
-    if (temaActual === 'sunset') {
-      btnTemaSunset.textContent = 'Desequipar';
-      btnTemaSunset.disabled = false;
-      btnTemaSunset.onclick = () => ponerTema('cyberpunk');
-    } else if (temasDesbloqueados.includes('sunset')) {
-      btnTemaSunset.textContent = 'Equipar';
-      btnTemaSunset.disabled = false;
-      btnTemaSunset.onclick = () => ponerTema('sunset');
-    } else {
-      btnTemaSunset.textContent = 'Comprar (200 🪙)';
-      btnTemaSunset.disabled = monedasTotales < 200;
-      btnTemaSunset.onclick = () => comprarTema('sunset', 200);
-    }
-  }
+  // Sincronización de Temas Vivos VIP de Casino
+  const temasVipArray = [
+    { idBtn: 'buy-theme-ocean', idCasino: 'casino-buy-ocean', key: 'ocean' },
+    { idBtn: 'buy-theme-storm', idCasino: 'casino-buy-storm', key: 'storm' },
+    { idBtn: 'buy-theme-animatedgalaxy', idCasino: 'casino-buy-animatedgalaxy', key: 'animatedgalaxy' },
+    { idBtn: 'buy-theme-cybercity', idCasino: 'casino-buy-cybercity', key: 'cybercity' },
+    { idBtn: 'buy-theme-magma', idCasino: 'casino-buy-magma', key: 'magma' }
+  ];
 
-  // Integración del Fondo Matrix comprado en el casino
-  const btnMatrix = document.getElementById('buy-theme-matrix');
-  const casinoBuyMatrix = document.getElementById('casino-buy-matrix');
-  if (btnMatrix) {
-    if (temaActual === 'matrix') {
-      btnMatrix.textContent = 'Desequipar';
-      btnMatrix.disabled = false;
-      btnMatrix.onclick = () => ponerTema('cyberpunk');
-      if (casinoBuyMatrix) { casinoBuyMatrix.textContent = 'Desequipar'; casinoBuyMatrix.disabled = false; casinoBuyMatrix.onclick = () => ponerTema('cyberpunk'); }
-    } else if (temasDesbloqueados.includes('matrix')) {
-      btnMatrix.textContent = 'Equipar';
-      btnMatrix.disabled = false;
-      btnMatrix.onclick = () => ponerTema('matrix');
-      if (casinoBuyMatrix) { casinoBuyMatrix.textContent = 'Equipar'; casinoBuyMatrix.disabled = false; casinoBuyMatrix.onclick = () => ponerTema('matrix'); }
-    } else {
-      btnMatrix.textContent = 'Ir al Casino';
-      btnMatrix.disabled = false;
-      btnMatrix.onclick = () => toggleCasinoMenu();
+  temasVipArray.forEach(item => {
+    const btn = document.getElementById(item.idBtn);
+    const btnCas = document.getElementById(item.idCasino);
+    if (btn) {
+      if (temaActual === item.key) {
+        btn.textContent = 'Desequipar';
+        btn.disabled = false;
+        btn.onclick = () => ponerTema('cyberpunk');
+        if (btnCas) { btnCas.textContent = 'Desequipar'; btnCas.disabled = false; btnCas.onclick = () => ponerTema('cyberpunk'); }
+      } else if (temasDesbloqueados.includes(item.key)) {
+        btn.textContent = 'Equipar';
+        btn.disabled = false;
+        btn.onclick = () => ponerTema(item.key);
+        if (btnCas) { btnCas.textContent = 'Equipar'; btnCas.disabled = false; btnCas.onclick = () => ponerTema(item.key); }
+      } else {
+        btn.textContent = 'Ir al Casino';
+        btn.disabled = false;
+        btn.onclick = () => toggleCasinoMenu();
+        if (btnCas) { btnCas.textContent = 'Comprar'; btnCas.disabled = false; }
+      }
     }
-  }
+  });
 
   const btnTemaCapy = document.getElementById('buy-theme-capybara');
   if (btnTemaCapy) {
@@ -702,9 +723,21 @@ function actualizarEstilosSkin() {
   } else if (skinActual === 'galaxy') {
     bola.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
     bola.style.boxShadow = '0 0 20px #8b5cf6';
-  } else if (skinActual === 'gold') {
-    bola.style.background = 'linear-gradient(135deg, #fbbf24, #d97706)';
-    bola.style.boxShadow = '0 0 25px #fbbf24';
+  } else if (skinActual === 'plasma') {
+    bola.style.background = 'radial-gradient(circle, #38bdf8 0%, #0284c7 100%)';
+    bola.style.boxShadow = '0 0 25px #38bdf8';
+  } else if (skinActual === 'dragon') {
+    bola.style.background = 'linear-gradient(135deg, #22c55e, #15803d)';
+    bola.style.boxShadow = '0 0 25px #22c55e';
+  } else if (skinActual === 'blackhole') {
+    bola.style.background = 'radial-gradient(circle, #000000 60%, #a855f7 100%)';
+    bola.style.boxShadow = '0 0 25px #a855f7';
+  } else if (skinActual === 'valyrian') {
+    bola.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+    bola.style.boxShadow = '0 0 25px #ef4444';
+  } else if (skinActual === 'diamond') {
+    bola.style.background = 'linear-gradient(135deg, #e0e7ff, #818cf8)';
+    bola.style.boxShadow = '0 0 25px #ffffff';
   } else {
     bola.style.background = '';
     const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
