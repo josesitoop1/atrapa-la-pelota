@@ -719,4 +719,323 @@ function moverPelota() {
 
   let trampasTotales = 0;
   if (dificultadActual === 'medium' && puntos >= 5) {
-    trampasTotales =
+    trampasTotales = 1 + Math.floor((puntos - 5) / 3);
+  } else if (dificultadActual === 'hard' && puntos >= 5) {
+    trampasTotales = 2 + (Math.floor((puntos - 5) / 2) * 2);
+  }
+
+  let posicionesOcupadas = [{ x: azarX, y: azarY }];
+
+  for (let i = 0; i < trampasTotales; i++) {
+    const trap = document.createElement('div');
+    trap.className = 'trap-ball';
+    
+    trap.style.width = bola.style.width;
+    trap.style.height = bola.style.height;
+    trap.style.backgroundColor = colorActual;
+    trap.style.boxShadow = `0 0 15px ${colorActual}`;
+    trap.style.position = 'absolute';
+    trap.style.borderRadius = '50%';
+    trap.style.zIndex = '5';
+
+    let tX, tY, choca, intentos = 0;
+    do {
+      choca = false;
+      tX = Math.floor(Math.random() * maxX);
+      tY = Math.floor(Math.random() * (maxY - 40)) + 60;
+
+      for (let pos of posicionesOcupadas) {
+        if (Math.abs(tX - pos.x) < 70 && Math.abs(tY - pos.y) < 70) {
+          choca = true;
+          break;
+        }
+      }
+      intentos++;
+    } while (choca && intentos < 50);
+
+    posicionesOcupadas.push({ x: tX, y: tY });
+    trap.style.left = `${tX}px`;
+    trap.style.top = `${tY}px`;
+
+    trap.addEventListener('touchend', (e) => {
+      if (!juegoActivo || estaPausado) return;
+      e.preventDefault();
+      pegarTrampa(trap);
+    });
+
+    trap.addEventListener('pointerdown', (e) => {
+      if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
+      e.preventDefault();
+      pegarTrampa(trap);
+    });
+
+    contenedor.appendChild(trap);
+    trampasActivas.push(trap);
+  }
+
+  if (dificultadActual !== 'easy') {
+    if (Math.random() < 0.10) {
+      spawnPowerUp(maxX, maxY, posicionesOcupadas);
+    }
+    if (dificultadActual === 'hard') {
+      if (Math.random() < 0.10) {
+        spawnPowerUp(maxX, maxY, posicionesOcupadas);
+      }
+    }
+  }
+
+  muevePelotaTimeout = setTimeout(() => {
+    if (rachaActual > 0) {
+      rachaActual = 0;
+      multi = 1;
+      actualizarRachaUI();
+    }
+    moverPelota();
+  }, velocidadActual);
+}
+
+function ajustarDificultad() {
+  if (!bola) return;
+  const baseTam = Math.max(TAMAÑO_MIN, TAMAÑO_INICIAL - puntos);
+  const tamFinal = baseTam + extraTamaño;
+  bola.style.width = `${tamFinal}px`;
+  bola.style.height = `${tamFinal}px`;
+
+  if (dificultadActual === 'easy') {
+    velocidadActual = 1600;
+  } else if (dificultadActual === 'medium') {
+    velocidadActual = Math.max(500, 1200 - (puntos * 20));
+  } else if (dificultadActual === 'hard') {
+    velocidadActual = Math.max(250, 800 - (puntos * 30));
+  }
+
+  if (extraTamaño === 0) {
+    const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
+    colorActual = paletaColores[indiceColor];
+    
+    const puntoExtra = bola.querySelector('.main-ball-dot');
+    if (puntoExtra) puntoExtra.remove();
+  }
+  
+  actualizarEstilosSkin();
+}
+
+function limpiarTodoEnPantalla() {
+  trampasActivas.forEach(trap => trap.remove());
+  trampasActivas = [];
+  poderesActivos.forEach(pow => pow.remove());
+  poderesActivos = [];
+}
+
+
+// ==========================================
+// AUDIO, CRONÓMETRO Y ESTADOS
+// ==========================================
+
+let contextoAudio;
+let gananciaMaster;
+
+function inicializarAudio() {
+  try {
+    if (!contextoAudio) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        contextoAudio = new AudioCtx();
+        gananciaMaster = contextoAudio.createGain();
+        gananciaMaster.gain.value = 0.3;
+        gananciaMaster.connect(contextoAudio.destination);
+      }
+    }
+    if (contextoAudio && contextoAudio.state === 'suspended') {
+      contextoAudio.resume();
+    }
+  } catch (e) {
+    console.log("Audio no soportado:", e);
+  }
+}
+
+function cambiarVolumen(vol) {
+  if (gananciaMaster) {
+    gananciaMaster.gain.value = parseFloat(vol);
+  }
+}
+
+function cambiarSensibilidad(val) {
+  sensi = Math.min(2.0, parseFloat(val));
+  if (textoSensi) textoSensi.textContent = `${sensi.toFixed(1)}x`;
+}
+
+function cambiarDificultad(nivel) {
+  dificultadActual = nivel;
+  document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+  const btnActivo = document.getElementById(`btn-${nivel}`);
+  if (btnActivo) btnActivo.classList.add('active');
+  reiniciarJuego();
+}
+
+function sonarEfecto(tipo) {
+  inicializarAudio();
+  if (!contextoAudio) return;
+
+  try {
+    const oscilador = contextoAudio.createOscillator();
+    const ganancia = contextoAudio.createGain();
+    oscilador.connect(ganancia);
+    ganancia.connect(gananciaMaster);
+
+    if (tipo === 'catch') {
+      oscilador.type = 'sine';
+      oscilador.frequency.setValueAtTime(440, contextoAudio.currentTime);
+      oscilador.frequency.exponentialRampToValueAtTime(880, contextoAudio.currentTime + 0.1);
+      ganancia.gain.setValueAtTime(0.5, contextoAudio.currentTime);
+      ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.1);
+      oscilador.start();
+      oscilador.stop(contextoAudio.currentTime + 0.1);
+    } else if (tipo === 'powerup') {
+      oscilador.type = 'triangle';
+      oscilador.frequency.setValueAtTime(587.33, contextoAudio.currentTime);
+      oscilador.frequency.exponentialRampToValueAtTime(1174.66, contextoAudio.currentTime + 0.15);
+      ganancia.gain.setValueAtTime(0.6, contextoAudio.currentTime);
+      ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.15);
+      oscilador.start();
+      oscilador.stop(contextoAudio.currentTime + 0.15);
+    } else if (tipo === 'bomb') {
+      oscilador.type = 'sawtooth';
+      oscilador.frequency.setValueAtTime(150, contextoAudio.currentTime);
+      oscilador.frequency.linearRampToValueAtTime(40, contextoAudio.currentTime + 0.2);
+      ganancia.gain.setValueAtTime(0.6, contextoAudio.currentTime);
+      ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.2);
+      oscilador.start();
+      oscilador.stop(contextoAudio.currentTime + 0.2);
+    } else if (tipo === 'gameover') {
+      oscilador.type = 'triangle';
+      oscilador.frequency.setValueAtTime(300, contextoAudio.currentTime);
+      oscilador.frequency.linearRampToValueAtTime(100, contextoAudio.currentTime + 0.4);
+      ganancia.gain.setValueAtTime(0.4, contextoAudio.currentTime);
+      ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.4);
+      oscilador.start();
+      oscilador.stop(contextoAudio.currentTime + 0.4);
+    }
+  } catch(e) {
+    console.log("Audio omitido:", e);
+  }
+}
+
+function pausarJuego() {
+  if (!juegoActivo) return;
+  estaPausado = !estaPausado;
+
+  if (estaPausado) {
+    if (!esCel && document.exitPointerLock) {
+      try { document.exitPointerLock(); } catch(e){}
+    }
+    clearInterval(relojIntervalo);
+    clearTimeout(muevePelotaTimeout);
+    if (menuPausa) menuPausa.classList.remove('hidden');
+    if (cursorPro) cursorPro.style.display = 'none';
+  } else {
+    if (menuPausa) menuPausa.classList.add('hidden');
+    if (menuTienda) menuTienda.classList.add('hidden');
+    if (!esCel && cursorPro) cursorPro.style.display = 'block';
+    iniciarReloj();
+    moverPelota();
+  }
+}
+
+function iniciarReloj() {
+  if (estaPausado) return;
+  clearInterval(relojIntervalo);
+  relojIntervalo = setInterval(() => {
+    if (estaPausado) return;
+    tiempoRestante--;
+    if (marcadorTiempo) marcadorTiempo.textContent = tiempoRestante;
+
+    if (tiempoRestante <= 0) {
+      terminarJuego();
+    }
+  }, 1000);
+}
+
+function terminarJuego() {
+  juegoActivo = false;
+  if (!esCel && document.exitPointerLock) {
+    try { document.exitPointerLock(); } catch(e){}
+  }
+  clearInterval(relojIntervalo);
+  clearTimeout(muevePelotaTimeout);
+  limpiarTodoEnPantalla();
+  
+  sonarEfecto('gameover');
+
+  monedasTotales += puntos;
+  localStorage.setItem('ballGameCoins', monedasTotales);
+  if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
+  if (menuMonedas) menuMonedas.textContent = monedasTotales;
+
+  if (puntos > recordMax) {
+    recordMax = puntos;
+    localStorage.setItem('ballGameHighScore', recordMax);
+    if (marcadorRecord) marcadorRecord.textContent = recordMax;
+  }
+
+  if (bola) bola.style.display = 'none';
+  if (cursorPro) cursorPro.style.display = 'none';
+  if (puntosFinales) puntosFinales.textContent = puntos;
+  if (monedasGanadas) monedasGanadas.textContent = puntos;
+  if (recordFinal) recordFinal.textContent = recordMax;
+  if (pantallaGameOver) pantallaGameOver.classList.add('hidden'); // Asegurando que se muestre con remove, aquí corregido
+  if (pantallaGameOver) pantallaGameOver.classList.remove('hidden');
+}
+
+function reiniciarJuego() {
+  inicializarAudio();
+  clearInterval(relojIntervalo);
+  clearTimeout(muevePelotaTimeout);
+
+  puntos = 0;
+  rachaActual = 0;
+  multi = 1;
+  actualizarRachaUI();
+
+  tiempoRestante = tiempoBase;
+  extraTamaño = 0;
+  juegoActivo = true;
+  estaPausado = false;
+  
+  if (contenedor) {
+    posXVirtual = contenedor.clientWidth / 2;
+    posYVirtual = contenedor.clientHeight / 2;
+  }
+
+  ajustarDificultad();
+
+  if (marcadorPuntos) marcadorPuntos.textContent = puntos;
+  if (marcadorMonedas) marcadorMonedas.textContent = monedasTotales;
+  if (menuMonedas) menuMonedas.textContent = monedasTotales;
+  if (marcadorTiempo) marcadorTiempo.textContent = tiempoRestante;
+  if (marcadorRecord) marcadorRecord.textContent = recordMax;
+  
+  if (bola) {
+    bola.style.width = `${TAMAÑO_INICIAL}px`;
+    bola.style.height = `${TAMAÑO_INICIAL}px`;
+    bola.style.display = 'block';
+  }
+  if (!esCel && cursorPro) cursorPro.style.display = 'block';
+
+  if (menuPrincipal) menuPrincipal.classList.add('hidden');
+  if (menuInfo) menuInfo.classList.add('hidden');
+  if (menuPausa) menuPausa.classList.add('hidden');
+  if (menuTienda) menuTienda.classList.add('hidden');
+  if (pantallaGameOver) pantallaGameOver.classList.add('hidden');
+  
+  moverPelota();
+  iniciarReloj();
+}
+
+// Escuchar clics y toques globales para activar el audio en dispositivos móviles
+document.addEventListener('touchstart', inicializarAudio, { once: true });
+document.addEventListener('click', inicializarAudio, { once: true });
+
+// Cargar tema inicial
+document.body.className = `theme-${temaActual}`;
+if (bola) bola.style.display = 'none';
