@@ -22,6 +22,17 @@
       <p>Monedas: <span id="menu-coins">0</span> 🪙</p>
       <button id="start-game-btn" onclick="startGameFromMenu()">▶️ Jugar</button>
       <button id="menu-shop-btn" onclick="toggleShop()">🛒 Tienda</button>
+      <button id="menu-info-btn" onclick="toggleInfo()">ℹ️ Información</button>
+    </div>
+
+    <!-- Ventana de Información -->
+    <div id="info-menu" class="hidden">
+      <h2>Información del Juego ℹ️</h2>
+      <div class="info-content">
+        <p>¡Bienvenido a <strong>Atrapa la Pelota</strong>! Un proyecto escolar creado con mucho esfuerzo y dedicación por <strong>José</strong>.</p>
+        <p>El objetivo es simple: atrapa la pelota antes de que se mueva de lugar, acumula puntos, consigue monedas y rompe tu propio récord. ¡Cuidado con las trampas y aprovecha los multiplicadores de racha!</p>
+      </div>
+      <button id="close-info-btn" onclick="toggleInfo()">Cerrar</button>
     </div>
 
     <!-- Barra superior -->
@@ -68,6 +79,7 @@
       <div class="menu-buttons">
         <button id="restart-from-pause-btn" onclick="restartGame()">🔄 Reiniciar</button>
         <button id="shop-toggle-btn" onclick="toggleShop()">🛒 Tienda</button>
+        <button id="home-btn" onclick="returnToMainMenu()">🏠 Menú Principal</button>
         <button id="resume-btn" onclick="togglePause()">▶️ Seguir</button>
       </div>
 
