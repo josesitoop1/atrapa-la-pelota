@@ -1,7 +1,6 @@
 // ==========================================
 // JUEGO WEB: "ATRAPA LA PELOTA"
-// Descripción: Lógica multiplataforma con tienda ampliada para skins y 
-// fondos comprables con monedas guardadas en localStorage.
+// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
 // ==========================================
 
 let score = 0;
@@ -15,7 +14,7 @@ let autoMoveTimeout;
 let isPlaying = true;
 let isPaused = false;
 
-// Variables de Skins y Temas de Fondo
+// Variables de Skins y Temas
 let currentSkin = localStorage.getItem('ballGameActiveSkin') || 'classic';
 let unlockedSkins = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
 
@@ -27,7 +26,7 @@ let currentStreak = 0;
 let multiplier = 1;
 let streakTimeout;
 
-// Variables de tamaño y velocidad
+// Tamaño y velocidad
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
 let currentSpeed = 1200;
@@ -36,7 +35,7 @@ let customBonusSize = 0;
 
 let currentDifficulty = 'medium';
 
-// Controls PC / Táctil
+// PC / Táctil
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
@@ -71,9 +70,8 @@ let activePowerUps = [];
 
 
 // ==========================================
-// MODO DE PRUEBAS Y ADMINISTRACIÓN
+// MODO PRUEBAS
 // ==========================================
-
 function addTestCoins() {
   totalCoins += 100;
   localStorage.setItem('ballGameCoins', totalCoins);
@@ -105,7 +103,7 @@ function resetFullProgress() {
 
 
 // ==========================================
-// DETECCIÓN TÁCTIL VS PC
+// CONTROLES Y TÁCTIL
 // ==========================================
 window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch') {
@@ -115,11 +113,6 @@ window.addEventListener('pointerdown', (e) => {
     if (sensGroup) sensGroup.style.display = 'none';
   }
 }, { once: true });
-
-
-// ==========================================
-// CONTROLES Y EVENTOS
-// ==========================================
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
@@ -201,7 +194,7 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// TIENDA: SKINS Y FONDOS TIPO IMAGEN
+// TIENDA: PESTAÑAS Y COMPRAS
 // ==========================================
 
 function toggleShop() {
@@ -221,7 +214,7 @@ function switchShopTab(tab) {
 }
 
 function updateShopButtons() {
-  // --- SKINS ---
+  // 1. SKINS DE PELOTAS
   const btnClassic = document.getElementById('buy-classic');
   if (currentSkin === 'classic') {
     btnClassic.textContent = 'Equipada';
@@ -260,12 +253,12 @@ function updateShopButtons() {
     btnGalaxy.onclick = () => buySkin('galaxy', 150);
   }
 
-  // --- FONDOS / TEMAS ORIGINALES ---
+  // 2. FONDOS ORIGINALES (Con opción de Desequipar)
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
   if (currentTheme === 'cyberpunk') {
-    btnThemeCyber.textContent = 'Equipado';
+    btnThemeCyber.textContent = 'Predeterminado';
     btnThemeCyber.disabled = true;
-  } else if (unlockedThemes.includes('cyberpunk')) {
+  } else {
     btnThemeCyber.textContent = 'Equipar';
     btnThemeCyber.disabled = false;
     btnThemeCyber.onclick = () => equipTheme('cyberpunk');
@@ -273,8 +266,9 @@ function updateShopButtons() {
 
   const btnThemeSpace = document.getElementById('buy-theme-space');
   if (currentTheme === 'space') {
-    btnThemeSpace.textContent = 'Equipado';
-    btnThemeSpace.disabled = true;
+    btnThemeSpace.textContent = 'Desequipar';
+    btnThemeSpace.disabled = false;
+    btnThemeSpace.onclick = () => equipTheme('cyberpunk');
   } else if (unlockedThemes.includes('space')) {
     btnThemeSpace.textContent = 'Equipar';
     btnThemeSpace.disabled = false;
@@ -287,8 +281,9 @@ function updateShopButtons() {
 
   const btnThemeSunset = document.getElementById('buy-theme-sunset');
   if (currentTheme === 'sunset') {
-    btnThemeSunset.textContent = 'Equipado';
-    btnThemeSunset.disabled = true;
+    btnThemeSunset.textContent = 'Desequipar';
+    btnThemeSunset.disabled = false;
+    btnThemeSunset.onclick = () => equipTheme('cyberpunk');
   } else if (unlockedThemes.includes('sunset')) {
     btnThemeSunset.textContent = 'Equipar';
     btnThemeSunset.disabled = false;
@@ -299,11 +294,12 @@ function updateShopButtons() {
     btnThemeSunset.onclick = () => buyTheme('sunset', 200);
   }
 
-  // --- FONDOS DE IMAGEN ---
+  // 3. FONDOS DE IMAGEN (Con opción de Desequipar)
   const btnThemeSnoopy = document.getElementById('buy-theme-snoopy');
   if (currentTheme === 'snoopy') {
-    btnThemeSnoopy.textContent = 'Equipado';
-    btnThemeSnoopy.disabled = true;
+    btnThemeSnoopy.textContent = 'Desequipar';
+    btnThemeSnoopy.disabled = false;
+    btnThemeSnoopy.onclick = () => equipTheme('cyberpunk');
   } else if (unlockedThemes.includes('snoopy')) {
     btnThemeSnoopy.textContent = 'Equipar';
     btnThemeSnoopy.disabled = false;
@@ -316,8 +312,9 @@ function updateShopButtons() {
 
   const btnThemeCapy = document.getElementById('buy-theme-capybara');
   if (currentTheme === 'capybara') {
-    btnThemeCapy.textContent = 'Equipado';
-    btnThemeCapy.disabled = true;
+    btnThemeCapy.textContent = 'Desequipar';
+    btnThemeCapy.disabled = false;
+    btnThemeCapy.onclick = () => equipTheme('cyberpunk');
   } else if (unlockedThemes.includes('capybara')) {
     btnThemeCapy.textContent = 'Equipar';
     btnThemeCapy.disabled = false;
@@ -330,8 +327,9 @@ function updateShopButtons() {
 
   const btnThemeSpider = document.getElementById('buy-theme-spiderman');
   if (currentTheme === 'spiderman') {
-    btnThemeSpider.textContent = 'Equipado';
-    btnThemeSpider.disabled = true;
+    btnThemeSpider.textContent = 'Desequipar';
+    btnThemeSpider.disabled = false;
+    btnThemeSpider.onclick = () => equipTheme('cyberpunk');
   } else if (unlockedThemes.includes('spiderman')) {
     btnThemeSpider.textContent = 'Equipar';
     btnThemeSpider.disabled = false;
