@@ -219,7 +219,7 @@ body {
   cursor: pointer;
 }
 
-/* Temas de Fondo */
+/* Temas */
 body.theme-cyberpunk { background-color: #1e1e2e; }
 body.theme-cyberpunk #game-container { background-color: #2b2b3d; }
 body.theme-space { background-color: #030712; }
@@ -277,7 +277,6 @@ body.theme-magma #game-container {
   100% { box-shadow: 0 0 35px #f97316; }
 }
 
-/* Contenedor principal */
 #game-container {
   text-align: center;
   width: 95vw;
@@ -395,7 +394,6 @@ h1 { font-size: 1.1rem; margin: 0; }
 .main-ball-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
 .trap-ball, .powerup-ball, .powerup-magnet, .powerup-bomb { cursor: pointer; touch-action: none; position: absolute; border-radius: 50%; z-index: 6; }
 
-/* Estilos de Power-ups */
 .powerup-ball { background-color: #fbbf24 !important; box-shadow: 0 0 20px #fbbf24 !important; }
 .powerup-magnet { background-color: #06b6d4 !important; box-shadow: 0 0 20px #06b6d4 !important; font-size: 0.75rem; display: flex; justify-content: center; align-items: center; }
 .powerup-bomb { background-color: #ef4444 !important; box-shadow: 0 0 20px #ef4444 !important; font-size: 0.75rem; display: flex; justify-content: center; align-items: center; }
