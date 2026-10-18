@@ -1,5 +1,5 @@
 /* ==========================================
-   ESTILOS GENERALES Y RESETEO BÁSICO
+   ESTILOS GENERALES
    ========================================== */
 * {
   box-sizing: border-box;
@@ -23,10 +23,10 @@ body {
 }
 
 /* ==========================================
-   TEMAS VISUALES DE FONDO
+   TEMAS DE FONDO CON IMÁGENES
    ========================================== */
 
-/* 1. Tema Cyberpunk / Neón (Predeterminado) */
+/* 1. Cyberpunk */
 body.theme-cyberpunk {
   background-color: #1e1e2e;
 }
@@ -34,25 +34,41 @@ body.theme-cyberpunk #game-container {
   background-color: #2b2b3d;
 }
 
-/* 2. Tema Espacio Exterior */
-body.theme-space {
-  background-color: #050515;
+/* 2. Snoopy */
+body.theme-snoopy {
+  background-color: #1d2d44;
 }
-body.theme-space #game-container {
-  background: radial-gradient(circle at center, #111827 0%, #030712 100%);
-  border: 1px solid #1f2937;
+body.theme-snoopy #game-container {
+  background: linear-gradient(rgba(13, 27, 42, 0.75), rgba(13, 27, 42, 0.75)), 
+              url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
 }
 
-/* 3. Tema Atardecer 80s / Outrun */
-body.theme-sunset {
-  background-color: #2e1065;
+/* 3. Capibara */
+body.theme-capybara {
+  background-color: #283618;
 }
-body.theme-sunset #game-container {
-  background: linear-gradient(180deg, #3b0764 0%, #701a75 50%, #831843 100%);
+body.theme-capybara #game-container {
+  background: linear-gradient(rgba(40, 54, 24, 0.75), rgba(40, 54, 24, 0.75)), 
+              url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+}
+
+/* 4. Spider-Man */
+body.theme-spiderman {
+  background-color: #450a0a;
+}
+body.theme-spiderman #game-container {
+  background: linear-gradient(rgba(24, 9, 15, 0.75), rgba(24, 9, 15, 0.75)), 
+              url('https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
 }
 
 /* ==========================================
-   CONTENEDOR PRINCIPAL (ÁREA DE JUEGO)
+   CONTENEDOR PRINCIPAL
    ========================================== */
 #game-container {
   text-align: center;
@@ -68,7 +84,6 @@ body.theme-sunset #game-container {
   transition: background 0.4s ease;
 }
 
-/* Cursor personalizado */
 #custom-cursor {
   width: 14px;
   height: 14px;
@@ -83,7 +98,6 @@ body.theme-sunset #game-container {
   display: none;
 }
 
-/* Aviso flotante de racha */
 #streak-popup {
   position: absolute;
   top: 40%;
@@ -107,7 +121,6 @@ body.theme-sunset #game-container {
   transform: translate(-50%, -50%) scale(1.2);
 }
 
-/* Cabecera superior */
 #top-bar {
   display: flex;
   justify-content: space-between;
@@ -146,7 +159,6 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Indicador de racha */
 #streak-display {
   color: #facc15;
   transition: transform 0.2s ease, opacity 0.3s ease;
@@ -164,9 +176,8 @@ h1 {
 }
 
 /* ==========================================
-   ELEMENTOS INTERACTIVOS (BOLAS Y TRAMPAS)
+   PELOTAS Y OBJETOS
    ========================================== */
-
 #ball {
   width: 50px;
   height: 50px;
@@ -212,7 +223,7 @@ h1 {
 }
 
 /* ==========================================
-   MENÚS FLOTANTES, PAUSA Y TIENDA
+   MENÚS Y TIENDA
    ========================================== */
 #pause-menu, #game-over, #shop-menu {
   position: absolute;
@@ -231,7 +242,7 @@ h1 {
 
 #pause-menu h2, #game-over h2, #shop-menu h2 {
   color: #ff0055;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   margin-bottom: 5px;
 }
 
@@ -259,17 +270,11 @@ h1 {
   font-size: 0.8rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.diff-btn:hover {
-  background-color: #4c4c6a;
 }
 
 .diff-btn.active {
   background-color: #7c3aed;
   border-color: #a78bfa;
-  box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
 }
 
 .control-group {
@@ -288,16 +293,10 @@ input[type="range"] {
   cursor: pointer;
 }
 
-.menu-buttons {
+.menu-buttons, .dev-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 5px;
-}
-
-.dev-buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 #add-coins-btn {
@@ -311,10 +310,6 @@ input[type="range"] {
   cursor: pointer;
 }
 
-#add-coins-btn:hover {
-  background-color: #059669;
-}
-
 #reset-all-btn {
   background-color: #dc2626;
   color: white;
@@ -324,10 +319,6 @@ input[type="range"] {
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
-}
-
-#reset-all-btn:hover {
-  background-color: #b91c1c;
 }
 
 #shop-toggle-btn {
@@ -363,7 +354,7 @@ input[type="range"] {
   font-weight: bold;
 }
 
-/* Pestañas de la Tienda */
+/* Pestañas e ítems de la Tienda */
 .shop-tabs {
   display: flex;
   gap: 10px;
@@ -387,7 +378,6 @@ input[type="range"] {
   color: white;
 }
 
-/* Estilos de los ítems de la Tienda */
 .shop-items {
   display: flex;
   flex-direction: column;
@@ -395,6 +385,8 @@ input[type="range"] {
   margin-bottom: 12px;
   width: 85%;
   max-width: 290px;
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 .shop-item {
@@ -404,7 +396,7 @@ input[type="range"] {
   background-color: #3b3b52;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .shop-btn {
@@ -412,7 +404,7 @@ input[type="range"] {
   color: white;
   border: none;
   padding: 5px 10px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
