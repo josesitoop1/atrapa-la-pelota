@@ -19,7 +19,7 @@
     <!-- Menú Principal / Pantalla de Título -->
     <div id="main-menu">
       <h2>Atrapa la Pelota 🎮</h2>
-      <p>Lanas: <span id="menu-coins">0</span> 🪙</p>
+      <p>Monedas: <span id="menu-coins">0</span> 🪙</p>
       <button id="start-game-btn" onclick="empezarJuego()">▶️ Jugar</button>
       <button id="menu-shop-btn" onclick="abrirTienda()">🛒 Tienda</button>
       <button id="menu-info-btn" onclick="verInfo()">ℹ️ Info</button>
@@ -30,7 +30,7 @@
       <h2>Información del Juego ℹ️</h2>
       <div class="info-content">
         <p>¡Qué onda! Bienvenido a <strong>Atrapa la Pelota</strong>. Creado con mucho esfuerzo y dedicación por <strong>José</strong>.</p>
-        <p>El objetivo está bien fácil: atrapa la pelota antes de que se mueva de lugar, haz puntos, junta monedas y rompen su récord. ¡Aguas con las trampas y aprovecha los multiplicadores!</p>
+        <p>El objetivo está bien fácil: atrapa la pelota antes de que se mueva de lugar, haz puntos, junta monedas y rompe tu récord. ¡Waters con las trampas y aprovecha los multiplicadores!</p>
       </div>
       <button id="close-info-btn" onclick="verInfo()">Cerrar</button>
     </div>
@@ -44,7 +44,7 @@
     <!-- Barra de estado -->
     <div id="info-bar">
       <p>Puntos: <span id="score">0</span></p>
-      <p>Lanas: <span id="coins">0</span> 🪙</p>
+      <p>Monedas: <span id="coins">0</span> 🪙</p>
       <p id="streak-display" class="streak-hidden">Racha: <span id="multiplier-val">x1</span></p>
       <p>Récord: <span id="high-score">0</span></p>
       <p>Tiempo: <span id="timer">80</span>s</p>
@@ -60,9 +60,9 @@
       <div class="difficulty-group">
         <label>Nivel de Dificultad:</label>
         <div class="difficulty-buttons">
-          <button id="btn-easy" class="diff-btn" onclick="cambiarDificultad('easy')">Facilito</button>
+          <button id="btn-easy" class="diff-btn" onclick="cambiarDificultad('easy')">Fácil</button>
           <button id="btn-medium" class="diff-btn active" onclick="cambiarDificultad('medium')">Normal</button>
-          <button id="btn-hard" class="diff-btn" onclick="cambiarDificultad('hard')">Pro</button>
+          <button id="btn-hard" class="diff-btn" onclick="cambiarDificultad('hard')">Difícil</button>
         </div>
       </div>
 
@@ -77,14 +77,14 @@
       </div>
 
       <div class="menu-buttons">
+        <button id="resume-btn" onclick="pausarJuego()">▶️ Seguir</button>
         <button id="restart-from-pause-btn" onclick="reiniciarJuego()">🔄 Reiniciar</button>
         <button id="shop-toggle-btn" onclick="abrirTienda()">🛒 Tienda</button>
         <button id="home-btn" onclick="irAlMenuPrincipal()">🏠 Menú Principal</button>
-        <button id="resume-btn" onclick="pausarJuego()">▶️ Seguir</button>
       </div>
 
       <div class="dev-buttons">
-        <button id="add-coins-btn" onclick="darMonedasPro()">+100 Lanas 🪙</button>
+        <button id="add-coins-btn" onclick="darMonedasPro()">+100 Monedas 🪙</button>
         <button id="reset-all-btn" onclick="borrarTodoElProgreso()">Borrar Todo ⚠️</button>
       </div>
     </div>
@@ -92,7 +92,7 @@
     <!-- Menú de la Tienda -->
     <div id="shop-menu" class="hidden">
       <h2>Tienda 🛒</h2>
-      <p>Tus Lanas: <span id="shop-coins">0</span> 🪙</p>
+      <p>Tus Monedas: <span id="shop-coins">0</span> 🪙</p>
       
       <!-- Pestañas de la tienda -->
       <div class="shop-tabs">
@@ -156,7 +156,7 @@
     <div id="game-over" class="hidden">
       <h2>¡Se Acabó el Tiempo!</h2>
       <p>Hiciste: <span id="final-score">0</span> puntos</p>
-      <p>Lanas ganadas: +<span id="earned-coins">0</span> 🪙</p>
+      <p>Monedas ganadas: +<span id="earned-coins">0</span> 🪙</p>
       <p>Tu mejor marca: <span id="final-high-score">0</span></p>
       <button id="restart-btn" onclick="reiniciarJuego()">Jugar otra vez</button>
     </div>
