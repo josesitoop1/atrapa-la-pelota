@@ -317,7 +317,6 @@ h1 {
   100% { transform: scale(1.12); }
 }
 
-/* Estilos para el efecto de confeti / partículas al atrapar */
 .particle {
   position: absolute;
   width: 6px;
@@ -346,7 +345,7 @@ h1 {
 /* ==========================================
    MENÚS Y TIENDA
    ========================================== */
-#main-menu, #pause-menu, #game-over, #shop-menu {
+#main-menu, #info-menu, #pause-menu, #game-over, #shop-menu {
   position: absolute;
   top: 0;
   left: 0;
@@ -361,27 +360,48 @@ h1 {
   cursor: default;
 }
 
-#main-menu h2, #pause-menu h2, #game-over h2, #shop-menu h2 {
+#main-menu h2, #info-menu h2, #pause-menu h2, #game-over h2, #shop-menu h2 {
   color: #ff0055;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   margin-bottom: 8px;
 }
 
-#start-game-btn, #menu-shop-btn {
+.info-content {
+  width: 85%;
+  max-width: 290px;
+  background-color: #3b3b52;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #a6accd;
+  margin-bottom: 12px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.info-content strong {
+  color: white;
+}
+
+#start-game-btn, #menu-shop-btn, #menu-info-btn, #close-info-btn {
   background-color: #7c3aed;
   color: white;
   border: none;
-  padding: 10px 20px;
-  font-size: 0.9rem;
+  padding: 8px 16px;
+  font-size: 0.85rem;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  margin: 5px;
+  margin: 4px;
   width: 150px;
 }
 
 #menu-shop-btn {
   background-color: #f59e0b;
+}
+
+#menu-info-btn {
+  background-color: #3b82f6;
 }
 
 .difficulty-group {
@@ -435,6 +455,8 @@ input[type="range"] {
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 #add-coins-btn {
@@ -472,6 +494,17 @@ input[type="range"] {
 
 #restart-from-pause-btn {
   background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#home-btn {
+  background-color: #3b82f6;
   color: white;
   border: none;
   padding: 8px 12px;
