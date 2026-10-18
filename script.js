@@ -1,11 +1,6 @@
-// ==========================================
-// JUEGO WEB: "ATRAPA LA PELOTA"
-// Lógica de juego con tienda dividida en Pelotas, Fondos y Fondos de Imagen.
-// ==========================================
-
 let puntos = 0;
 let recordMax = localStorage.getItem('ballGameHighScore') || 0;
-let lanaTotal = parseInt(localStorage.getItem('ballGameCoins')) || 0;
+let monedasTotales = parseInt(localStorage.getItem('ballGameCoins')) || 0;
 
 let tiempoBase = 80;
 let tiempoRestante = 80;
@@ -45,9 +40,9 @@ let esCel = false;
 const bola = document.getElementById('ball');
 const cursorPro = document.getElementById('custom-cursor');
 const marcadorPuntos = document.getElementById('score');
-const marcadorLanas = document.getElementById('coins');
-const tiendaLanas = document.getElementById('shop-coins');
-const menuLanas = document.getElementById('menu-coins');
+const marcadorMonedas = document.getElementById('coins');
+const tiendaMonedas = document.getElementById('shop-coins');
+const menuMonedas = document.getElementById('menu-coins');
 const displayRacha = document.getElementById('streak-display');
 const textoMulti = document.getElementById('multiplier-val');
 const popupRacha = document.getElementById('streak-popup');
@@ -60,14 +55,14 @@ const pantallaGameOver = document.getElementById('game-over');
 const menuPausa = document.getElementById('pause-menu');
 const menuTienda = document.getElementById('shop-menu');
 const puntosFinales = document.getElementById('final-score');
-const lanasGanadas = document.getElementById('earned-coins');
+const monedasGanadas = document.getElementById('earned-coins');
 const recordFinal = document.getElementById('final-high-score');
 const textoSensi = document.getElementById('sens-value');
 
 const paletaColores = ['#ff0055', '#ff9900', '#00e676', '#00b0ff', '#d500f9'];
 marcadorRecord.textContent = recordMax;
-marcadorLanas.textContent = lanaTotal;
-menuLanas.textContent = lanaTotal;
+marcadorMonedas.textContent = monedasTotales;
+menuMonedas.textContent = monedasTotales;
 
 let trampasActivas = [];
 let poderesActivos = [];
@@ -77,11 +72,11 @@ let poderesActivos = [];
 // MODO PRUEBAS
 // ==========================================
 function darMonedasPro() {
-  lanaTotal += 100;
-  localStorage.setItem('ballGameCoins', lanaTotal);
-  marcadorLanas.textContent = lanaTotal;
-  tiendaLanas.textContent = lanaTotal;
-  menuLanas.textContent = lanaTotal;
+  monedasTotales += 100;
+  localStorage.setItem('ballGameCoins', monedasTotales);
+  marcadorMonedas.textContent = monedasTotales;
+  tiendaMonedas.textContent = monedasTotales;
+  menuMonedas.textContent = monedasTotales;
   checarBotonesTienda();
   sonarEfecto('powerup');
 }
@@ -91,16 +86,16 @@ function borrarTodoElProgreso() {
     localStorage.clear();
 
     recordMax = 0;
-    lanaTotal = 0;
+    monedasTotales = 0;
     skinActual = 'classic';
     skinsDesbloqueadas = ['classic'];
     temaActual = 'cyberpunk';
     temasDesbloqueados = ['cyberpunk'];
 
     marcadorRecord.textContent = '0';
-    marcadorLanas.textContent = '0';
-    tiendaLanas.textContent = '0';
-    menuLanas.textContent = '0';
+    marcadorMonedas.textContent = '0';
+    tiendaMonedas.textContent = '0';
+    menuMonedas.textContent = '0';
     document.body.className = 'theme-cyberpunk';
 
     reiniciarJuego();
@@ -210,8 +205,8 @@ function empezarJuego() {
 
 function abrirTienda() {
   menuTienda.classList.toggle('hidden');
-  tiendaLanas.textContent = lanaTotal;
-  menuLanas.textContent = lanaTotal;
+  tiendaMonedas.textContent = monedasTotales;
+  menuMonedas.textContent = monedasTotales;
   checarBotonesTienda();
 }
 
@@ -233,7 +228,7 @@ function irAlMenuPrincipal() {
   bola.style.display = 'none';
   cursorPro.style.display = 'none';
 
-  menuLanas.textContent = lanaTotal;
+  menuMonedas.textContent = monedasTotales;
   menuPrincipal.classList.remove('hidden');
 }
 
@@ -271,7 +266,7 @@ function checarBotonesTienda() {
       btnFuego.onclick = () => ponerSkin('fire');
     } else {
       btnFuego.textContent = 'Comprar (50 🪙)';
-      btnFuego.disabled = lanaTotal < 50;
+      btnFuego.disabled = monedasTotales < 50;
       btnFuego.onclick = () => comprarSkin('fire', 50);
     }
   }
@@ -287,7 +282,7 @@ function checarBotonesTienda() {
       btnGalaxia.onclick = () => ponerSkin('galaxy');
     } else {
       btnGalaxia.textContent = 'Comprar (150 🪙)';
-      btnGalaxia.disabled = lanaTotal < 150;
+      btnGalaxia.disabled = monedasTotales < 150;
       btnGalaxia.onclick = () => comprarSkin('galaxy', 150);
     }
   }
@@ -316,7 +311,7 @@ function checarBotonesTienda() {
       btnTemaSpace.onclick = () => ponerTema('space');
     } else {
       btnTemaSpace.textContent = 'Comprar (100 🪙)';
-      btnTemaSpace.disabled = lanaTotal < 100;
+      btnTemaSpace.disabled = monedasTotales < 100;
       btnTemaSpace.onclick = () => comprarTema('space', 100);
     }
   }
@@ -333,7 +328,7 @@ function checarBotonesTienda() {
       btnTemaSunset.onclick = () => ponerTema('sunset');
     } else {
       btnTemaSunset.textContent = 'Comprar (200 🪙)';
-      btnTemaSunset.disabled = lanaTotal < 200;
+      btnTemaSunset.disabled = monedasTotales < 200;
       btnTemaSunset.onclick = () => comprarTema('sunset', 200);
     }
   }
@@ -350,7 +345,7 @@ function checarBotonesTienda() {
       btnTemaCapy.onclick = () => ponerTema('capybara');
     } else {
       btnTemaCapy.textContent = 'Comprar (300 🪙)';
-      btnTemaCapy.disabled = lanaTotal < 300;
+      btnTemaCapy.disabled = monedasTotales < 300;
       btnTemaCapy.onclick = () => comprarTema('capybara', 300);
     }
   }
@@ -367,7 +362,7 @@ function checarBotonesTienda() {
       btnTemaSpider.onclick = () => ponerTema('spiderman');
     } else {
       btnTemaSpider.textContent = 'Comprar (400 🪙)';
-      btnTemaSpider.disabled = lanaTotal < 400;
+      btnTemaSpider.disabled = monedasTotales < 400;
       btnTemaSpider.onclick = () => comprarTema('spiderman', 400);
     }
   }
@@ -384,19 +379,19 @@ function checarBotonesTienda() {
       btnTemaSnoopy.onclick = () => ponerTema('snoopy');
     } else {
       btnTemaSnoopy.textContent = 'Comprar (500 🪙)';
-      btnTemaSnoopy.disabled = lanaTotal < 500;
+      btnTemaSnoopy.disabled = monedasTotales < 500;
       btnTemaSnoopy.onclick = () => comprarTema('snoopy', 500);
     }
   }
 }
 
 function comprarSkin(nombreSkin, precio) {
-  if (lanaTotal >= precio) {
-    lanaTotal -= precio;
-    marcadorLanas.textContent = lanaTotal;
-    tiendaLanas.textContent = lanaTotal;
-    menuLanas.textContent = lanaTotal;
-    localStorage.setItem('ballGameCoins', lanaTotal);
+  if (monedasTotales >= precio) {
+    monedasTotales -= precio;
+    marcadorMonedas.textContent = monedasTotales;
+    tiendaMonedas.textContent = monedasTotales;
+    menuMonedas.textContent = monedasTotales;
+    localStorage.setItem('ballGameCoins', monedasTotales);
 
     skinsDesbloqueadas.push(nombreSkin);
     localStorage.setItem('ballGameUnlockedSkins', JSON.stringify(skinsDesbloqueadas));
@@ -414,12 +409,12 @@ function ponerSkin(nombreSkin) {
 }
 
 function comprarTema(nombreTema, precio) {
-  if (lanaTotal >= precio) {
-    lanaTotal -= precio;
-    marcadorLanas.textContent = lanaTotal;
-    tiendaLanas.textContent = lanaTotal;
-    menuLanas.textContent = lanaTotal;
-    localStorage.setItem('ballGameCoins', lanaTotal);
+  if (monedasTotales >= precio) {
+    monedasTotales -= precio;
+    marcadorMonedas.textContent = monedasTotales;
+    tiendaMonedas.textContent = monedasTotales;
+    menuMonedas.textContent = monedasTotales;
+    localStorage.setItem('ballGameCoins', monedasTotales);
 
     temasDesbloqueados.push(nombreTema);
     localStorage.setItem('ballGameUnlockedThemes', JSON.stringify(temasDesbloqueados));
@@ -691,228 +686,3 @@ function moverPelota() {
 
     contenedor.appendChild(trap);
     trampasActivas.push(trap);
-  }
-
-  if (dificultadActual !== 'easy') {
-    if (Math.random() < 0.10) {
-      spawnPowerUp(maxX, maxY, posicionesOcupadas);
-    }
-    if (dificultadActual === 'hard') {
-      if (Math.random() < 0.10) {
-        spawnPowerUp(maxX, maxY, posicionesOcupadas);
-      }
-    }
-  }
-
-  muevePelotaTimeout = setTimeout(() => {
-    if (rachaActual > 0) {
-      rachaActual = 0;
-      multi = 1;
-      actualizarRachaUI();
-    }
-    moverPelota();
-  }, velocidadActual);
-}
-
-function ajustarDificultad() {
-  const baseTam = Math.max(TAMAÑO_MIN, TAMAÑO_INICIAL - puntos);
-  const tamFinal = baseTam + extraTamaño;
-  bola.style.width = `${tamFinal}px`;
-  bola.style.height = `${tamFinal}px`;
-
-  if (dificultadActual === 'easy') {
-    velocidadActual = 1600;
-  } else if (dificultadActual === 'medium') {
-    velocidadActual = Math.max(500, 1200 - (puntos * 20));
-  } else if (dificultadActual === 'hard') {
-    velocidadActual = Math.max(250, 800 - (puntos * 30));
-  }
-
-  if (extraTamaño === 0) {
-    const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
-    colorActual = paletaColores[indiceColor];
-    
-    const puntoExtra = bola.querySelector('.main-ball-dot');
-    if (puntoExtra) puntoExtra.remove();
-  }
-  
-  actualizarEstilosSkin();
-}
-
-function limpiarTodoEnPantalla() {
-  trampasActivas.forEach(trap => trap.remove());
-  trampasActivas = [];
-  poderesActivos.forEach(pow => pow.remove());
-  poderesActivos = [];
-}
-
-
-// ==========================================
-// AUDIO, CRONÓMETRO Y ESTADOS
-// ==========================================
-
-const contextoAudio = new (window.AudioContext || window.webkitAudioContext)();
-let gananciaMaster = contextoAudio.createGain();
-gananciaMaster.gain.value = 0.3;
-gananciaMaster.connect(contextoAudio.destination);
-
-function cambiarVolumen(vol) {
-  gananciaMaster.gain.value = parseFloat(vol);
-}
-
-function cambiarSensibilidad(val) {
-  sensi = Math.min(2.0, parseFloat(val));
-  textoSensi.textContent = `${sensi.toFixed(1)}x`;
-}
-
-function cambiarDificultad(nivel) {
-  dificultadActual = nivel;
-  document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`btn-${nivel}`).classList.add('active');
-  reiniciarJuego();
-}
-
-function sonarEfecto(tipo) {
-  if (contextoAudio.state === 'suspended') contextoAudio.resume();
-  
-  const oscilador = contextoAudio.createOscillator();
-  const ganancia = contextoAudio.createGain();
-  oscilador.connect(ganancia);
-  ganancia.connect(gananciaMaster);
-
-  if (tipo === 'catch') {
-    oscilador.type = 'sine';
-    oscilador.frequency.setValueAtTime(440, contextoAudio.currentTime);
-    oscilador.frequency.exponentialRampToValueAtTime(880, contextoAudio.currentTime + 0.1);
-    ganancia.gain.setValueAtTime(0.5, contextoAudio.currentTime);
-    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.1);
-    oscilador.start();
-    oscilador.stop(contextoAudio.currentTime + 0.1);
-  } else if (tipo === 'powerup') {
-    oscilador.type = 'triangle';
-    oscilador.frequency.setValueAtTime(587.33, contextoAudio.currentTime);
-    oscilador.frequency.exponentialRampToValueAtTime(1174.66, contextoAudio.currentTime + 0.15);
-    ganancia.gain.setValueAtTime(0.6, contextoAudio.currentTime);
-    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.15);
-    oscilador.start();
-    oscilador.stop(contextoAudio.currentTime + 0.15);
-  } else if (tipo === 'bomb') {
-    oscilador.type = 'sawtooth';
-    oscilador.frequency.setValueAtTime(150, contextoAudio.currentTime);
-    oscilador.frequency.linearRampToValueAtTime(40, contextoAudio.currentTime + 0.2);
-    ganancia.gain.setValueAtTime(0.6, contextoAudio.currentTime);
-    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.2);
-    oscilador.start();
-    oscilador.stop(contextoAudio.currentTime + 0.2);
-  } else if (tipo === 'gameover') {
-    oscilador.type = 'triangle';
-    oscilador.frequency.setValueAtTime(300, contextoAudio.currentTime);
-    oscilador.frequency.linearRampToValueAtTime(100, contextoAudio.currentTime + 0.4);
-    ganancia.gain.setValueAtTime(0.4, contextoAudio.currentTime);
-    ganancia.gain.exponentialRampToValueAtTime(0.01, contextoAudio.currentTime + 0.4);
-    oscilador.start();
-    oscilador.stop(contextoAudio.currentTime + 0.4);
-  }
-}
-
-function pausarJuego() {
-  if (!juegoActivo) return;
-  estaPausado = !estaPausado;
-
-  if (estaPausado) {
-    if (!esCel) document.exitPointerLock();
-    clearInterval(relojIntervalo);
-    clearTimeout(muevePelotaTimeout);
-    menuPausa.classList.remove('hidden');
-    cursorPro.style.display = 'none';
-  } else {
-    menuPausa.classList.add('hidden');
-    menuTienda.classList.add('hidden');
-    if (!esCel) cursorPro.style.display = 'block';
-    iniciarReloj();
-    moverPelota();
-  }
-}
-
-function iniciarReloj() {
-  if (estaPausado) return;
-  clearInterval(relojIntervalo);
-  relojIntervalo = setInterval(() => {
-    if (estaPausado) return;
-    tiempoRestante--;
-    marcadorTiempo.textContent = tiempoRestante;
-
-    if (tiempoRestante <= 0) {
-      terminarJuego();
-    }
-  }, 1000);
-}
-
-function terminarJuego() {
-  juegoActivo = false;
-  if (!esCel) document.exitPointerLock();
-  clearInterval(relojIntervalo);
-  clearTimeout(muevePelotaTimeout);
-  limpiarTodoEnPantalla();
-  
-  sonarEfecto('gameover');
-
-  lanaTotal += puntos;
-  localStorage.setItem('ballGameCoins', lanaTotal);
-  marcadorLanas.textContent = lanaTotal;
-  menuLanas.textContent = lanaTotal;
-
-  if (puntos > recordMax) {
-    recordMax = puntos;
-    localStorage.setItem('ballGameHighScore', recordMax);
-    marcadorRecord.textContent = recordMax;
-  }
-
-  bola.style.display = 'none';
-  cursorPro.style.display = 'none';
-  puntosFinales.textContent = puntos;
-  lanasGanadas.textContent = puntos;
-  recordFinal.textContent = recordMax;
-  pantallaGameOver.classList.remove('hidden');
-}
-
-function reiniciarJuego() {
-  clearInterval(relojIntervalo);
-  clearTimeout(muevePelotaTimeout);
-
-  puntos = 0;
-  rachaActual = 0;
-  multi = 1;
-  actualizarRachaUI();
-
-  tiempoRestante = tiempoBase;
-  extraTamaño = 0;
-  juegoActivo = true;
-  estaPausado = false;
-  
-  ajustarDificultad();
-
-  marcadorPuntos.textContent = puntos;
-  marcadorLanas.textContent = lanaTotal;
-  menuLanas.textContent = lanaTotal;
-  marcadorTiempo.textContent = tiempoRestante;
-  marcadorRecord.textContent = recordMax;
-  
-  bola.style.width = `${TAMAÑO_INICIAL}px`;
-  bola.style.height = `${TAMAÑO_INICIAL}px`;
-  bola.style.display = 'block';
-  if (!esCel) cursorPro.style.display = 'block';
-
-  menuPrincipal.classList.add('hidden');
-  menuInfo.classList.add('hidden');
-  menuPausa.classList.add('hidden');
-  menuTienda.classList.add('hidden');
-  pantallaGameOver.classList.add('hidden');
-  
-  moverPelota();
-  iniciarReloj();
-}
-
-// Cargar tema inicial
-document.body.className = `theme-${temaActual}`;
-bola.style.display = 'none';
