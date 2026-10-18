@@ -136,7 +136,6 @@ document.addEventListener('pointerlockchange', () => {
 if (contenedor) {
   contenedor.addEventListener('click', (e) => {
     inicializarAudio();
-    // Evitar que el click del contenedor afecte si se presionó un botón del menú
     if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.tagName === 'INPUT') {
       return;
     }
@@ -213,8 +212,14 @@ document.addEventListener('mousedown', (e) => {
 });
 
 if (bola) {
-  bola.addEventListener('pointerdown', (e) => {
+  bola.addEventListener('touchend', (e) => {
     if (!juegoActivo || estaPausado) return;
+    e.preventDefault();
+    atraparPelota();
+  });
+
+  bola.addEventListener('pointerdown', (e) => {
+    if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
     e.preventDefault();
     atraparPelota();
   });
@@ -661,8 +666,14 @@ function spawnPowerUp(maxX, maxY, usados) {
   pow.style.left = `${pX}px`;
   pow.style.top = `${pY}px`;
 
-  pow.addEventListener('pointerdown', (e) => {
+  pow.addEventListener('touchend', (e) => {
     if (!juegoActivo || estaPausado) return;
+    e.preventDefault();
+    atraparPoder(pow);
+  });
+
+  pow.addEventListener('pointerdown', (e) => {
+    if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
     e.preventDefault();
     atraparPoder(pow);
   });
@@ -725,8 +736,14 @@ function moverPelota() {
     trap.style.left = `${tX}px`;
     trap.style.top = `${tY}px`;
 
-    trap.addEventListener('pointerdown', (e) => {
+    trap.addEventListener('touchend', (e) => {
       if (!juegoActivo || estaPausado) return;
+      e.preventDefault();
+      pegarTrampa(trap);
+    });
+
+    trap.addEventListener('pointerdown', (e) => {
+      if (!juegoActivo || estaPausado || e.pointerType === 'touch') return;
       e.preventDefault();
       pegarTrampa(trap);
     });
