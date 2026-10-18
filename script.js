@@ -10,6 +10,7 @@ let isPaused = false;
 // Variables del sistema de Racha / Combo Multiplicador
 let currentStreak = 0;
 let multiplier = 1;
+let streakTimeout; // Controla cuánto tiempo dura visible el aviso en pantalla
 
 // Variables principales de tamaño, velocidad y personalización visual de la bola
 const INITIAL_SIZE = 50;
@@ -32,6 +33,7 @@ const customCursor = document.getElementById('custom-cursor');
 const scoreDisplay = document.getElementById('score');
 const streakDisplay = document.getElementById('streak-display');
 const multiplierVal = document.getElementById('multiplier-val');
+const streakPopup = document.getElementById('streak-popup');
 const highScoreDisplay = document.getElementById('high-score');
 const timerDisplay = document.getElementById('timer');
 const menuTimeDisplay = document.getElementById('menu-time-display');
@@ -159,7 +161,19 @@ ball.addEventListener('pointerdown', (e) => {
 // LÓGICA PRINCIPAL DE JUEGO Y MECÁNICAS
 // ==========================================
 
-// Actualiza el indicador visual de la racha en pantalla
+// Muestra un aviso flotante llamativo en el centro de la pantalla al subir la racha
+function showStreakPopup(text) {
+  clearTimeout(streakTimeout);
+  streakPopup.textContent = text;
+  streakPopup.classList.remove('hidden');
+  streakPopup.classList.add('show');
+
+  streakTimeout = setTimeout(() => {
+    streakPopup.classList.remove('show');
+  }, 600); // El aviso dura visible 0.6 segundos
+}
+
+// Actualiza el indicador visual de la racha en la barra superior y activa el popup
 function updateStreakUI() {
   if (multiplier > 1) {
     multiplierVal.textContent = `x${multiplier}`;
@@ -175,9 +189,16 @@ function updateStreakUI() {
 function catchBall() {
   playSound('catch');
 
-  // Incrementar la racha y calcular el multiplicador (Cada 3 aciertos sube +1 al multiplicador, máx x4)
+  // Incrementar racha y calcular multiplicador (cada 3 aciertos sube +1, máx x4)
   currentStreak++;
+  let oldMultiplier = multiplier;
   multiplier = Math.min(4, 1 + Math.floor(currentStreak / 3));
+
+  // Si el multiplicador acaba de subir, mostramos el aviso en el centro de la pantalla
+  if (multiplier > oldMultiplier) {
+    showStreakPopup(`¡RACHA x${multiplier}! 🔥`);
+  }
+
   updateStreakUI();
 
   // Sumar puntos multiplicados según la racha
