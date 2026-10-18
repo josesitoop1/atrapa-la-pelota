@@ -9,7 +9,6 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #1e1e2e;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: white;
   display: flex;
@@ -20,6 +19,36 @@ body {
   -webkit-user-select: none;
   touch-action: manipulation;
   overflow: hidden;
+  transition: background-color 0.4s ease;
+}
+
+/* ==========================================
+   TEMAS VISUALES DE FONDO
+   ========================================== */
+
+/* 1. Tema Cyberpunk / Neón (Predeterminado) */
+body.theme-cyberpunk {
+  background-color: #1e1e2e;
+}
+body.theme-cyberpunk #game-container {
+  background-color: #2b2b3d;
+}
+
+/* 2. Tema Espacio Exterior */
+body.theme-space {
+  background-color: #050515;
+}
+body.theme-space #game-container {
+  background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+  border: 1px solid #1f2937;
+}
+
+/* 3. Tema Atardecer 80s / Outrun */
+body.theme-sunset {
+  background-color: #2e1065;
+}
+body.theme-sunset #game-container {
+  background: linear-gradient(180deg, #3b0764 0%, #701a75 50%, #831843 100%);
 }
 
 /* ==========================================
@@ -31,15 +60,15 @@ body {
   max-width: 420px;
   height: 90vh;
   max-height: 420px;
-  background-color: #2b2b3d;
   border-radius: 15px;
   position: relative;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   overflow: hidden;
   touch-action: none;
+  transition: background 0.4s ease;
 }
 
-/* Cursor personalizado para laptops o computadoras de escritorio */
+/* Cursor personalizado */
 #custom-cursor {
   width: 14px;
   height: 14px;
@@ -54,7 +83,7 @@ body {
   display: none;
 }
 
-/* Aviso flotante de racha en el centro de la pantalla */
+/* Aviso flotante de racha */
 #streak-popup {
   position: absolute;
   top: 40%;
@@ -117,7 +146,7 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Indicador de racha en la barra superior */
+/* Indicador de racha */
 #streak-display {
   color: #facc15;
   transition: transform 0.2s ease, opacity 0.3s ease;
@@ -138,7 +167,6 @@ h1 {
    ELEMENTOS INTERACTIVOS (BOLAS Y TRAMPAS)
    ========================================== */
 
-/* La pelota principal que el usuario debe atrapar */
 #ball {
   width: 50px;
   height: 50px;
@@ -155,7 +183,6 @@ h1 {
   align-items: center;
 }
 
-/* Puntito central blanco para identificar a la pelota principal cuando activa el poder de tamaño */
 .main-ball-dot {
   width: 8px;
   height: 8px;
@@ -169,7 +196,6 @@ h1 {
   touch-action: none;
 }
 
-/* Estilo estético y animación de pulso para la pelota dorada (Power-Up) */
 .powerup-ball {
   background-color: #fbbf24 !important;
   box-shadow: 0 0 20px #fbbf24 !important;
@@ -206,7 +232,7 @@ h1 {
 #pause-menu h2, #game-over h2, #shop-menu h2 {
   color: #ff0055;
   font-size: 1.4rem;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .difficulty-group {
@@ -268,12 +294,30 @@ input[type="range"] {
   margin-top: 5px;
 }
 
-#reset-highscore-btn {
-  background-color: #33334d;
-  color: #a6accd;
+.dev-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#add-coins-btn {
+  background-color: #10b981;
+  color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 6px 10px;
   font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#reset-all-btn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
 }
@@ -311,14 +355,38 @@ input[type="range"] {
   font-weight: bold;
 }
 
-/* Estilos de la Tienda de Skins */
+/* Pestañas de la Tienda */
+.shop-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.tab-btn {
+  background-color: #3b3b52;
+  color: #a6accd;
+  border: none;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background-color: #7c3aed;
+  color: white;
+}
+
+/* Estilos de los ítems de la Tienda */
 .shop-items {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 15px 0;
-  width: 80%;
-  max-width: 280px;
+  margin-bottom: 12px;
+  width: 85%;
+  max-width: 290px;
 }
 
 .shop-item {
@@ -328,7 +396,7 @@ input[type="range"] {
   background-color: #3b3b52;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .shop-btn {
