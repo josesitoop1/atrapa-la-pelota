@@ -35,23 +35,98 @@ body.theme-cyberpunk #game-container {
   background-image: none;
 }
 
-/* 2. Tema Espacio Exterior */
+/* 2. Tema Espacio Exterior (Con estrellas realistas animadas) */
 body.theme-space {
-  background-color: #050515;
+  background-color: #030712;
 }
 body.theme-space #game-container {
   background: radial-gradient(circle at center, #111827 0%, #030712 100%);
   border: 1px solid #1f2937;
-  background-image: none;
+  position: relative;
+  overflow: hidden;
 }
 
-/* 3. Tema Atardecer 80s / Outrun */
+/* Capa de estrellas parpadeantes usando sombras múltiples */
+body.theme-space #game-container::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 90px 40px, #e0e7ff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 220px 180px, #93c5fd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 300px 80px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 350px 250px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 100px 320px, #e0e7ff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 380px 380px, #93c5fd, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  opacity: 0.8;
+  animation: parpadeoEstrellas 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes parpadeoEstrellas {
+  0% { opacity: 0.4; transform: scale(1); }
+  100% { opacity: 0.95; transform: scale(1.02); }
+}
+
+/* 3. Tema Atardecer 80s / Outrun (Con sol retro y cuadrícula animada) */
 body.theme-sunset {
   background-color: #2e1065;
 }
 body.theme-sunset #game-container {
-  background: linear-gradient(180deg, #3b0764 0%, #701a75 50%, #831843 100%);
-  background-image: none;
+  background: linear-gradient(180deg, #1e1b4b 0%, #581c87 45%, #831843 75%, #4c0519 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sol retro ochentero en el horizonte */
+body.theme-sunset #game-container::before {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(180deg, #fde047 0%, #f97316 60%, #e11d48 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 30px #f43f5e;
+  /* Líneas horizontales para darle el efecto recortado de los 80s */
+  mask-image: linear-gradient(to bottom, black 55%, transparent 55%, transparent 62%, black 62%);
+  -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 55%, transparent 62%, black 62%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cuadrícula o suelo futurista en movimiento */
+body.theme-sunset #game-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -50%;
+  right: -50%;
+  height: 45%;
+  background-image: 
+    linear-gradient(to bottom, rgba(244, 63, 94, 0.15) 1px, transparent 1px),
+    linear-gradient(to right, rgba(244, 63, 94, 0.15) 1px, transparent 1px);
+  background-size: 30px 30px;
+  transform: perspective(300px) rotateX(60deg);
+  transform-origin: bottom center;
+  animation: moverGrid 3s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes moverGrid {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 30px; }
 }
 
 /* ==========================================
@@ -158,6 +233,8 @@ body.theme-spiderman #game-container {
   align-items: center;
   padding: 0 15px;
   margin-top: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 h1 {
@@ -188,6 +265,8 @@ h1 {
   color: #a6accd;
   margin-top: 5px;
   margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 #streak-display {
