@@ -1,7 +1,6 @@
 // ==========================================
 // JUEGO WEB: "ATRAPA LA PELOTA"
-// Descripción: Lógica multiplataforma completa con tienda corregida
-// para poder equipar y desequipar la pelota predeterminada sin problemas.
+// Lógica de juego con tienda de skins y fondos de imagen comprables.
 // ==========================================
 
 let score = 0;
@@ -27,7 +26,7 @@ let currentStreak = 0;
 let multiplier = 1;
 let streakTimeout;
 
-// Variables de tamaño y velocidad
+// Tamaño y velocidad
 const INITIAL_SIZE = 50;
 const MIN_SIZE = 20;
 let currentSpeed = 1200;
@@ -36,7 +35,7 @@ let customBonusSize = 0;
 
 let currentDifficulty = 'medium';
 
-// Controls PC / Táctil
+// PC / Táctil
 let sensitivity = 1.0;
 let virtualX = 210;
 let virtualY = 210;
@@ -71,9 +70,8 @@ let activePowerUps = [];
 
 
 // ==========================================
-// MODO DE PRUEBAS Y ADMINISTRACIÓN
+// MODO PRUEBAS
 // ==========================================
-
 function addTestCoins() {
   totalCoins += 100;
   localStorage.setItem('ballGameCoins', totalCoins);
@@ -105,7 +103,7 @@ function resetFullProgress() {
 
 
 // ==========================================
-// DETECCIÓN TÁCTIL VS PC
+// CONTROLES Y TÁCTIL
 // ==========================================
 window.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'touch') {
@@ -115,11 +113,6 @@ window.addEventListener('pointerdown', (e) => {
     if (sensGroup) sensGroup.style.display = 'none';
   }
 }, { once: true });
-
-
-// ==========================================
-// CONTROLES Y EVENTOS
-// ==========================================
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Esc') {
@@ -201,7 +194,7 @@ ball.addEventListener('pointerdown', (e) => {
 
 
 // ==========================================
-// TIENDA, SKINS Y TEMAS DE FONDO
+// TIENDA: SKINS Y FONDOS TIPO IMAGEN
 // ==========================================
 
 function toggleShop() {
@@ -219,7 +212,7 @@ function switchShopTab(tab) {
 }
 
 function updateShopButtons() {
-  // --- SKINS ---
+  // SKINS
   const btnClassic = document.getElementById('buy-classic');
   if (currentSkin === 'classic') {
     btnClassic.textContent = 'Equipada';
@@ -258,7 +251,7 @@ function updateShopButtons() {
     btnGalaxy.onclick = () => buySkin('galaxy', 150);
   }
 
-  // --- TEMAS ---
+  // FONDOS DE PERSONAJES / IMAGEN
   const btnThemeCyber = document.getElementById('buy-theme-cyberpunk');
   if (currentTheme === 'cyberpunk') {
     btnThemeCyber.textContent = 'Equipado';
@@ -269,32 +262,46 @@ function updateShopButtons() {
     btnThemeCyber.onclick = () => equipTheme('cyberpunk');
   }
 
-  const btnThemeSpace = document.getElementById('buy-theme-space');
-  if (currentTheme === 'space') {
-    btnThemeSpace.textContent = 'Equipado';
-    btnThemeSpace.disabled = true;
-  } else if (unlockedThemes.includes('space')) {
-    btnThemeSpace.textContent = 'Equipar';
-    btnThemeSpace.disabled = false;
-    btnThemeSpace.onclick = () => equipTheme('space');
+  const btnThemeSnoopy = document.getElementById('buy-theme-snoopy');
+  if (currentTheme === 'snoopy') {
+    btnThemeSnoopy.textContent = 'Equipado';
+    btnThemeSnoopy.disabled = true;
+  } else if (unlockedThemes.includes('snoopy')) {
+    btnThemeSnoopy.textContent = 'Equipar';
+    btnThemeSnoopy.disabled = false;
+    btnThemeSnoopy.onclick = () => equipTheme('snoopy');
   } else {
-    btnThemeSpace.textContent = 'Comprar (100 🪙)';
-    btnThemeSpace.disabled = totalCoins < 100;
-    btnThemeSpace.onclick = () => buyTheme('space', 100);
+    btnThemeSnoopy.textContent = 'Comprar (100 🪙)';
+    btnThemeSnoopy.disabled = totalCoins < 100;
+    btnThemeSnoopy.onclick = () => buyTheme('snoopy', 100);
   }
 
-  const btnThemeSunset = document.getElementById('buy-theme-sunset');
-  if (currentTheme === 'sunset') {
-    btnThemeSunset.textContent = 'Equipado';
-    btnThemeSunset.disabled = true;
-  } else if (unlockedThemes.includes('sunset')) {
-    btnThemeSunset.textContent = 'Equipar';
-    btnThemeSunset.disabled = false;
-    btnThemeSunset.onclick = () => equipTheme('sunset');
+  const btnThemeCapy = document.getElementById('buy-theme-capybara');
+  if (currentTheme === 'capybara') {
+    btnThemeCapy.textContent = 'Equipado';
+    btnThemeCapy.disabled = true;
+  } else if (unlockedThemes.includes('capybara')) {
+    btnThemeCapy.textContent = 'Equipar';
+    btnThemeCapy.disabled = false;
+    btnThemeCapy.onclick = () => equipTheme('capybara');
   } else {
-    btnThemeSunset.textContent = 'Comprar (200 🪙)';
-    btnThemeSunset.disabled = totalCoins < 200;
-    btnThemeSunset.onclick = () => buyTheme('sunset', 200);
+    btnThemeCapy.textContent = 'Comprar (200 🪙)';
+    btnThemeCapy.disabled = totalCoins < 200;
+    btnThemeCapy.onclick = () => buyTheme('capybara', 200);
+  }
+
+  const btnThemeSpider = document.getElementById('buy-theme-spiderman');
+  if (currentTheme === 'spiderman') {
+    btnThemeSpider.textContent = 'Equipado';
+    btnThemeSpider.disabled = true;
+  } else if (unlockedThemes.includes('spiderman')) {
+    btnThemeSpider.textContent = 'Equipar';
+    btnThemeSpider.disabled = false;
+    btnThemeSpider.onclick = () => equipTheme('spiderman');
+  } else {
+    btnThemeSpider.textContent = 'Comprar (300 🪙)';
+    btnThemeSpider.disabled = totalCoins < 300;
+    btnThemeSpider.onclick = () => buyTheme('spiderman', 300);
   }
 }
 
@@ -350,7 +357,6 @@ function applySkinVisuals() {
     ball.style.background = 'linear-gradient(135deg, #8b5cf6, #ec4899)';
     ball.style.boxShadow = '0 0 20px #8b5cf6';
   } else {
-    // Si se selecciona la clásica, se limpia cualquier degradado para usar el color normal
     ball.style.background = '';
     const colorIndex = Math.floor(Math.max(0, score) / 5) % colors.length;
     currentColor = colors[colorIndex];
@@ -788,7 +794,7 @@ function restartGame() {
   startTimer();
 }
 
-// Cargar el tema e iniciar el juego
+// Cargar el tema e iniciar
 document.body.className = `theme-${currentTheme}`;
 updateDifficulty();
 moveBall();
