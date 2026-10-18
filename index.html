@@ -121,8 +121,24 @@
           <button id="buy-galaxy" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
-          <span>⭐ Bola Dorada VIP (Casino)</span>
-          <button id="buy-vip-gold" class="shop-btn">Comprar en Casino</button>
+          <span>⚡ Bola Plasma (Casino)</span>
+          <button id="buy-vip-plasma" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>🐉 Dragón Neón (Casino)</span>
+          <button id="buy-vip-dragon" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>🕳️ Agujero Negro (Casino)</span>
+          <button id="buy-vip-blackhole" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>🔥 Fuego Valyrio (Casino)</span>
+          <button id="buy-vip-valyrian" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>💎 Cristal Diamante (Casino)</span>
+          <button id="buy-vip-diamond" class="shop-btn">Ir al Casino</button>
         </div>
       </div>
 
@@ -141,8 +157,24 @@
           <button id="buy-theme-sunset" class="shop-btn">Comprar</button>
         </div>
         <div class="shop-item">
-          <span>🕶️ Fondo Matrix (Casino)</span>
-          <button id="buy-theme-matrix" class="shop-btn">Comprar en Casino</button>
+          <span>🌊 Océano Abisal (Casino)</span>
+          <button id="buy-theme-ocean" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>⚡ Tormenta Electrólica (Casino)</span>
+          <button id="buy-theme-storm" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>🌌 Galaxia Animada (Casino)</span>
+          <button id="buy-theme-animatedgalaxy" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>🌆 Ciudad Cyber 2099 (Casino)</span>
+          <button id="buy-theme-cybercity" class="shop-btn">Ir al Casino</button>
+        </div>
+        <div class="shop-item">
+          <span>🌋 Núcleo de Magma (Casino)</span>
+          <button id="buy-theme-magma" class="shop-btn">Ir al Casino</button>
         </div>
       </div>
 
@@ -178,20 +210,20 @@
   <!-- Apartado de Casino (Desplegable) -->
   <div id="casino-menu" class="casino-hidden">
     <div class="casino-header">
-      <h2>🎰 Casino & Suerte 🎲</h2>
+      <h2>🎰 Casino 🎲</h2>
       <button id="close-casino-btn" onclick="toggleCasinoMenu()">✖️ Cerrar</button>
     </div>
 
     <div class="casino-balances">
       <p>Monedas: <span id="casino-monedas-val">0</span> 🪙</p>
       <p>Fichas: <span id="casino-fichas-val">0</span> 🎲</p>
-      <button id="open-exchange-btn" onclick="abrirModalCambio()">Cambiar Monedas por Fichas 🔄</button>
+      <button id="open-exchange-btn" onclick="abrirModalCambio()">Banco de Fichas 🏦</button>
     </div>
 
     <!-- Pestañas de Casino -->
     <div class="casino-tabs">
       <button class="casino-tab active" onclick="cambiarSeccionCasino('minijuegos')">Minijuegos</button>
-      <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda VIP</button>
+      <button class="casino-tab" onclick="cambiarSeccionCasino('tienda')">Tienda High Roller</button>
     </div>
 
     <!-- Sección de Minijuegos -->
@@ -203,42 +235,81 @@
           <span id="slot-2">🔔</span>
           <span id="slot-3">💎</span>
         </div>
-        <p id="slot-msg">¡Gira por 10 fichas!</p>
-        <button onclick="jugarSlots()">Girar Tragamonedas</button>
+        <p id="slot-msg">¡Apuesta mínima: 20 Fichas 🎲!</p>
+        <button onclick="jugarSlots()">Girar Palanca (20 🎲)</button>
       </div>
 
       <div class="casino-box">
-        <h3>Ruleta de la Suerta 🎯</h3>
+        <h3>Ruleta Royale 🎯</h3>
         <div id="ruleta-display">🎲</div>
-        <p id="ruleta-msg">Apuesta 15 fichas</p>
+        <p id="ruleta-msg">Apuesta 20 Fichas 🎲</p>
         <div class="ruleta-buttons">
-          <button onclick="jugarRuleta('rojo')">Rojo (x2)</button>
-          <button onclick="jugarRuleta('verde')">Verde (x10)</button>
+          <button style="background:#ef4444;" onclick="jugarRuleta('rojo')">Rojo (+30)</button>
+          <button style="background:#10b981;" onclick="jugarRuleta('verde')">Verde (+50)</button>
+          <button style="background:#111827; border:1px solid #374151;" onclick="jugarRuleta('negro')">Negro (+80)</button>
         </div>
       </div>
     </div>
 
     <!-- Sección de Tienda VIP de Casino -->
     <div id="casino-tienda-section" class="casino-section hidden">
-      <h3>Tienda Exclusiva con Fichas 🛒</h3>
+      <h3>Tienda VIP High Roller 🛒</h3>
+      
+      <!-- Skins Pelotas VIP -->
       <div class="casino-shop-item">
-        <span>⭐ Bola Dorada VIP (100 🎲)</span>
-        <button id="casino-buy-gold" onclick="comprarItemCasino('gold', 100)">Comprar</button>
+        <span>⚡ Bola Plasma (500 🎲)</span>
+        <button id="casino-buy-plasma" onclick="comprarItemCasino('plasma', 500)">Comprar</button>
       </div>
       <div class="casino-shop-item">
-        <span>🕶️ Fondo Matrix (250 🎲)</span>
-        <button id="casino-buy-matrix" onclick="comprarItemCasino('matrix', 250)">Comprar</button>
+        <span>🐉 Dragón Neón (600 🎲)</span>
+        <button id="casino-buy-dragon" onclick="comprarItemCasino('dragon', 600)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>🕳️ Agujero Negro (750 🎲)</span>
+        <button id="casino-buy-blackhole" onclick="comprarItemCasino('blackhole', 750)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>🔥 Fuego Valyrio (850 🎲)</span>
+        <button id="casino-buy-valyrian" onclick="comprarItemCasino('valyrian', 850)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>💎 Cristal Diamante (1000 🎲)</span>
+        <button id="casino-buy-diamond" onclick="comprarItemCasino('diamond', 1000)">Comprar</button>
+      </div>
+
+      <!-- Fondos Vivos VIP -->
+      <div class="casino-shop-item">
+        <span>🌊 Océano Abisal (500 🎲)</span>
+        <button id="casino-buy-ocean" onclick="comprarItemCasino('ocean', 500)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>⚡ Tormenta Electrólica (650 🎲)</span>
+        <button id="casino-buy-storm" onclick="comprarItemCasino('storm', 650)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>🌌 Galaxia Animada (750 🎲)</span>
+        <button id="casino-buy-animatedgalaxy" onclick="comprarItemCasino('animatedgalaxy', 750)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>🌆 Ciudad Cyber 2099 (900 🎲)</span>
+        <button id="casino-buy-cybercity" onclick="comprarItemCasino('cybercity', 900)">Comprar</button>
+      </div>
+      <div class="casino-shop-item">
+        <span>🌋 Núcleo de Magma (1000 🎲)</span>
+        <button id="casino-buy-magma" onclick="comprarItemCasino('magma', 1000)">Comprar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal para Comprar Fichas -->
+  <!-- Modal para Comprar Fichas (10 Monedas = 1 Ficha) -->
   <div id="exchange-modal" class="hidden">
     <div class="modal-content">
-      <h3>Banco de Fichas 🏦</h3>
-      <p>10 Monedas 🪙 = 1 Ficha 🎲</p>
-      <input type="number" id="exchange-input" min="1" value="10" placeholder="Monedas a cambiar">
-      <button onclick="realizarCambioMonedas()">Comprar Fichas</button>
+      <h3>Banco del Casino 🏦</h3>
+      <p style="color:#f59e0b; font-weight:bold;">10 Monedas 🪙 = 1 Ficha 🎲</p>
+      <label for="exchange-input" style="font-size:0.75rem;">¿Cuántas Fichas quieres comprar?</label>
+      <input type="number" id="exchange-input" min="1" value="10" placeholder="Cantidad de Fichas" oninput="calcularCostoCambio(this.value)">
+      <p id="exchange-cost-text" style="font-size:0.75rem; color:#a6accd;">Costo: 100 Monedas 🪙</p>
+      <button onclick="realizarCambioMonedas()">Confirmar Cambio</button>
       <button onclick="abrirModalCambio()" style="background:#ef4444; margin-top:5px;">Cancelar</button>
     </div>
   </div>
