@@ -219,7 +219,7 @@ body {
   cursor: pointer;
 }
 
-/* === FONDOS CON VIDA DINÁMICA (PC Y CELULAR) === */
+/* === FONDOS ANIMADOS PARA PC Y MÓVIL === */
 body.theme-cyberpunk {
   background: linear-gradient(135deg, #0f0f1a 0%, #1e1e2e 50%, #2e1065 100%);
   background-size: 250% 250%;
@@ -233,10 +233,10 @@ body.theme-space {
   background-size: 200% 200%;
   animation: pulsoEspacial 8s ease-in-out infinite alternate;
 }
-@keyframes pulsoEspacial { 0% { filter: brightness(0.85); transform: scale(1); } 100% { filter: brightness(1.2); transform: scale(1.02); } }
+@keyframes pulsoEspacial { 0% { filter: brightness(0.85); } 100% { filter: brightness(1.2); } }
 body.theme-space #game-container { background: rgba(17, 24, 39, 0.85); }
 
-/* Atardecer 80s (Restaurado y animado) */
+/* Fondo Atardecer 80s */
 body.theme-sunset {
   background: linear-gradient(180deg, #1e1b4b 0%, #581c87 35%, #831843 70%, #4c0519 100%);
   background-size: 100% 300%;
@@ -292,6 +292,7 @@ body.theme-spiderman { background: linear-gradient(135deg, #b91c1c, #1e3a8a); ba
 body.theme-snoopy { background: linear-gradient(135deg, #1e293b, #475569); background-size: 200% 200%; animation: fSnoopy 8s ease infinite alternate; }
 @keyframes fSnoopy { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
 
+/* OPTIMIZACIÓN DE RENDIMIENTO: quitamos transiciones pesadas de movimiento que trababan las laptops */
 #game-container {
   text-align: center;
   width: 95vw;
@@ -303,17 +304,16 @@ body.theme-snoopy { background: linear-gradient(135deg, #1e293b, #475569); backg
   box-shadow: 0 15px 35px rgba(0,0,0,0.6);
   overflow: hidden;
   touch-action: none;
-  transition: background 0.4s ease, transform 0.1s ease-out;
   flex-shrink: 0;
-  transform-style: preserve-3d;
+  will-change: transform; /* Optimiza el uso de la tarjeta de video de la laptop */
 }
 
 .shake-screen { animation: temblorEfecto 0.3s ease-in-out; }
 @keyframes temblorEfecto {
   0% { transform: translate(0, 0); }
-  25% { transform: translate(-8px, 6px); }
-  50% { transform: translate(8px, -6px); }
-  75% { transform: translate(-5px, 4px); }
+  25% { transform: translate(-6px, 4px); }
+  50% { transform: translate(6px, -4px); }
+  75% { transform: translate(-4px, 2px); }
   100% { transform: translate(0, 0); }
 }
 
@@ -342,24 +342,26 @@ h1 { font-size: 1.1rem; margin: 0; }
 .streak-hidden { opacity: 0.3; transform: scale(0.9); }
 .streak-active { opacity: 1; transform: scale(1.15); color: #facc15; }
 
+/* La pelota se anima de forma súper fluida activando la GPU */
 #ball {
   width: 50px; height: 50px; background-color: #ff0055;
   border-radius: 50%; position: absolute;
-  transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease;
   box-shadow: 0 0 15px #ff0055; z-index: 5; cursor: pointer;
   touch-action: none; display: flex; justify-content: center; align-items: center;
+  will-change: left, top; /* Evita que la pelota trabe la laptop */
 }
 
 .main-ball-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
-.trap-ball, .powerup-ball, .powerup-magnet, .powerup-bomb { cursor: pointer; touch-action: none; position: absolute; border-radius: 50%; z-index: 6; }
+.trap-ball, .powerup-ball, .powerup-magnet, .powerup-bomb, .powerup-time { cursor: pointer; touch-action: none; position: absolute; border-radius: 50%; z-index: 6; }
 
 .powerup-ball { background-color: #fbbf24 !important; box-shadow: 0 0 20px #fbbf24 !important; }
 .powerup-magnet { background-color: #06b6d4 !important; box-shadow: 0 0 20px #06b6d4 !important; font-size: 0.75rem; display: flex; justify-content: center; align-items: center; }
 .powerup-bomb { background-color: #ef4444 !important; box-shadow: 0 0 20px #ef4444 !important; font-size: 0.75rem; display: flex; justify-content: center; align-items: center; }
+.powerup-time { background-color: #10b981 !important; box-shadow: 0 0 20px #10b981 !important; font-size: 0.75rem; display: flex; justify-content: center; align-items: center; }
 
 .particle {
   position: absolute; width: 6px; height: 6px; border-radius: 50%;
-  pointer-events: none; z-index: 7; animation: explosionParticula 0.4s ease-out forwards;
+  pointer-events: none; z-index: 7; animation: explosionParticula 0.3s ease-out forwards;
 }
 @keyframes explosionParticula {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
@@ -398,10 +400,6 @@ input[type="range"] { width: 170px; accent-color: #7c3aed; cursor: pointer; }
 
 .menu-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 85%; max-width: 280px; margin-top: 8px; }
 .menu-buttons button { width: 100%; margin: 0; }
-.dev-buttons { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
-
-#add-coins-btn { background-color: #10b981; color: white; border: none; padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; }
-#reset-all-btn { background-color: #dc2626; color: white; border: none; padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; }
 
 .shop-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
 .tab-btn { background-color: #3b3b52; color: #a6accd; border: none; padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; }
