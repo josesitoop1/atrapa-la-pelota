@@ -1,3 +1,4 @@
+// Variables de control de puntaje y datos persistentes del jugador
 let puntos = 0;
 let recordMax = localStorage.getItem('ballGameHighScore') || 0;
 let monedasTotales = parseInt(localStorage.getItem('ballGameCoins')) || 0;
@@ -10,12 +11,14 @@ let muevePelotaTimeout;
 let juegoActivo = false;
 let estaPausado = false;
 
+// Skins y temas activos desbloqueados
 let skinActual = localStorage.getItem('ballGameActiveSkin') || 'classic';
 let skinsDesbloqueadas = JSON.parse(localStorage.getItem('ballGameUnlockedSkins')) || ['classic'];
 
 let temaActual = localStorage.getItem('ballGameActiveTheme') || 'cyberpunk';
 let temasDesbloqueados = JSON.parse(localStorage.getItem('ballGameUnlockedThemes')) || ['cyberpunk'];
 
+// Variables para manejo de rachas y power-ups
 let rachaActual = 0;
 let multi = 1;
 let tiempoRacha;
@@ -36,6 +39,7 @@ let posXVirtual = 210;
 let posYVirtual = 210;
 let esCel = false;
 
+// Obtenemos los elementos del DOM en variables para no saturar memoria
 const bola = document.getElementById('ball');
 const cursorPro = document.getElementById('custom-cursor');
 const marcadorPuntos = document.getElementById('score');
@@ -76,31 +80,7 @@ setTimeout(() => {
   if (casinoTrigger) casinoTrigger.classList.add('show-trigger');
 }, 500);
 
-function darMonedasPro() {
-  monedasTotales += 100;
-  localStorage.setItem('ballGameCoins', monedasTotales);
-  actualizarMonedasUI();
-  sonarEfecto('powerup');
-}
-
-function borrarTodoElProgreso() {
-  if (confirm("¿Estás seguro de borrar todo el progreso, monedas y compras?")) {
-    localStorage.clear();
-    recordMax = 0;
-    monedasTotales = 0;
-    fichasCasino = 0;
-    skinActual = 'classic';
-    skinsDesbloqueadas = ['classic'];
-    temaActual = 'cyberpunk';
-    temasDesbloqueados = ['cyberpunk'];
-
-    if (marcadorRecord) marcadorRecord.textContent = '0';
-    actualizarMonedasUI();
-    document.body.className = 'theme-cyberpunk';
-    reiniciarJuego();
-  }
-}
-
+// Función para abrir y cerrar el panel lateral del casino
 function toggleCasinoMenu() {
   if (casinoMenu && casinoTrigger) {
     casinoMenu.classList.toggle('casino-open');
@@ -109,6 +89,7 @@ function toggleCasinoMenu() {
   }
 }
 
+// Función para alternar secciones en el casino
 function cambiarSeccionCasino(seccion) {
   const secMinijuegos = document.getElementById('casino-minijuegos-section');
   const secTienda = document.getElementById('casino-tienda-section');
@@ -129,16 +110,19 @@ function cambiarSeccionCasino(seccion) {
   }
 }
 
+// Función para la ventana emergente de intercambio de divisas
 function abrirModalCambio() {
   if (exchangeModal) exchangeModal.classList.toggle('hidden');
 }
 
+// Calcula el costo en monedas al comprar fichas
 function calcularCostoCambio(val) {
   const fichas = parseInt(val) || 0;
   const textoCosto = document.getElementById('exchange-cost-text');
   if (textoCosto) textoCosto.textContent = `Costo: ${fichas * 10} Monedas 🪙`;
 }
 
+// Procesa el cambio de monedas a fichas en el banco
 function realizarCambioMonedas() {
   const inputEl = document.getElementById('exchange-input');
   const cantidadInput = inputEl ? (parseInt(inputEl.value) || 0) : 0;
@@ -157,6 +141,7 @@ function realizarCambioMonedas() {
   sonarEfecto('powerup');
 }
 
+// Minijuego de tragamonedas
 function jugarSlots() {
   const costoFichas = 20;
   if (fichasCasino < costoFichas) {
@@ -197,6 +182,7 @@ function jugarSlots() {
   actualizarMonedasUI();
 }
 
+// Minijuego de ruleta
 function jugarRuleta(eleccion) {
   const costoFichas = 20;
   if (fichasCasino < costoFichas) {
@@ -225,6 +211,7 @@ function jugarRuleta(eleccion) {
   actualizarMonedasUI();
 }
 
+// Minijuego de apuestaa cara o cruz
 function jugarCaraOCruz(eleccion) {
   const inputApuesta = document.getElementById('coinflip-input');
   const apuestaMonedas = inputApuesta ? (parseInt(inputApuesta.value) || 0) : 0;
@@ -255,6 +242,7 @@ function jugarCaraOCruz(eleccion) {
   actualizarMonedasUI();
 }
 
+// Compra de elementos dentro de la tienda VIP del casino
 function comprarItemCasino(item, precio) {
   if (fichasCasino < precio) {
     alert("¡Necesitas más fichas! Consigue más en la Ruleta o cámbialas en el banco.");
@@ -282,6 +270,7 @@ function comprarItemCasino(item, precio) {
   alert("¡Compra VIP realizada!");
 }
 
+// Mantiene sincronizada la interfaz del jugador con el saldo guardado
 function actualizarMonedasUI() {
   localStorage.setItem('ballGameCoins', monedasTotales);
   localStorage.setItem('ballGameCasinoChips', fichasCasino);
@@ -292,6 +281,7 @@ function actualizarMonedasUI() {
   if (casinoFichasVal) casinoFichasVal.textContent = fichasCasino;
 }
 
+// Detecta si se juega en celular o PC desde el primer toque
 window.addEventListener('pointerdown', (e) => {
   inicializarAudio();
   if (e.pointerType === 'touch') {
@@ -326,19 +316,11 @@ if (contenedor) {
   });
 }
 
+// OPTIMIZACIÓN: Reducimos cálculo 3D para evitar tirones en laptops
 document.addEventListener('mousemove', (e) => {
-  if (!contenedor) return;
-  if (!esCel) {
-    const centroX = window.innerWidth / 2;
-    const centroY = window.innerHeight / 2;
-    const mouseX = e.clientX - centroX;
-    const mouseY = e.clientY - centroY;
-    const rotX = (-mouseY / centroY) * 12;
-    const rotY = (mouseX / centroX) * 12;
-    contenedor.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.02)`;
-  }
+  if (!contenedor || esCel) return;
 
-  if (estaPausado || !juegoActivo || esCel || !cursorPro) return;
+  if (estaPausado || !juegoActivo || !cursorPro) return;
   cursorPro.style.display = 'block';
 
   if (document.pointerLockElement === contenedor) {
@@ -355,12 +337,6 @@ document.addEventListener('mousemove', (e) => {
 
   cursorPro.style.left = `${posXVirtual}px`;
   cursorPro.style.top = `${posYVirtual}px`;
-});
-
-document.addEventListener('mouseleave', () => {
-  if (contenedor && !esCel) {
-    contenedor.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
-  }
 });
 
 document.addEventListener('mousedown', (e) => {
@@ -765,9 +741,10 @@ function actualizarRachaUI() {
   }
 }
 
+// Genera pequeñas partículas al presionar elementos en pantalla
 function sacarParticulas(x, y) {
   if (!contenedor) return;
-  const cantidad = 8;
+  const cantidad = 6; // OPTIMIZACIÓN: Bajamos de 8 a 6 partículas para que la GPU trabaje relajada en laptop
   for (let i = 0; i < cantidad; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
@@ -776,7 +753,7 @@ function sacarParticulas(x, y) {
     p.style.backgroundColor = colorActual;
 
     const angulo = Math.random() * Math.PI * 2;
-    const distancia = 30 + Math.random() * 40;
+    const distancia = 25 + Math.random() * 30;
     const dx = Math.cos(angulo) * distancia;
     const dy = Math.sin(angulo) * distancia;
 
@@ -784,7 +761,7 @@ function sacarParticulas(x, y) {
     p.style.setProperty('--dy', `${dy}px`);
 
     contenedor.appendChild(p);
-    setTimeout(() => p.remove(), 400);
+    setTimeout(() => p.remove(), 300);
   }
 }
 
@@ -795,6 +772,7 @@ function activarTemblorPantalla() {
   contenedor.classList.add('shake-screen');
 }
 
+// Acción principal al presionar la pelota
 function atraparPelota() {
   sonarEfecto('catch');
   if (bola && contenedor) {
@@ -828,6 +806,8 @@ function atraparPelota() {
   moverPelota();
 }
 
+// CORRECCIÓN Y VERSIÓN DEFINITIVA DE POWER-UPS:
+// Se solucionó el congelamiento congelante quitando llamadas recursivas y agregando un nuevo Power-Up de tiempo extra (+5s)
 function atraparPoder(pow) {
   sonarEfecto('powerup');
 
@@ -836,20 +816,23 @@ function atraparPoder(pow) {
     mostrarAvisoRacha('¡IMÁN ACTIVADO! 🧲');
     clearTimeout(tiempoImanTimeout);
     
-    // Solución al congelamiento: se maneja de forma segura sin bucle infinito
-    setTimeout(() => {
-      if (juegoActivo && !estaPausado && modoImanActivo) {
-        atraparPelota();
-      }
-    }, 400);
+    // El imán atrae la pelota de inmediato de forma segura sin trabar el hilo principal
+    if (juegoActivo && !estaPausado) {
+      atraparPelota();
+    }
 
     tiempoImanTimeout = setTimeout(() => {
       modoImanActivo = false;
-    }, 5000);
+    }, 4000);
   } else if (pow.classList.contains('powerup-bomb')) {
     trampasActivas.forEach(trap => trap.remove());
     trampasActivas = [];
     mostrarAvisoRacha('¡SUPERBOMBA! 💣');
+  } else if (pow.classList.contains('powerup-time')) {
+    // NUEVA MECÁNICA: Power-up verde que regala +5 segundos de tiempo
+    tiempoRestante += 5;
+    if (marcadorTiempo) marcadorTiempo.textContent = tiempoRestante;
+    mostrarAvisoRacha('¡+5 SEG EXTRA! ⏳');
   } else {
     puntos += 3 * multi;
     if (marcadorPuntos) marcadorPuntos.textContent = puntos;
@@ -873,6 +856,7 @@ function pegarTrampa(trap) {
   ajustarDificultad();
 }
 
+// Generador de poderes con nuevo tipo 'time'
 function spawnPowerUpGenerico(tipo, maxX, maxY, usados) {
   if (!contenedor || !bola) return;
   const pow = document.createElement('div');
@@ -883,6 +867,9 @@ function spawnPowerUpGenerico(tipo, maxX, maxY, usados) {
   } else if (tipo === 'bomb') {
     pow.className = 'powerup-bomb';
     pow.textContent = '💣';
+  } else if (tipo === 'time') {
+    pow.className = 'powerup-time';
+    pow.textContent = '⏳';
   } else {
     pow.className = 'powerup-ball';
   }
@@ -924,6 +911,7 @@ function spawnPowerUpGenerico(tipo, maxX, maxY, usados) {
   poderesActivos.push(pow);
 }
 
+// OPTIMIZACIÓN CLAVE: Función principal que reposiciona la pelota de forma ligera para no congelar la laptop
 function moverPelota() {
   if (!juegoActivo || estaPausado || !contenedor || !bola) return;
   clearTimeout(muevePelotaTimeout);
@@ -993,15 +981,19 @@ function moverPelota() {
     trampasActivas.push(trap);
   }
 
+  // Aparición aleatoria equilibrada de Power-Ups para hacer el juego mucho más divertido
   if (dificultadActual === 'medium') {
     const azar = Math.random();
     if (azar < 0.05) spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
-    else if (azar < 0.07) spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
-    else if (azar < 0.08) spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.08) spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.10) spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.13) spawnPowerUpGenerico('time', maxX, maxY, posicionesOcupadas);
   } else if (dificultadActual === 'hard') {
-    if (Math.random() < 0.05) spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
-    if (Math.random() < 0.03) spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
-    if (Math.random() < 0.02) spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
+    const azar = Math.random();
+    if (azar < 0.04) spawnPowerUpGenerico('gold', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.07) spawnPowerUpGenerico('magnet', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.09) spawnPowerUpGenerico('bomb', maxX, maxY, posicionesOcupadas);
+    else if (azar < 0.12) spawnPowerUpGenerico('time', maxX, maxY, posicionesOcupadas);
   }
 
   muevePelotaTimeout = setTimeout(() => {
@@ -1014,6 +1006,7 @@ function moverPelota() {
   }, velocidadActual);
 }
 
+// Ajuste dinámico de dificultad que evita aceleraciones exageradas en la pantalla
 function ajustarDificultad() {
   if (!bola) return;
   const baseTam = Math.max(TAMAÑO_MIN, TAMAÑO_INICIAL - puntos);
@@ -1021,9 +1014,10 @@ function ajustarDificultad() {
   bola.style.width = `${tamFinal}px`;
   bola.style.height = `${tamFinal}px`;
 
+  // OPTIMIZACIÓN: Se limita la velocidad máxima a 350ms para que las laptops no se traben con temporizadores milimétricos
   if (dificultadActual === 'easy') velocidadActual = 1600;
-  else if (dificultadActual === 'medium') velocidadActual = Math.max(500, 1200 - (puntos * 20));
-  else if (dificultadActual === 'hard') velocidadActual = Math.max(250, 800 - (puntos * 30));
+  else if (dificultadActual === 'medium') velocidadActual = Math.max(500, 1200 - (puntos * 18));
+  else if (dificultadActual === 'hard') velocidadActual = Math.max(350, 850 - (puntos * 25));
 
   if (extraTamaño === 0) {
     const indiceColor = Math.floor(Math.max(0, puntos) / 5) % paletaColores.length;
@@ -1046,6 +1040,7 @@ let gananciaMaster;
 let musicaActiva = false;
 let osciladorMusicaIntervalo;
 
+// Audio inicializado con baja latencia
 function inicializarAudio() {
   try {
     if (!contextoAudio) {
